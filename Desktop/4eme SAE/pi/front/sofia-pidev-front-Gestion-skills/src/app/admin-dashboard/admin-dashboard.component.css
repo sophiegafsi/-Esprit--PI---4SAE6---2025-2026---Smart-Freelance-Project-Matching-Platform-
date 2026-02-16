@@ -1,0 +1,115 @@
+.page {
+    padding: 40px 0 60px;
+    min-height: calc(100vh - 80px);
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.dashboard-header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+}
+
+.dashboard-header p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--muted);
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+}
+
+.loading-text,
+.error-text {
+    text-align: center;
+    font-weight: 800;
+    color: var(--muted);
+    margin: 0;
+}
+
+.error-text {
+    color: #f2994a;
+}
+
+.users-table-wrapper {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table thead {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.users-table th {
+    padding: 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.85);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.users-table td {
+    padding: 16px;
+    font-size: 14px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.users-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.users-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-badge.admin {
+    background: rgba(242, 153, 74, 0.2);
+    color: #f2994a;
+    border: 1px solid rgba(242, 153, 74, 0.3);
+}
+
+.role-badge.freelancer {
+    background: rgba(47, 128, 237, 0.2);
+    color: #2f80ed;
+    border: 1px solid rgba(47, 128, 237, 0.3);
+}
+
+.role-badge.client {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}

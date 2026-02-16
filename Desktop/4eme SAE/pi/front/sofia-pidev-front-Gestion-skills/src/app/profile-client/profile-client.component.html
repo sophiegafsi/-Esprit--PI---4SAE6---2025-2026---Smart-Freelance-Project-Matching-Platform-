@@ -1,0 +1,105 @@
+<!-- HERO SECTION -->
+<section class="hero">
+    <div class="container hero-inner">
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <div class="image-container">
+                <img [src]="clientView.image" [alt]="clientView.name" class="profile-image">
+                <div *ngIf="isEditing" class="image-overlay" (click)="fileInput.click()">
+                    <span>Changer la photo</span>
+                </div>
+            </div>
+
+            <!-- Hidden file input -->
+            <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none" accept="image/*">
+
+            <!-- VIEW MODE -->
+            <ng-container *ngIf="!isEditing">
+                <h1 class="profile-name">{{ clientView.name }}</h1>
+                <p class="profile-title">Client Account</p>
+                <button class="btn clear" (click)="toggleEdit()">Modifier le Profil</button>
+            </ng-container>
+
+            <!-- EDIT MODE (Image URL) -->
+            <ng-container *ngIf="isEditing">
+                <div class="edit-form-inline">
+                    <input type="text" [(ngModel)]="editUser.imageUrl" placeholder="URL de l'image"
+                        class="form-control">
+                </div>
+            </ng-container>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="hero-content">
+            <!-- VIEW MODE -->
+            <ng-container *ngIf="!isEditing">
+                <h2 class="hero-title">Espace Client: {{ clientView.name }}</h2>
+                <p class="hero-subtitle">Gérez vos informations personnelles et vos projets ici.</p>
+            </ng-container>
+
+            <!-- EDIT MODE (Name) -->
+            <ng-container *ngIf="isEditing">
+                <div class="edit-form glass">
+                    <div class="form-header">
+                        <h3>Informations Personnelles</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Prénom</label>
+                            <input type="text" [(ngModel)]="editUser.firstName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Nom</label>
+                            <input type="text" [(ngModel)]="editUser.lastName" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<main class="content">
+    <div class="container">
+        <!-- Details Section -->
+        <section class="section">
+            <h2 class="section-title">Détails du Compte</h2>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <label>Email</label>
+                    <span>{{ clientView.email }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Pays</label>
+                    <span *ngIf="!isEditing">{{ clientView.country }}</span>
+                    <input *ngIf="isEditing" type="text" [(ngModel)]="editUser.country" class="form-control"
+                        placeholder="Votre pays">
+                </div>
+                <div class="detail-item">
+                    <label>Date de naissance</label>
+                    <span *ngIf="!isEditing">{{ clientView.birthDate }}</span>
+                    <input *ngIf="isEditing" type="date" [(ngModel)]="editUser.birthDate" class="form-control">
+                </div>
+            </div>
+        </section>
+
+        <!-- Project Placeholder for Clients -->
+        <section class="section">
+            <h2 class="section-title">Mes Projets</h2>
+            <p class="section-text" style="opacity: 0.6;">Retrouvez bientôt ici la liste de vos projets en cours...</p>
+        </section>
+
+        <!-- Global Edit Actions (at bottom) -->
+        <div *ngIf="isEditing" class="edit-footer section glass">
+            <div class="edit-footer-content">
+                <p>Enregistrer vos modifications ?</p>
+                <div class="edit-actions">
+                    <button class="btn primary" (click)="saveProfile()">Sauvegarder</button>
+                    <button class="btn ghost" (click)="cancelEdit()">Annuler</button>
+                    <button class="btn danger" (click)="deleteProfile()">Supprimer mon compte</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

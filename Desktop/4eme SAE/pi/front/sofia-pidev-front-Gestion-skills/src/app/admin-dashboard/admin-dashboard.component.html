@@ -1,0 +1,39 @@
+<div class="page">
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Admin Dashboard</h1>
+            <p>Manage all users in the system</p>
+        </div>
+
+        <div class="card" *ngIf="loading">
+            <p class="loading-text">Loading users...</p>
+        </div>
+
+        <div class="card" *ngIf="error">
+            <p class="error-text">{{ error }}</p>
+        </div>
+
+        <div class="users-table-wrapper" *ngIf="!loading && !error">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Job Title</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let user of users">
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.firstName }} {{ user.lastName }}</td>
+                        <td><span class="role-badge" [class]="user.role">{{ user.role }}</span></td>
+                        <td>{{ user.jobTitle || '-' }}</td>
+                        <td>{{ user.createdAt | date:'short' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,67 @@
+server:
+  port: 8081   # Port de ton API-Gateway
+  error:
+    whitelabel:
+      enabled: false  # désactive la page Whitelabel
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        # Route pour le microservice "Evaluation"
+        - id: evaluation-service
+          uri: http://localhost:8085       # port du microservice Evaluation
+          predicates:
+            - Path=/evaluation/**
+          filters:
+            - StripPrefix=1
+
+        # Route pour le microservice "Utilisateur"
+        - id: user-service
+          uri: http://localhost:8082       # port du microservice Utilisateur
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+
+        # Route pour le microservice "skills"
+        - id: skills-service
+          uri: http://localhost:8084       # port du microservice skills
+          predicates:
+            - Path=/skills/**
+          filters:
+            - StripPrefix=1
+        # Route pour le microservice "projet"
+        - id: projet-service
+          uri: http://localhost:8086       # port du microservice projet
+          predicates:
+            - Path=/projet/**
+          filters:
+            - StripPrefix=1
+
+    discovery:
+      locator:
+        enabled: true   # active la découverte automatique via Eureka
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+

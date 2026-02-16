@@ -1,0 +1,141 @@
+/* PAGE */
+.page {
+  padding: 40px 0 60px;
+}
+
+.center-wrap {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 140px);
+}
+
+/* LOGIN CARD */
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+.login-head {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-head h1 {
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.login-head p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+/* FORM */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, .85);
+}
+
+.field input {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  background: rgba(255, 255, 255, .06);
+  color: #fff;
+  font-weight: 800;
+  outline: none;
+}
+
+.field input::placeholder {
+  color: rgba(255, 255, 255, .55);
+}
+
+.field input:focus {
+  border-color: rgba(47, 128, 237, .45);
+}
+
+/* ROW */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .8);
+}
+
+.remember input {
+  accent-color: #2f80ed;
+}
+
+.link {
+  color: rgba(255, 255, 255, .9);
+  font-weight: 900;
+}
+
+.link:hover {
+  text-decoration: underline
+}
+
+/* DIVIDER */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, .14);
+}
+
+.divider span {
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, .7);
+}
+
+/* BOTTOM */
+.bottom-text {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .8);
+}
+
+.bottom-text .link {
+  margin-left: 4px;
+}

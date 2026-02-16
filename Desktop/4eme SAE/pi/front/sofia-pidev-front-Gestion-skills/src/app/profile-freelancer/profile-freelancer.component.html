@@ -1,0 +1,125 @@
+<!-- HERO SECTION -->
+<section class="hero">
+  <div class="container hero-inner">
+    <!-- Profile Card -->
+    <div class="profile-card">
+      <div class="image-container">
+        <img [src]="freelancerView.image" [alt]="freelancerView.name" class="profile-image">
+        <div *ngIf="isEditing" class="image-overlay" (click)="fileInput.click()">
+          <span>Changer la photo</span>
+        </div>
+      </div>
+
+      <!-- Hidden file input -->
+      <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none" accept="image/*">
+
+      <!-- VIEW MODE -->
+      <ng-container *ngIf="!isEditing">
+        <h1 class="profile-name">{{ freelancerView.name }}</h1>
+        <p class="profile-title">{{ freelancerView.title }}</p>
+        <button class="btn clear" (click)="toggleEdit()">Modifier le Profil</button>
+      </ng-container>
+
+      <!-- EDIT MODE (Image URL) -->
+      <ng-container *ngIf="isEditing">
+        <div class="edit-form-inline">
+          <input type="text" [(ngModel)]="editUser.imageUrl" placeholder="URL de l'image" class="form-control">
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Hero Content -->
+    <div class="hero-content">
+      <!-- VIEW MODE -->
+      <ng-container *ngIf="!isEditing">
+        <h2 class="hero-title">Bonjour, je suis {{ freelancerView.name }}</h2>
+        <p class="hero-subtitle">{{ freelancerView.title }}</p>
+      </ng-container>
+
+      <!-- EDIT MODE (Name & Title) -->
+      <ng-container *ngIf="isEditing">
+        <div class="edit-form glass">
+          <div class="form-header">
+            <h3>Informations Personnelles</h3>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Prénom</label>
+              <input type="text" [(ngModel)]="editUser.firstName" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Nom</label>
+              <input type="text" [(ngModel)]="editUser.lastName" class="form-control">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Titre Professionnel</label>
+            <input type="text" [(ngModel)]="editUser.jobTitle" class="form-control"
+              placeholder="ex: Développeur Senior">
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<main class="content">
+  <div class="container">
+    <!-- About Section -->
+    <section class="section">
+      <h2 class="section-title">À propos</h2>
+      <p *ngIf="!isEditing" class="section-text">{{ freelancerView.about }}</p>
+      <textarea *ngIf="isEditing" [(ngModel)]="editUser.bio" class="form-control textarea"
+        placeholder="Décrivez votre parcours..."></textarea>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="section">
+      <h2 class="section-title">Compétences</h2>
+      <div *ngIf="!isEditing" class="skills">
+        <span *ngFor="let skill of skills" class="skill-badge">{{ skill.name }}</span>
+      </div>
+      <div *ngIf="isEditing">
+        <input type="text" [(ngModel)]="editUser.skills" placeholder="Compétences (séparées par des virgules)"
+          class="form-control">
+        <p class="form-help">Séparez vos compétences par des virgules (ex: HTML, CSS, Angular)</p>
+      </div>
+    </section>
+
+    <!-- Projects Section (Coming soon) -->
+    <section class="section">
+      <h2 class="section-title">Projets Récents</h2>
+      <p class="section-text" style="opacity: 0.6;">Fonctionnalité de gestion des projets à venir...</p>
+    </section>
+
+    <!-- Rating Section -->
+    <section class="section rating-section">
+      <div class="rating-left">
+        <h2 class="section-title">Avis Clients <span class="stars">★★★★★</span></h2>
+        <p class="rating-text">{{ freelancerView.ratingText }}</p>
+      </div>
+      <div class="rating-right">
+        <h2 class="section-title">
+          Tarif Horaire:
+          <span *ngIf="!isEditing">{{ freelancerView.rate }}{{ freelancerView.rateUnit }}</span>
+          <div *ngIf="isEditing" class="rate-edit">
+            <input type="number" [(ngModel)]="editUser.hourlyRate" class="form-control small">
+            <span>€ / h</span>
+          </div>
+        </h2>
+      </div>
+    </section>
+    <!-- Global Edit Actions (at bottom) -->
+    <div *ngIf="isEditing" class="edit-footer section glass">
+      <div class="edit-footer-content">
+        <p>Prêt à mettre à jour votre profil ?</p>
+        <div class="edit-actions">
+          <button class="btn primary" (click)="saveProfile()">Enregistrer les modifications</button>
+          <button class="btn ghost" (click)="cancelEdit()">Annuler</button>
+          <button class="btn danger" (click)="deleteProfile()">Supprimer le profil</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

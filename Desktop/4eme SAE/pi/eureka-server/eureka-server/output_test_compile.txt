@@ -1,0 +1,57 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.example:eureka-server >----------------------
+[INFO] Building eureka-server 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ eureka-server ---
+[INFO] Deleting C:\Users\yusff\Desktop\4eme SAE\pi\eureka-server\eureka-server\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ eureka-server ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ eureka-server ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 1 source file with javac [debug release 17] to target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ eureka-server ---
+[INFO] skip non existing resourceDirectory C:\Users\yusff\Desktop\4eme SAE\pi\eureka-server\eureka-server\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ eureka-server ---
+[INFO] Changes detected - recompiling the module! :dependency
+[INFO] Compiling 1 source file with javac [debug release 17] to target\test-classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/yusff/Desktop/4eme SAE/pi/eureka-server/eureka-server/src/test/java/com/example/eureka_server/EurekaServerApplicationTests.java:[3,29] package org.junit.jupiter.api does not exist
+[ERROR] /C:/Users/yusff/Desktop/4eme SAE/pi/eureka-server/eureka-server/src/test/java/com/example/eureka_server/EurekaServerApplicationTests.java:[4,45] package org.springframework.boot.test.context does not exist
+[ERROR] /C:/Users/yusff/Desktop/4eme SAE/pi/eureka-server/eureka-server/src/test/java/com/example/eureka_server/EurekaServerApplicationTests.java:[6,2] cannot find symbol
+  symbol: class SpringBootTest
+[ERROR] /C:/Users/yusff/Desktop/4eme SAE/pi/eureka-server/eureka-server/src/test/java/com/example/eureka_server/EurekaServerApplicationTests.java:[9,10] cannot find symbol
+  symbol:   class Test
+  location: class com.example.eureka_server.EurekaServerApplicationTests
+[INFO] 4 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.729 s
+[INFO] Finished at: 2026-02-15T19:39:19+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:testCompile (default-testCompile) on project eureka-server: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/yusff/Desktop/4eme SAE/pi/eureka-server/eureka-server/src/test/java/com/example/eureka_server/EurekaServerApplicationTests.java:[3,29] package org.junit.jupiter.api does not exist
+[ERROR] /C:/Users/yusff/Desktop/4eme SAE/pi/eureka-server/eureka-server/src/test/java/com/example/eureka_server/EurekaServerApplicationTests.java:[4,45] package org.springframework.boot.test.context does not exist
+[ERROR] /C:/Users/yusff/Desktop/4eme SAE/pi/eureka-server/eureka-server/src/test/java/com/example/eureka_server/EurekaServerApplicationTests.java:[6,2] cannot find symbol
+[ERROR]   symbol: class SpringBootTest
+[ERROR] /C:/Users/yusff/Desktop/4eme SAE/pi/eureka-server/eureka-server/src/test/java/com/example/eureka_server/EurekaServerApplicationTests.java:[9,10] cannot find symbol
+[ERROR]   symbol:   class Test
+[ERROR]   location: class com.example.eureka_server.EurekaServerApplicationTests
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

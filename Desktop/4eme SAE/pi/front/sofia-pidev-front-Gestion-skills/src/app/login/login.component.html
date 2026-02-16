@@ -1,0 +1,50 @@
+<main class="page">
+  <div class="container center-wrap">
+
+    <div class="login-card">
+      <div class="login-head">
+        <h1>Welcome back 👋</h1>
+        <p>Login to your FreeLink account</p>
+      </div>
+
+      <form class="login-form" (ngSubmit)="onLogin()">
+        <div class="field">
+          <label for="email">Email address</label>
+          <input id="email" type="email" placeholder="you@example.com" [(ngModel)]="email" name="email" required />
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" placeholder="••••••••" [(ngModel)]="password" name="password" required />
+        </div>
+
+        <div class="row">
+          <label class="remember">
+            <input type="checkbox" />
+            <span>Remember me</span>
+          </label>
+          <a class="link" routerLink="/forgot-password">Forgot password?</a>
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message"
+          style="color: #ff6b6b; font-size: 13px; font-weight: bold; text-align: center;">
+          {{ errorMessage }}
+        </div>
+
+        <button class="btn orange full" type="submit">Login</button>
+
+        <div class="divider">
+          <span>or</span>
+        </div>
+
+        <button class="btn ghost full" type="button">Continue with Google</button>
+
+        <p class="bottom-text">
+          Don’t have an account?
+          <a routerLink="/signup" class="link">Create one</a>
+        </p>
+      </form>
+    </div>
+
+  </div>
+</main>

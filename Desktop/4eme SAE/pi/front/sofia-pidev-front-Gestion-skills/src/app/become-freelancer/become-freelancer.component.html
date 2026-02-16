@@ -1,0 +1,46 @@
+<main class="page">
+    <div class="container center-wrap">
+        <div class="card form-card">
+            <div class="head">
+                <h1>Become a Freelancer 🚀</h1>
+                <p>Complete your profile to start receiving job offers.</p>
+            </div>
+
+            <form class="form" (ngSubmit)="onSubmit()">
+                <div class="field">
+                    <label for="jobTitle">Job Title</label>
+                    <input id="jobTitle" type="text" placeholder="e.g. Senior Java Developer"
+                        [(ngModel)]="profile.jobTitle" name="jobTitle" required />
+                </div>
+
+                <div class="field">
+                    <label for="bio">Bio</label>
+                    <textarea id="bio" rows="4" placeholder="Briefly describe your experience..."
+                        [(ngModel)]="profile.bio" name="bio" required></textarea>
+                </div>
+
+                <div class="field">
+                    <label for="skills">Skills (comma separated)</label>
+                    <input id="skills" type="text" placeholder="Java, Spring, Angular, Docker"
+                        [(ngModel)]="profile.skills" name="skills" required />
+                </div>
+
+                <div class="two">
+                    <div class="field">
+                        <label for="hourlyRate">Hourly Rate ($)</label>
+                        <input id="hourlyRate" type="number" placeholder="50" [(ngModel)]="profile.hourlyRate"
+                            name="hourlyRate" required />
+                    </div>
+
+                    <div class="field">
+                        <label for="portfolioUrl">Portfolio URL</label>
+                        <input id="portfolioUrl" type="url" placeholder="https://github.com/..."
+                            [(ngModel)]="profile.portfolioUrl" name="portfolioUrl" />
+                    </div>
+                </div>
+
+                <button class="btn orange full" type="submit">Complete Profile</button>
+            </form>
+        </div>
+    </div>
+</main>

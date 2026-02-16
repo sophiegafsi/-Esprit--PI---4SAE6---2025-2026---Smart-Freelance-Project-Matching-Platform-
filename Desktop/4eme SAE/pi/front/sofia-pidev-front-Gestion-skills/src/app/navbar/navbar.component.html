@@ -1,0 +1,35 @@
+<header class="navbar">
+    <div class="container nav-inner">
+        <a class="brand" routerLink="/">
+            <span class="logo"></span>
+            <span>FreeLink</span>
+        </a>
+
+        <nav class="nav-links">
+            <a routerLink="/">Home</a>
+            <a href="#">Browse Freelancers</a>
+            <a href="#">Post a Job</a>
+            <a href="#">How it works</a>
+            <a *ngIf="isAdmin" routerLink="/admin/dashboard" routerLinkActive="active">Admin Dashboard</a>
+            <a *ngIf="isFreelancer" routerLink="/profile-freelancer" routerLinkActive="active">My Profile</a>
+            <a *ngIf="isClient && !isFreelancer" routerLink="/profile-client" routerLinkActive="active">My Profile</a>
+            <a *ngIf="!isLoggedIn" routerLink="/login" routerLinkActive="active">Login</a>
+            <a *ngIf="!isLoggedIn" routerLink="/signup" routerLinkActive="active">Sign Up</a>
+        </nav>
+
+        <div class="nav-actions">
+            <a *ngIf="isLoggedIn && !isFreelancer" class="btn primary" routerLink="/become-freelancer"
+                style="margin-right: 10px;">Become
+                a Freelancer</a>
+            <span *ngIf="isLoggedIn" style="margin-right: 15px; font-size: 14px; color: var(--text-muted);">
+                {{ currentUser?.email }}
+            </span>
+            <ng-container *ngIf="!isLoggedIn">
+                <a class="btn ghost" routerLink="/signup">Register</a>
+            </ng-container>
+            <ng-container *ngIf="isLoggedIn">
+                <a class="btn ghost" (click)="logout()">Logout</a>
+            </ng-container>
+        </div>
+    </div>
+</header>
