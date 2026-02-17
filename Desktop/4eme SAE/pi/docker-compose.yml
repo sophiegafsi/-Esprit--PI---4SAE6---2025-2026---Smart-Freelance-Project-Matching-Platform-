@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   keycloak:
-    image: keycloak-yesterday
-    container_name: keycloak-yesterday
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
     ports:
       - "8080:8080"
     environment:
@@ -14,8 +12,8 @@ services:
       - mailhog
 
   mailhog:
-    image: mailhog-yesterday
-    container_name: mailhog-yesterday
+    image: mailhog/mailhog:latest
+    container_name: mailhog
     ports:
       - "1025:1025"
       - "8025:8025"

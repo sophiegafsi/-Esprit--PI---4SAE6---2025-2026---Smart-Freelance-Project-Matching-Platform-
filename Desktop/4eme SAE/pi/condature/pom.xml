@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>freelink</groupId>
-    <artifactId>condature</artifactId>
+    <artifactId>condidature</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>condature</name>
-    <description>condature</description>
+    <name>Condidature</name>
+    <description>Condidature project</description>
     <url/>
     <licenses>
         <license/>
@@ -29,6 +29,7 @@
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2025.1.0</spring-cloud.version>
+        <skipTests>true</skipTests>
     </properties>
     <dependencies>
         <dependency>
