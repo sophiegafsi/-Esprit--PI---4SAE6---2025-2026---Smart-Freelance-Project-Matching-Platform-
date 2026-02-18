@@ -1,0 +1,16 @@
+<div *ngIf="loading">Loading...</div>
+
+<div *ngIf="errorMessage" style="color:red;">
+  {{ errorMessage }}
+</div>
+
+<ul *ngIf="!loading && formations.length > 0">
+  <li *ngFor="let f of formations">
+    <!-- Adapte les noms selon ce que tu vois dans la console -->
+    <strong>{{ f.titre }}</strong> - {{ f.description }}
+  </li>
+</ul>
+
+<div *ngIf="!loading && formations.length === 0">
+  Aucune formation trouvée.
+</div>

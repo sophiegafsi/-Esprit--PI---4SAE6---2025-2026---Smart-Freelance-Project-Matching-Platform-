@@ -1,0 +1,104 @@
+<!-- TOP NAV -->
+<header class="navbar">
+  <div class="container nav-inner">
+    <a class="brand" [routerLink]="['/trainings']">
+      <span class="logo"></span>
+      <span>FreeLink</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="#">Dashboard</a>
+      <a class="active" [routerLink]="['/trainings']">Trainings</a>
+      <a href="#">Projects</a>
+      <a href="#">Messages</a>
+      <a href="#">Profile</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="btn ghost" type="button" (click)="back()">← Back</button>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="container" *ngIf="formation; else notFound">
+
+    <!-- HERO -->
+    <section class="card hero">
+      <div class="hero-left">
+        <div class="chips">
+          <span class="chip"
+                [ngClass]="{
+              published: formation.status === 'PUBLISHED',
+              draft: formation.status === 'DRAFT',
+              archived: formation.status === 'ARCHIVED'
+            }"
+          >
+            {{ formation.status }}
+          </span>
+
+          <span class="chip soft">
+            Created: {{ formation.createdAt | date:'yyyy-MM-dd' }}
+          </span>
+
+          <span class="chip soft">
+            Lessons: {{ formation.lessons.length }}
+          </span>
+        </div>
+
+        <h1 class="hero-title">{{ formation.titre }}</h1>
+        <p class="hero-desc">{{ formation.description }}</p>
+      </div>
+
+      <div class="hero-right">
+        <button class="btn orange" type="button" (click)="startFinalQuiz()">
+          Final Quiz
+        </button>
+      </div>
+    </section>
+
+    <!-- LESSONS -->
+    <section class="section-head">
+      <div>
+        <h2>Lessons</h2>
+        <p>Open a lesson, then take its quiz.</p>
+      </div>
+    </section>
+
+    <section class="list">
+      <article class="card lesson" *ngFor="let l of formation.lessons">
+        <div class="lesson-left">
+          <div class="lesson-index">
+            {{ l.orderIndex < 10 ? ('0' + l.orderIndex) : l.orderIndex }}
+          </div>
+
+          <div class="lesson-info">
+            <h3 class="lesson-title">{{ l.title }}</h3>
+            <p class="lesson-desc">{{ l.description }}</p>
+          </div>
+        </div>
+
+        <div class="lesson-actions">
+          <button class="btn ghost" type="button" (click)="viewLesson(l.id)">
+            View Lesson
+          </button>
+
+          <button class="btn orange" type="button" (click)="startLessonQuiz(l.id)">
+            Start Quiz
+          </button>
+        </div>
+      </article>
+    </section>
+
+  </div>
+
+  <ng-template #notFound>
+    <div class="container">
+      <div class="card empty">
+        <h2>Training not found</h2>
+        <p>The training ID in the URL does not exist.</p>
+        <button class="btn orange" type="button" (click)="back()">Back to Trainings</button>
+      </div>
+    </div>
+  </ng-template>
+</main>

@@ -1,0 +1,14 @@
+<h2>Ajouter une formation</h2>
+
+<div>
+  <input [(ngModel)]="titre" placeholder="Titre" />
+</div>
+<div>
+  <input [(ngModel)]="description" placeholder="Description" />
+</div>
+
+<button (click)="submit()" [disabled]="loading">
+  {{ loading ? 'En cours...' : 'Ajouter' }}
+</button>
+
+<p>{{ message }}</p>
