@@ -1,0 +1,115 @@
+/* Background */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Card */
+.evaluation-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 550px;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.6s ease;
+}
+
+/* Title */
+h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #203a43;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 25px;
+}
+
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+/* Inputs */
+select,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #2c5364;
+  box-shadow: 0 0 8px rgba(44, 83, 100, 0.3);
+}
+
+/* Stars */
+.stars span {
+  font-size: 30px;
+  cursor: pointer;
+  color: #ddd;
+  margin-right: 8px;
+  transition: 0.2s;
+}
+
+.stars span:hover {
+  transform: scale(1.2);
+}
+
+.stars span.active {
+  color: #ffb400;
+}
+
+/* Button */
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  border-radius: 40px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #ff7a18, #ffb347);
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-submit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(255, 122, 24, 0.4);
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  font-weight: 500;
+  color: #666;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

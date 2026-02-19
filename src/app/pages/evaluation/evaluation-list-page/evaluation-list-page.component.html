@@ -1,0 +1,64 @@
+<div class="list-page">
+
+  <div class="list-card">
+
+    <div class="header">
+      <h1>Evaluation List</h1>
+
+      <button class="btn-create" routerLink="/evaluations/new">
+        + Create Evaluation
+      </button>
+    </div>
+
+    <div class="table-wrapper">
+
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Score</th>
+            <th>Comment</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let eval of evaluations">
+
+            <td>
+              {{ eval.typeEvaluation === 'CLIENT_TO_FREELANCER'
+                ? 'Client → Freelancer'
+                : 'Freelancer → Client' }}
+            </td>
+
+            <td>
+              <span class="score-badge">
+                ★ {{ eval.score }}
+              </span>
+            </td>
+
+            <td class="comment-cell">
+              {{ eval.comment }}
+            </td>
+
+            <td class="actions">
+              <button class="btn-update"
+                      [routerLink]="['/evaluations', eval.idE, 'edit']">
+                Edit
+              </button>
+
+              <button class="btn-delete"
+                      (click)="deleteEvaluation(eval.idE)">
+                Delete
+              </button>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+
+</div>

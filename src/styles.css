@@ -1,0 +1,120 @@
+/* Full page background */
+.edit-page {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+/* Big centered card */
+.edit-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 750px;
+  padding: 50px;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.5s ease;
+}
+
+/* Title */
+.edit-card h1 {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 40px;
+  color: #1e3c72;
+  font-weight: 600;
+}
+
+/* Form sections */
+.form-section {
+  margin-bottom: 30px;
+}
+
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+/* Inputs */
+textarea,
+select {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+textarea {
+  min-height: 120px;
+  resize: none;
+}
+
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #2a5298;
+  box-shadow: 0 0 10px rgba(42, 82, 152, 0.3);
+}
+
+/* Stars */
+.stars span {
+  font-size: 32px;
+  cursor: pointer;
+  color: #ddd;
+  margin-right: 10px;
+  transition: 0.2s;
+}
+
+.stars span:hover {
+  transform: scale(1.2);
+}
+
+.stars span.active {
+  color: #ffb400;
+}
+
+/* Save button */
+.btn-save {
+  width: 100%;
+  padding: 16px;
+  border-radius: 50px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #ff7a18, #ffb347);
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-save:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(255, 122, 24, 0.4);
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  font-size: 16px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

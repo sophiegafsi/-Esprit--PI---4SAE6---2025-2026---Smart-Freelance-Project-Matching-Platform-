@@ -1,0 +1,38 @@
+<div class="page-wrapper">
+  <div class="evaluation-card">
+
+    <h2>Create a Review</h2>
+
+    <div class="form-group">
+      <label>Review Type</label>
+      <select [(ngModel)]="typeEvaluation" (change)="setQuestions()">
+        <option value="CLIENT_TO_FREELANCER">Client → Freelancer</option>
+        <option value="FREELANCER_TO_CLIENT">Freelancer → Client</option>
+      </select>
+    </div>
+
+    <div class="question-block" *ngFor="let q of questions; let i = index">
+      <p class="question-title">{{ q }}</p>
+
+      <div class="stars">
+        <span *ngFor="let s of [1,2,3,4,5]"
+              (click)="selectScore(i,s)"
+              [class.active]="s <= scores[i]">
+          ★
+        </span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Comment</label>
+      <textarea [(ngModel)]="evaluation.comment"
+                placeholder="Write your comment...">
+      </textarea>
+    </div>
+
+    <button class="btn-submit" (click)="submit()">
+      Submit Review
+    </button>
+
+  </div>
+</div>

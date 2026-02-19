@@ -1,0 +1,44 @@
+<div class="edit-page">
+
+  <div class="edit-card">
+
+    <h1>Edit Evaluation</h1>
+
+    <div *ngIf="loading" class="loading">
+      Loading review...
+    </div>
+
+    <div *ngIf="!loading">
+
+      <!-- SCORE -->
+      <div class="form-section">
+        <label>Score</label>
+
+        <div class="stars">
+          <span *ngFor="let s of [1,2,3,4,5]"
+                (click)="model.score = s"
+                [class.active]="s <= model.score">
+            ★
+          </span>
+        </div>
+      </div>
+
+      <!-- COMMENT -->
+      <div class="form-section">
+        <label>Comment</label>
+        <textarea [(ngModel)]="model.comment"
+                  placeholder="Update your feedback...">
+        </textarea>
+      </div>
+
+    
+
+      <button class="btn-save" (click)="save()">
+        Save Changes
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

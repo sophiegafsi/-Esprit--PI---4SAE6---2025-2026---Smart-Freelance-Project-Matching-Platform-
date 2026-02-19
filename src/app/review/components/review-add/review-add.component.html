@@ -1,0 +1,51 @@
+<div class="form-page">
+
+  <div class="form-card-large">
+
+    <h1>Add Review</h1>
+
+    <form (ngSubmit)="addReview()">
+
+      <div class="form-row">
+
+        <!-- LEFT SIDE -->
+        <div class="form-section">
+          <label>Comment</label>
+          <textarea [(ngModel)]="review.comment"
+                    name="comment"
+                    placeholder="Write your feedback...">
+          </textarea>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="form-section score-section">
+          <label>Score</label>
+
+          <div class="stars">
+            <span *ngFor="let s of [1,2,3,4,5]"
+                  (click)="review.score = s"
+                  [class.active]="s <= review.score">
+              ★
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn-primary">
+          Submit Review
+        </button>
+
+        <button type="button"
+                class="btn-cancel"
+                (click)="cancel()">
+          Cancel
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
