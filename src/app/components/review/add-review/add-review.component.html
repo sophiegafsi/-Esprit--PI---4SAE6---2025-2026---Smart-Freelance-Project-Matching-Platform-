@@ -1,0 +1,27 @@
+<div class="add-review-container">
+  <div class="form-card">
+    <h2>Nouvel avis</h2>
+
+    <form (ngSubmit)="submit()">
+      <div class="form-group">
+        <label for="evaluatorName">Votre nom</label>
+        <input type="text" id="evaluatorName" class="form-control" [(ngModel)]="review.evaluatorName" name="evaluatorName" placeholder="ex: Hajer" required>
+      </div>
+
+      <div class="form-group">
+        <label for="score">Note (1-5)</label>
+        <input type="number" id="score" class="form-control" min="1" max="5" [(ngModel)]="review.score" name="score" placeholder="0" required>
+      </div>
+
+      <div class="form-group">
+        <label for="comment">Commentaire</label>
+        <textarea id="comment" class="form-control" [(ngModel)]="review.comment" name="comment" rows="4" placeholder="Votre commentaire..." required></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Créer</button>
+        <button type="button" class="btn btn-secondary" routerLink="/reviews">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>

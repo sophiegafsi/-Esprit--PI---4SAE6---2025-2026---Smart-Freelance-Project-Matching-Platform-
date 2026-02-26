@@ -6,31 +6,39 @@ import { AccueilComponent } from './accueil/accueil.component';
 import { ProfileJobComponent } from './profile-job/profile-job.component';
 import { ProfileFreelancerComponent } from './profile-freelancer/profile-freelancer.component';
 
-// Evaluation
-import { EvaluationCreateComponent } from './pages/evaluation/evaluation-create/evaluation-create.component';
-import { EvaluationListPageComponent } from './pages/evaluation/evaluation-list-page/evaluation-list-page.component';
-import { EvaluationEditComponent } from './pages/evaluation/evaluation-edit/evaluation-edit.component';
+import { DashboardClientComponent } from './dashboard-client/dashboard-client.component';
+import { ListEvaluationComponent } from './components/evaluation/list-evaluation/list-evaluation.component';
+import { AddEvaluationComponent } from './components/evaluation/add-evaluation/add-evaluation.component';
+import { EditEvaluationComponent } from './components/evaluation/edit-evaluation/edit-evaluation.component';
 
 // Review
-import { ReviewListComponent } from './review/components/review-list/review-list.component';
-import { ReviewAddComponent } from './review/components/review-add/review-add.component';
-import { ReviewEditComponent } from './review/components/review-edit/review-edit.component';
+import { ListReviewComponent } from './components/review/list-review/list-review.component';
+import { AddReviewComponent } from './components/review/add-review/add-review.component';
+import { EditReviewComponent } from './components/review/edit-review/edit-review.component';
+
+// Historique
+import { HistoriqueComponent } from './historique/historique.component';
 
 const routes: Routes = [
   { path: '', component: AccueilComponent },
   { path: 'accueil', component: AccueilComponent },
   { path: 'profile-job', component: ProfileJobComponent },
   { path: 'profile-freelancer', component: ProfileFreelancerComponent },
+  { path: 'dashboard', component: DashboardClientComponent },
 
-  // Evaluation
-  { path: 'evaluations', component: EvaluationListPageComponent },
-  { path: 'evaluations/new', component: EvaluationCreateComponent },
-  { path: 'evaluations/:id/edit', component: EvaluationEditComponent },
+  // Evaluation Routes
+  { path: '', redirectTo: '/evaluations', pathMatch: 'full' },
+  { path: 'evaluations', component: ListEvaluationComponent },
+  { path: 'evaluations/add', component: AddEvaluationComponent },
+  { path: 'evaluations/edit/:id', component: EditEvaluationComponent },
+  { path: 'evaluations/history', component: HistoriqueComponent },
+  // Review Routes
+  { path: 'reviews', component: ListReviewComponent },
+  { path: 'reviews/add', component: AddReviewComponent },
+  { path: 'reviews/edit/:id', component: EditReviewComponent },
 
-  // Review
-  { path: 'reviews', component: ReviewListComponent },
-  { path: 'reviews/add/:evaluationId', component: ReviewAddComponent },
-  { path: 'reviews/edit/:id', component: ReviewEditComponent },
+  // Historique
+
 
   { path: '**', redirectTo: '' }
 ];

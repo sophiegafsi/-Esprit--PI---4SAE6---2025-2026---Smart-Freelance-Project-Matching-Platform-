@@ -1,0 +1,54 @@
+<div class="list-container">
+  <div class="content-wrapper">
+    <h2>Liste des avis</h2>
+
+    <div class="filters-row">
+      <div class="search-box">
+        <input type="text" placeholder="Rechercher par auteur ou commentaire..." [(ngModel)]="searchTerm" (input)="applyFilter()">
+      </div>
+      <div class="filter-score">
+        <select [(ngModel)]="filterScore" (change)="applyFilter()">
+          <option [ngValue]="null">Toutes les notes</option>
+          <option *ngFor="let s of [1,2,3,4,5]" [value]="s">{{ s }} étoile(s)</option>
+        </select>
+      </div>
+      <div class="action-buttons">
+        <button class="btn btn-primary" routerLink="/reviews/add">Ajouter un avis</button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="styled-table">
+        <thead>
+          <tr>
+            <th>Note</th>
+            <th>Commentaire</th>
+            <th>Auteur</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of filteredReviews">
+            <td class="score">{{ r.score !== undefined ? r.score : 'N/A' }}</td>
+            <td>{{ r.comment || '-' }}</td>
+            <td>{{ r.evaluatorName || 'Anonyme' }}</td>
+            <td>{{ r.date ? (r.date | date:'short') : '-' }}</td>
+            <td class="actions">
+              <button class="btn-edit" (click)="editReview(r.id)" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-delete" (click)="deleteReview(r.id)" title="Supprimer">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="filteredReviews.length === 0" class="no-data">
+      Aucun avis trouvé.
+    </div>
+  </div>
+</div>

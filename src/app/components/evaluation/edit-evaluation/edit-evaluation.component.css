@@ -1,0 +1,138 @@
+.edit-evaluation-container {
+  background: #1E3A5F;  /* bleu pétrole */
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.form-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s;
+}
+
+.form-card:hover {
+  transform: translateY(-5px);
+}
+
+.form-card h2 {
+  color: #1e293b;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #2d3748;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+.form-control {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #f8fafc;
+  color: #1e293b;  /* texte en noir */
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.form-check-input {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: #f97316;
+  cursor: pointer;
+}
+
+.form-check-label {
+  color: #2d3748;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.btn-primary {
+  background: #f97316;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #ea580c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #2d3748;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+  .edit-evaluation-container {
+    padding: 1rem;
+  }
+  .form-card {
+    padding: 1.5rem;
+  }
+  .form-actions {
+    flex-direction: column;
+  }
+  .btn {
+    width: 100%;
+  }
+}

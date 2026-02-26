@@ -1,0 +1,135 @@
+<div class="dashboard">
+  <!-- En-tête avec boutons -->
+  <div class="dashboard-header">
+    <div class="header-left">
+      <h1>Tableau de bord</h1>
+      <p class="dashboard-subtitle">Suivez les évaluations et l'activité des freelancers en temps réel.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" routerLink="/evaluations/add">
+        <i class="fas fa-plus"></i> Créer une évaluation
+      </button>
+      <button class="btn btn-outline-primary" routerLink="/reviews/add">
+        <i class="fas fa-star"></i> Ajouter un avis
+      </button>
+    </div>
+  </div>
+
+  <!-- Cartes statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+      <div class="stat-content">
+        <span class="stat-value">{{ totalEvaluations }}</span>
+        <span class="stat-label">Évaluations totales</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-users"></i></div>
+      <div class="stat-content">
+        <span class="stat-value">{{ totalFreelancers }}</span>
+        <span class="stat-label">Freelancers évalués</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+      <div class="stat-content">
+        <span class="stat-value">{{ globalAverage }}</span>
+        <span class="stat-label">Score moyen</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-project-diagram"></i></div>
+      <div class="stat-content">
+        <span class="stat-value">{{ totalProjects }}</span>
+        <span class="stat-label">Projets distincts</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top freelancers -->
+  <div class="section-header">
+    <h2><i class="fas fa-trophy"></i> Top 5 des freelancers</h2>
+  </div>
+  <div class="freelancer-grid">
+    <div class="freelancer-card" *ngFor="let f of topFreelancers; let i = index">
+      <div class="card-rank" [style.background]="getRankColor(i)">#{{ i + 1 }}</div>
+      <div class="card-content">
+        <h3>{{ f.name }}</h3>
+        <div class="score-display">
+          <span class="score">{{ f.averageScore }}</span>
+          <span class="score-max">/5</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="(f.averageScore / 5) * 100"></div>
+        </div>
+        <p class="project-count">{{ f.projectCount }} projet(s) évalué(s)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Satisfaction client -->
+  <div class="section-header">
+    <h2><i class="fas fa-smile"></i> Satisfaction client</h2>
+  </div>
+  <div class="sentiment-card" *ngIf="totalReviews > 0">
+    <div class="sentiment-stats">
+      <div class="sentiment-item">
+        <span class="sentiment-label positif">Positif</span>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill positif" [style.width.%]="getPositifPercent()">
+            {{ getPositifPercent() | number:'1.0-0' }}%
+          </div>
+        </div>
+        <span class="sentiment-count">{{ sentimentStats['POSITIF'] || 0 }}</span>
+      </div>
+      <div class="sentiment-item">
+        <span class="sentiment-label neutre">Neutre</span>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill neutre" [style.width.%]="getNeutrePercent()">
+            {{ getNeutrePercent() | number:'1.0-0' }}%
+          </div>
+        </div>
+        <span class="sentiment-count">{{ sentimentStats['NEUTRE'] || 0 }}</span>
+      </div>
+      <div class="sentiment-item">
+        <span class="sentiment-label negatif">Négatif</span>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill negatif" [style.width.%]="getNegatifPercent()">
+            {{ getNegatifPercent() | number:'1.0-0' }}%
+          </div>
+        </div>
+        <span class="sentiment-count">{{ sentimentStats['NEGATIF'] || 0 }}</span>
+      </div>
+    </div>
+    <div class="sentiment-total" *ngIf="totalReviews > 0">
+      Total avis : {{ totalReviews }}
+    </div>
+  </div>
+  <div class="sentiment-card" *ngIf="totalReviews === 0">
+    <p class="text-muted">Aucun avis pour le moment.</p>
+  </div>
+
+  <!-- Activité récente -->
+  <div class="section-header">
+    <h2><i class="fas fa-clock"></i> Activité récente</h2>
+  </div>
+  <div class="activity-list" *ngIf="recentEvaluations.length > 0">
+    <div class="activity-item" *ngFor="let e of recentEvaluations">
+      <div class="activity-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="activity-content">
+        <p class="activity-title">
+          <strong>{{ e.evaluatorName || 'Client' }}</strong> a évalué <strong>{{ e.evaluatedUserName || 'freelancer' }}</strong> sur le projet <em>{{ e.projectName || 'N/A' }}</em>
+        </p>
+        <p class="activity-meta">
+          Note : {{ e.score }}/5 • {{ e.date | date:'short' }}
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="activity-list" *ngIf="recentEvaluations.length === 0">
+    <p class="text-muted">Aucune activité récente.</p>
+  </div>
+</div>
