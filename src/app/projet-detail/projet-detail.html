@@ -1,0 +1,73 @@
+<!-- src/app/components/projet-detail/projet-detail.html -->
+<main class="page">
+  <div class="container">
+
+    <!-- Loading projet -->
+    <div *ngIf="loading" class="loading-box">
+      <div class="spinner"></div>
+      <p>Chargement du projet...</p>
+    </div>
+
+    <!-- Error projet -->
+    <div *ngIf="!loading && error" class="error-box">
+      <p>{{ error }}</p>
+      <button class="btn ghost" (click)="retour()">Retour</button>
+    </div>
+
+    <!-- PROJECT HEADER -->
+    <section class="card project-hero" *ngIf="!loading && projet">
+      <div class="hero-left">
+        <div class="hero-top">
+          <span class="tag domain">{{ projet.domaine }}</span>
+          <span class="tag date">Date: {{ projet.date | date:'dd/MM/yyyy' }}</span>
+        </div>
+
+        <h1 class="project-title">{{ projet.title }}</h1>
+        <p class="project-desc">{{ projet.description }}</p>
+      </div>
+
+      <div class="hero-right">
+        <button class="btn orange" (click)="postuler()">Start Application</button>
+        <button class="btn ghost" (click)="retour()">Back</button>
+      </div>
+    </section>
+
+    <!-- ✅ PROJECT HEALTH -->
+    <section class="health-section">
+      <app-project-health-widget [tasks]="tasks"></app-project-health-widget>
+    </section>
+
+    <!-- ✅ BUDGET -->
+    <section *ngIf="projet?.id" class="devis-section">
+      <app-devis-calculator
+        [projet]="projet"
+        [prefetchedDevis]="devis"
+        [prefetchedLoading]="devisLoading"
+        [prefetchedError]="devisError">
+      </app-devis-calculator>
+    </section>
+
+    <!-- TASKS -->
+    <section class="section-head" *ngIf="!loading && projet">
+      <div>
+        <h2>Project Tasks</h2>
+        <p>Here are the tasks required for this project.</p>
+      </div>
+    </section>
+
+    <section class="tasks-grid" *ngIf="!loading && projet">
+      <article class="card task-card" *ngFor="let task of tasks">
+        <div class="task-top">
+          <h3 class="task-title">{{ task.taskname }}</h3>
+          <span class="deadline">Deadline: {{ task.deadline | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <p class="task-desc">{{ task.description }}</p>
+      </article>
+
+      <div class="card task-card no-tasks" *ngIf="tasks.length === 0">
+        <p>No tasks available for this project.</p>
+      </div>
+    </section>
+
+  </div>
+</main>

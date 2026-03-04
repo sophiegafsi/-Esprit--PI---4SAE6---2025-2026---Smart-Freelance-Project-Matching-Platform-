@@ -1,0 +1,147 @@
+<!-- src/app/home/home.component.html -->
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-left">
+        <h1>Post your jobs and receive the best applications</h1>
+        <p>Freelancers apply to your projects, you easily choose the best profile.</p>
+
+        <div class="hero-cta">
+          <a routerLink="/projets" class="btn primary">Browse Jobs</a>
+          <a routerLink="/postuler" class="btn orange">Apply Now</a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat" *ngFor="let stat of heroStats">
+            <strong>+{{ stat.value }}</strong>
+            <span>{{ stat.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-card">
+          <div class="hero-card-top">
+            <span class="badge">New</span>
+            <span class="mini-title">Featured Job</span>
+          </div>
+
+          <h3>Web Developer (Symfony)</h3>
+          <p class="muted">E-commerce project • 1 month • Remote</p>
+
+          <div class="chips">
+            <span class="chip">Symfony</span>
+            <span class="chip">MySQL</span>
+            <span class="chip">API</span>
+          </div>
+
+          <div class="hero-card-actions">
+            <a href="#" class="btn small primary">Apply</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DARK SECTION -->
+  <section class="section-dark">
+
+    <!-- HOW IT WORKS -->
+    <div class="container" id="how">
+      <h2 class="section-title">How it works</h2>
+
+      <div class="steps">
+        <div class="step" *ngFor="let step of steps">
+          <div class="icon">{{ step.icon }}</div>
+          <div class="label">
+            <strong>{{ step.title }}</strong>
+            <span>{{ step.description }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OFFERS -->
+    <div class="container section-block" id="offers">
+      <div class="section-head">
+        <h2 class="section-title">Available Jobs</h2>
+        <a class="link" href="#">View all →</a>
+      </div>
+
+      <div class="offer-grid">
+        <article class="offer" *ngFor="let offer of gridOffers">
+          <div class="offer-top">
+            <span class="tag">{{ offer.tag }}</span>
+            <span class="salary">{{ offer.salary }}</span>
+          </div>
+          <h3>{{ offer.title }}</h3>
+          <p class="muted">{{ offer.description }}</p>
+          <div class="chips">
+            <span class="chip" *ngFor="let tag of offer.tags">{{ tag }}</span>
+          </div>
+          <div class="offer-actions">
+            <a href="#" class="btn small primary">Apply</a>
+            <a href="#" class="btn small ghost-dark">Details</a>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- APPLICATION FORM -->
+    <div class="container section-block" id="applications">
+      <div class="section-head">
+        <h2 class="section-title">Apply for a Job</h2>
+        <span class="hint">Fast • Simple • Professional</span>
+      </div>
+
+      <div class="form-wrap">
+        <form class="apply-form">
+          <div class="form-row">
+            <div class="field">
+              <label>Full name</label>
+              <input type="text" placeholder="Ex: John Doe" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" placeholder="Ex: john@email.com" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Target position</label>
+              <select>
+                <option *ngFor="let option of jobOptions" [value]="option">{{ option }}</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Portfolio / GitHub link</label>
+              <input type="text" placeholder="https://github.com/..." />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Message</label>
+            <textarea rows="5" placeholder="Briefly explain your experience and why you are applying..."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn ghost-dark">Cancel</button>
+            <button type="submit" class="btn primary">Submit Application</button>
+          </div>
+        </form>
+
+        <div class="tips">
+          <h3>Tips</h3>
+          <ul>
+            <li>Add your GitHub or portfolio link</li>
+            <li>Explain your experience in 3–4 lines</li>
+            <li>Be clear about your availability</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</main>

@@ -1,0 +1,203 @@
+<!-- src/app/components/dashboard/dashboard.html -->
+<main class="page">
+  <div class="container">
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <div class="hero-box">
+        <h1> Dashboard</h1>
+        <p>Monitor projects, tasks, applications and platform activity in real time.</p>
+
+        <div class="hero-actions">
+          <a class="btn orange" routerLink="/postuler">Create Project</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- KPIs -->
+    <section class="kpis">
+      <article class="card kpi">
+        <div class="kpi-head">
+          <span class="kpi-title">Total Projects</span>
+          <span class="kpi-chip blue">{{ stats.totalProjects }}</span>
+        </div>
+        <div class="kpi-value">{{ stats.totalProjects }}</div>
+        <div class="kpi-sub">Active projects</div>
+      </article>
+
+      <article class="card kpi">
+        <div class="kpi-head">
+          <span class="kpi-title">Total Tasks</span>
+          <span class="kpi-chip blue">{{ stats.totalTasks }}</span>
+        </div>
+        <div class="kpi-value">{{ stats.totalTasks }}</div>
+        <div class="kpi-sub">Across all projects</div>
+      </article>
+
+      <article class="card kpi">
+        <div class="kpi-head">
+          <span class="kpi-title">Applications</span>
+          <span class="kpi-chip orange">{{ stats.applications }}</span>
+        </div>
+        <div class="kpi-value">{{ stats.applications }}</div>
+        <div class="kpi-sub">New applications</div>
+      </article>
+
+      <article class="card kpi">
+        <div class="kpi-head">
+          <span class="kpi-title">Active Users</span>
+          <span class="kpi-chip orange">{{ stats.activeUsers }}</span>
+        </div>
+        <div class="kpi-value">{{ stats.activeUsers }}</div>
+        <div class="kpi-sub">This month</div>
+      </article>
+    </section>
+
+    <!-- PROJECTS SECTION -->
+    <section class="grid">
+      <!-- Projects List -->
+      <div class="card panel">
+        <div class="panel-head">
+          <div>
+            <h2>Projects Management</h2>
+            <p class="panel-sub">All projects with their details and tasks</p>
+          </div>
+        </div>
+
+        <div class="projects-list">
+
+          <!-- ✅ LOADING -->
+          <div class="loading-state" *ngIf="isLoading">
+            <div class="spinner"></div>
+            <p>Chargement des projets...</p>
+          </div>
+
+          <!-- ✅ ERROR -->
+          <div class="no-projects" *ngIf="!isLoading && error">
+            <p>{{ error }}</p>
+            <a class="btn orange" href="javascript:void(0)" (click)="loadProjects()">⟲ Réessayer</a>
+          </div>
+
+          <!-- ✅ EMPTY -->
+          <div class="no-projects" *ngIf="!isLoading && !error && projets.length === 0">
+            <p>No projects found. Create your first project!</p>
+            <a class="btn orange" routerLink="/postuler">+ Create Project</a>
+          </div>
+
+          <!-- ✅ PROJECTS -->
+          <div *ngIf="!isLoading && !error && projets.length > 0">
+            <div class="project-item" *ngFor="let projet of projets; trackBy: trackByProjectId">
+              <div class="project-header">
+                <div class="project-title-section">
+                  <h3 class="project-title">{{ projet.title }}</h3>
+                  <span class="tag domain">{{ projet.domaine }}</span>
+
+                  <!-- si date est string ou tableau, le pipe date peut bug.
+                       si chez toi date est OK, garde. sinon je te donne une méthode formatDate -->
+                  <span class="tag date">{{ projet.date | date:'dd/MM/yyyy' }}</span>
+                </div>
+
+                <div class="project-actions">
+                  <button class="mini ghost" [routerLink]="['/projet', projet.id]" title="View">👁️</button>
+                  <button class="mini orange" [routerLink]="['/update-projet', projet.id]" title="Edit">✏️</button>
+                  <button class="mini danger" (click)="deleteProject(projet.id)" title="Delete">🗑️</button>
+                </div>
+              </div>
+
+              <p class="project-desc">{{ projet.description }}</p>
+
+              <!-- Tasks -->
+              <div class="tasks-subsection" *ngIf="projet.tasks">
+                <div class="tasks-header">
+                  <span class="tasks-count">Tasks ({{ projet.tasks.length }})</span>
+                  <button class="mini ghost" [routerLink]="['/projet', projet.id, 'add-details']">+ Add Task</button>
+                </div>
+
+                <div class="tasks-table" *ngIf="projet.tasks.length > 0">
+                  <div class="task-row" *ngFor="let task of projet.tasks; trackBy: trackByTaskId">
+                    <div class="task-info">
+                      <strong>{{ task.taskname }}</strong>
+                      <span class="task-deadline">{{ task.deadline | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    <p class="task-desc">{{ task.description }}</p>
+                    <div class="task-actions">
+                      <button class="mini-icon" [routerLink]="['/task/edit', projet.id, task.id]" title="Edit Task">✏️</button>
+                      <button class="mini-icon" (click)="deleteTask(projet.id, task.id)" title="Delete Task">🗑️</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="no-tasks" *ngIf="projet.tasks.length === 0">
+                  <span>No tasks for this project</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Quick Actions Sidebar -->
+      <div class="card panel">
+        <div class="panel-head">
+          <div>
+            <h2>Quick Actions</h2>
+            <p class="panel-sub">Shortcuts for common tasks</p>
+          </div>
+        </div>
+
+        <div class="quick">
+          <a class="quick-card" routerLink="/postuler">
+            <span class="q-ic">📌</span>
+            <div>
+              <strong>Create Project</strong>
+              <span class="sub">Add a new project</span>
+            </div>
+          </a>
+
+          <a class="quick-card" routerLink="/projets">
+            <span class="q-ic">📋</span>
+            <div>
+              <strong>View All Projects</strong>
+              <span class="sub">Manage existing projects</span>
+            </div>
+          </a>
+
+          <a class="quick-card" href="javascript:void(0)" (click)="exportData($event)">
+            <span class="q-ic">📊</span>
+            <div>
+              <strong>Export Data</strong>
+              <span class="sub">Download projects report</span>
+            </div>
+          </a>
+
+          <a class="quick-card" href="javascript:void(0)" (click)="refreshData($event)">
+            <span class="q-ic">⟲</span>
+            <div>
+              <strong>Refresh</strong>
+              <span class="sub">Reload all data</span>
+            </div>
+          </a>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity" *ngIf="recentActivities.length > 0">
+          <h3>Recent Activity</h3>
+          <div class="activity-item" *ngFor="let activity of recentActivities">
+            <span class="activity-icon">{{ activity.icon }}</span>
+            <div class="activity-details">
+              <strong>{{ activity.title }}</strong>
+              <span class="activity-time">{{ activity.time }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="mini-footer">
+      © 2026 – FreeLink Admin. All rights reserved.
+    </div>
+
+  </div>
+</main>
