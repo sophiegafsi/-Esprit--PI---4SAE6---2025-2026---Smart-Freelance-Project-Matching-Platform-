@@ -51,8 +51,8 @@ public class KeycloakService {
         user.setEnabled(true);
         user.setUsername(userDTO.getEmail());
         user.setEmail(userDTO.getEmail());
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
+        user.setFirstName(userDTO.getFirstName() != null ? userDTO.getFirstName() : "User");
+        user.setLastName(userDTO.getLastName() != null ? userDTO.getLastName() : "New");
         user.setEmailVerified(false); // Require manual email verification
         user.setRequiredActions(Collections.singletonList("VERIFY_EMAIL"));
 
@@ -105,8 +105,10 @@ public class KeycloakService {
                 System.err.println("User already exists: " + userDTO.getEmail());
                 throw new RuntimeException("User already exists");
             } else {
-                System.err.println("Failed to create user. Status: " + response.getStatus());
-                throw new RuntimeException("Failed to create user in Keycloak. Status: " + response.getStatus());
+                String errorBody = response.readEntity(String.class);
+                System.err.println("Failed to create user. Status: " + response.getStatus() + ", Body: " + errorBody);
+                throw new RuntimeException(
+                        "Failed to create user in Keycloak. Status: " + response.getStatus() + ", Body: " + errorBody);
             }
         } catch (Exception e) {
             System.err.println("Error in createUser: " + e.getMessage());

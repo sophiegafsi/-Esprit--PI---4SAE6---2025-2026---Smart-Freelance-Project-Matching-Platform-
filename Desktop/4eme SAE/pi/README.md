@@ -42,3 +42,19 @@ When pulling changes from this branch, ensure you run `docker-compose up -d` to 
 
 ---
 **Branch:** `youssef`
+
+## Troubleshooting
+
+### Keycloak '400' Error on Registration
+If you encounter a `400 Bad Request` or `Failed to create user` error:
+1.  **Check the Console**: The updated `user-service` now logs the exact error body from Keycloak. Look for "Body: { ... }".
+2.  **Run the Debug Script**: Run the included PowerShell script to verify your Keycloak setup:
+    ```powershell
+    ./debug_keycloak.ps1
+    ```
+3.  **Clean Restart**: If the realm import seems broken, try:
+    ```bash
+    docker-compose down -v
+    docker-compose up -d
+    ```
+    This deletes the local Keycloak data and forces a fresh import of `freelink-realm.json`.
