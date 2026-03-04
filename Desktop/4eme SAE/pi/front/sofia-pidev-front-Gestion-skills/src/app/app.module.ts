@@ -18,6 +18,16 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { BecomeFreelancerComponent } from './become-freelancer/become-freelancer.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { ProfileClientComponent } from './profile-client/profile-client.component';
+import { ApplyComponent } from './candidature/apply/apply.component';
+import { MyApplicationsComponent } from './candidature/my-applications/my-applications.component';
+import { ProjectApplicationsComponent } from './candidature/project-applications/project-applications.component';
+import { ClientProjectsComponent } from './candidature/client-projects/client-projects.component';
+import { SignaturePadComponent } from './shared/components/signature-pad/signature-pad.component';
+import { ContractSignatureModalComponent } from './shared/components/contract-signature-modal/contract-signature-modal.component';
+import { PremiumInputComponent } from './shared/components/premium-controls/premium-input.component';
+import { PremiumTextareaComponent } from './shared/components/premium-controls/premium-textarea.component';
+import { PremiumSelectComponent } from './shared/components/premium-controls/premium-select.component';
+import { PremiumFileUploadComponent } from './shared/components/premium-controls/premium-file-upload.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +42,17 @@ import { ProfileClientComponent } from './profile-client/profile-client.componen
     NavbarComponent,
     BecomeFreelancerComponent,
     AdminDashboardComponent,
-    ProfileClientComponent
+    ProfileClientComponent,
+    ApplyComponent,
+    MyApplicationsComponent,
+    ProjectApplicationsComponent,
+    ClientProjectsComponent,
+    SignaturePadComponent,
+    ContractSignatureModalComponent,
+    PremiumInputComponent,
+    PremiumTextareaComponent,
+    PremiumSelectComponent,
+    PremiumFileUploadComponent
   ],
   imports: [
     BrowserModule,

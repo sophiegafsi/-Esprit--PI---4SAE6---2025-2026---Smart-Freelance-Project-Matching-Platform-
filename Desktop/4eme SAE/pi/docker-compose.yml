@@ -1,15 +1,15 @@
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
+    image: quay.io/keycloak/keycloak:22.0.1
     container_name: keycloak
     ports:
       - "8080:8080"
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
-    command: start-dev
-    depends_on:
-      - mailhog
+    command: start-dev --import-realm
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
 
   mailhog:
     image: mailhog/mailhog:latest

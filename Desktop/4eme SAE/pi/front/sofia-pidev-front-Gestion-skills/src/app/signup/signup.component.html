@@ -11,55 +11,38 @@
             <form class="signup-form" (ngSubmit)="onSignup()">
 
                 <div class="two">
-                    <div class="field">
-                        <label for="first">First name</label>
-                        <input id="first" type="text" placeholder="Soufia" [(ngModel)]="user.firstName" name="firstName"
-                            required />
-                    </div>
+                    <app-premium-input label="First name" placeholder="Soufia" icon="fa-user"
+                        [(ngModel)]="user.firstName" name="firstName" [error]="errors.firstName" required>
+                    </app-premium-input>
 
-                    <div class="field">
-                        <label for="last">Last name</label>
-                        <input id="last" type="text" placeholder="Gafsi" [(ngModel)]="user.lastName" name="lastName"
-                            required />
-                    </div>
+                    <app-premium-input label="Last name" placeholder="Gafsi" icon="fa-user-tag"
+                        [(ngModel)]="user.lastName" name="lastName" [error]="errors.lastName" required>
+                    </app-premium-input>
                 </div>
 
-                <div class="field">
-                    <label for="birthdate">Birth date</label>
-                    <input id="birthdate" type="date" [(ngModel)]="user.birthDate" name="birthDate" required />
-                </div>
+                <app-premium-input label="Birth date" type="date" icon="fa-calendar-alt" [(ngModel)]="user.birthDate"
+                    name="birthDate" [error]="errors.birthDate" required>
+                </app-premium-input>
 
-
-                <div class="field">
-                    <label for="email">Email address</label>
-                    <input id="email" type="email" placeholder="you@example.com" [(ngModel)]="user.email" name="email"
-                        required />
-                </div>
+                <app-premium-input label="Email address" type="email" placeholder="you@example.com" icon="fa-envelope"
+                    [(ngModel)]="user.email" name="email" [error]="errors.email" required>
+                </app-premium-input>
 
                 <div class="two">
-                    <div class="field">
-                        <label for="pass">Password</label>
-                        <input id="pass" type="password" placeholder="••••••••" [(ngModel)]="user.password"
-                            name="password" required />
-                    </div>
+                    <app-premium-input label="Password" type="password" placeholder="••••••••" icon="fa-lock"
+                        [(ngModel)]="user.password" name="password" [error]="errors.password" required>
+                    </app-premium-input>
 
-                    <div class="field">
-                        <label for="confirm">Confirm password</label>
-                        <input id="confirm" type="password" placeholder="••••••••" [(ngModel)]="user.confirmPassword"
-                            name="confirmPassword" required />
-                    </div>
+                    <app-premium-input label="Confirm password" type="password" placeholder="••••••••"
+                        icon="fa-shield-alt" [(ngModel)]="user.confirmPassword" name="confirmPassword"
+                        [error]="errors.confirmPassword" required>
+                    </app-premium-input>
                 </div>
 
-                <div class="field">
-                    <label for="country">Country</label>
-                    <select id="country" [(ngModel)]="user.country" name="country">
-                        <option>Tunisia</option>
-                        <option>France</option>
-                        <option>Algeria</option>
-                        <option>Morocco</option>
-                        <option>Other</option>
-                    </select>
-                </div>
+                <app-premium-select label="Country" icon="fa-globe-africa" placeholder="Select your country"
+                    [options]="['Tunisia', 'France', 'Algeria', 'Morocco', 'Other']" [(ngModel)]="user.country"
+                    name="country" [error]="errors.country" required>
+                </app-premium-select>
 
                 <label class="terms">
                     <input type="checkbox" required />

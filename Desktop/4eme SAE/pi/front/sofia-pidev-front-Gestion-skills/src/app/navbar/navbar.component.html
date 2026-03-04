@@ -12,9 +12,10 @@
             <a href="#">How it works</a>
             <a *ngIf="isAdmin" routerLink="/admin/dashboard" routerLinkActive="active">Admin Dashboard</a>
             <a *ngIf="isFreelancer" routerLink="/profile-freelancer" routerLinkActive="active">My Profile</a>
+            <a *ngIf="isFreelancer" routerLink="/my-applications" routerLinkActive="active">My Applications</a>
             <a *ngIf="isClient && !isFreelancer" routerLink="/profile-client" routerLinkActive="active">My Profile</a>
-            <a *ngIf="!isLoggedIn" routerLink="/login" routerLinkActive="active">Login</a>
-            <a *ngIf="!isLoggedIn" routerLink="/signup" routerLinkActive="active">Sign Up</a>
+            <a *ngIf="isClient && !isFreelancer" routerLink="/client-projects" routerLinkActive="active">My Projects</a>
+
         </nav>
 
         <div class="nav-actions">
@@ -30,6 +31,7 @@
             <ng-container *ngIf="isLoggedIn">
                 <a class="btn ghost" (click)="logout()">Logout</a>
             </ng-container>
+
         </div>
     </div>
 </header>

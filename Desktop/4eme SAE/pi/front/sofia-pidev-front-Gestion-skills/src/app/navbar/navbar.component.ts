@@ -22,10 +22,12 @@ export class NavbarComponent implements OnInit {
         });
 
         this.authService.currentUser$.subscribe(user => {
+            console.log('Navbar received user:', user);
             this.currentUser = user;
             this.isFreelancer = this.authService.isFreelancer();
             this.isClient = this.authService.isClient();
             this.isAdmin = this.authService.isAdmin();
+            console.log('Navbar isAdmin:', this.isAdmin);
         });
 
         // Load user data if already logged in

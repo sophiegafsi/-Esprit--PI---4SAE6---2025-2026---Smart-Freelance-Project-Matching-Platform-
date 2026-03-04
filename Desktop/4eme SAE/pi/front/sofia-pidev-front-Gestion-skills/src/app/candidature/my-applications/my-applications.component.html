@@ -1,0 +1,145 @@
+<div class="container" style="margin-top: 2rem;">
+    <h2 style="margin-bottom: 2rem;">My Applications</h2>
+
+    <div *ngIf="loading" style="text-align: center; color: var(--muted);">Loading...</div>
+
+    <div *ngIf="errorMessage"
+        style="background: rgba(255, 0, 0, 0.2); color: #ffcccc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+        {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage"
+        style="background: rgba(0, 255, 0, 0.2); color: #ccffcc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+        {{ successMessage }}
+    </div>
+
+    <div *ngIf="!loading && applications.length === 0" style="text-align: center; color: var(--muted); padding: 2rem;">
+        <p>You haven't applied to any projects yet.</p>
+    </div>
+
+    <div class="applications-grid" style="display: grid; gap: 1.5rem;">
+        <div *ngFor="let app of applications"
+            style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 1.5rem;">
+
+            <!-- Top row: info + status badge -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="flex: 1;">
+                    <div style="font-size: 0.9rem; color: var(--muted); margin-bottom: 0.5rem;">
+                        Applied on {{ app.applicationDate | date:'mediumDate' }}
+                    </div>
+
+                    <h3 style="margin: 0 0 0.25rem 0;">
+                        {{ app.projectTitle || 'Loading Project...' }}
+                    </h3>
+
+                    <div *ngIf="app.clientName"
+                        style="font-size: 0.85rem; color: var(--primary); margin-bottom: 0.5rem;">
+                        Client: {{ app.clientName }}
+                    </div>
+
+                    <!-- Normal view -->
+                    <ng-container *ngIf="!app.editing">
+                        <p style="color: var(--muted); margin: 0;">
+                            {{ app.expanded ? app.coverLetter : (app.coverLetter | slice:0:100) }}
+                            {{ !app.expanded && app.coverLetter.length > 100 ? '...' : '' }}
+                        </p>
+
+                        <div *ngIf="app.expanded"
+                            style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--card-border);">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text);">Cover Letter:</h4>
+                            <p
+                                style="white-space: pre-wrap; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+                                {{ app.coverLetter }}</p>
+
+                            <div *ngIf="app.fileName" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="font-size: 0.85rem; color: var(--muted);">Attachment:</span>
+                                <a href="#" (click)="downloadFile(app, $event)"
+                                    style="font-size: 0.9rem; color: var(--primary); text-decoration: underline;">
+                                    {{ app.fileName }}
+                                </a>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <!-- Inline edit form (only shown when editing) -->
+                    <ng-container *ngIf="app.editing">
+                        <textarea [(ngModel)]="app.editDraft" rows="5"
+                            style="width: 100%; margin-top: 0.75rem; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--card-border); background: rgba(255,255,255,0.05); color: var(--text); font-size: 0.9rem; resize: vertical; box-sizing: border-box;">
+                        </textarea>
+                    </ng-container>
+                </div>
+
+                <!-- Status badge -->
+                <div style="text-align: right; margin-left: 1rem; flex-shrink: 0;">
+                    <span [style.background]="getStatusColor(app.status)"
+                        style="padding: 6px 12px; border-radius: 99px; font-size: 0.8rem; font-weight: bold; color: white;">
+                        {{ app.status }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Action Buttons Row -->
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+
+                <!-- View Details toggle (always visible) -->
+                <button *ngIf="!app.editing" class="btn small ghost" (click)="app.expanded = !app.expanded"
+                    style="background: rgba(255,255,255,0.08); color: var(--primary); padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; font-size: 0.85rem;">
+                    {{ app.expanded ? 'Hide Details' : 'View Details' }}
+                </button>
+
+                <!-- PENDING-only actions -->
+                <ng-container *ngIf="app.status === 'PENDING'">
+
+                    <!-- Edit mode: Save & Cancel -->
+                    <ng-container *ngIf="app.editing">
+                        <button (click)="saveEdit(app)"
+                            style="background: #27ae60; color: white; padding: 5px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                            ✓ Save
+                        </button>
+                        <button (click)="cancelEdit(app)"
+                            style="background: rgba(255,255,255,0.08); color: var(--muted); padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; font-size: 0.85rem;">
+                            Cancel
+                        </button>
+                    </ng-container>
+
+                    <!-- Normal mode: Edit & Delete -->
+                    <ng-container *ngIf="!app.editing">
+                        <button (click)="startEdit(app)"
+                            style="background: rgba(52, 152, 219, 0.2); color: #3498db; padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(52,152,219,0.4); cursor: pointer; font-size: 0.85rem;">
+                            ✏️ Edit
+                        </button>
+                        <button (click)="deleteApplication(app)"
+                            style="background: rgba(231, 76, 60, 0.2); color: #e74c3c; padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(231,76,60,0.4); cursor: pointer; font-size: 0.85rem;">
+                            🗑 Delete
+                        </button>
+                    </ng-container>
+
+                </ng-container>
+
+                <!-- ACCEPTED-only actions -->
+                <ng-container *ngIf="app.status === 'ACCEPTED'">
+                    <button *ngIf="app.canFreelancerSign" (click)="openSignatureModal(app.contract.id)"
+                        style="background: var(--primary); color: white; padding: 5px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                        🖋️ Sign Contract
+                    </button>
+
+                    <button (click)="downloadContract(app.id)"
+                        style="background: rgba(39, 174, 96, 0.2); color: #27ae60; padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(39,174,96,0.4); cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-left: 0.5rem;">
+                        📄 Download PDF Contract
+                    </button>
+
+                    <span *ngIf="app.contract?.status === 'COMPLETED'"
+                        style="margin-left: 1rem; background: #27ae60; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: bold; color: white;">
+                        <i class="fas fa-check-circle"></i> Fully Signed
+                    </span>
+                </ng-container>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Refined Signature Modal Component -->
+    <app-contract-signature-modal [show]="showSignatureModal" [isSubmitting]="isSubmittingSignature"
+        (onConfirm)="submitFreelancerSignature($event)" (onClose)="closeSignatureModal()">
+    </app-contract-signature-modal>
+</div>

@@ -12,8 +12,6 @@ export class AppComponent implements OnInit {
   constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
-    // Automatically load user data if logged in
-    // This ensures syncUser() is called on the backend
     if (this.authService.isLoggedIn()) {
       this.authService.loadCurrentUser();
     }

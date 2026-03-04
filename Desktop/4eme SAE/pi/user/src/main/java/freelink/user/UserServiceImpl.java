@@ -9,6 +9,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -263,6 +264,9 @@ public class UserServiceImpl implements UserService {
         // Sync with Keycloak
         if (user.getKeycloakId() != null) {
             keycloakService.updateUser(user.getKeycloakId(), user.getFirstName(), user.getLastName());
+            if (userDetails.getRole() != null) {
+                keycloakService.updateUserRole(user.getKeycloakId(), user.getRole());
+            }
         }
 
         return userRepository.save(user);
@@ -279,7 +283,40 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void registerUser(freelink.user.dto.UserDTO userDTO) {
-        keycloakService.createUser(userDTO);
+        // 1. Create user in Keycloak and get the Keycloak UUID back
+        String keycloakId = keycloakService.createUser(userDTO);
+
+        // 2. Also persist to local H2 DB so the user is immediately available
+        try {
+            userRepository.findByEmail(userDTO.getEmail().toLowerCase().trim()).ifPresentOrElse(
+                    existing -> {
+                        // Already exists locally — just update the Keycloak ID if needed
+                        if (existing.getKeycloakId() == null) {
+                            existing.setKeycloakId(keycloakId);
+                            userRepository.save(existing);
+                        }
+                    },
+                    () -> {
+                        User newUser = User.builder()
+                                .id(UUID.randomUUID())
+                                .keycloakId(keycloakId)
+                                .email(userDTO.getEmail().toLowerCase().trim())
+                                .firstName(userDTO.getFirstName())
+                                .lastName(userDTO.getLastName())
+                                .birthDate(userDTO.getBirthDate() != null
+                                        ? LocalDate.parse(userDTO.getBirthDate())
+                                        : null)
+                                .country(userDTO.getCountry())
+                                .role("client")
+                                .createdAt(LocalDateTime.now())
+                                .build();
+                        userRepository.save(newUser);
+                        System.out.println("[registerUser] User saved to local DB: " + userDTO.getEmail());
+                    });
+        } catch (Exception e) {
+            // Don't fail registration if local DB write fails — Keycloak is source of truth
+            System.err.println("[registerUser] Failed to save to local DB: " + e.getMessage());
+        }
     }
 
     @Override
@@ -311,6 +348,12 @@ public class UserServiceImpl implements UserService {
         System.out.println("Saving user with role: " + user.getRole());
         User saved = userRepository.save(user);
         System.out.println("User saved successfully with role: " + saved.getRole());
+
+        // Sync role to Keycloak
+        if (saved.getKeycloakId() != null) {
+            keycloakService.updateUserRole(saved.getKeycloakId(), saved.getRole());
+        }
+
         return saved;
     }
 }

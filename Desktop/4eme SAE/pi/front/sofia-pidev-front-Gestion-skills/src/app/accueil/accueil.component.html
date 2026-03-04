@@ -94,56 +94,30 @@
     </div>
 
     <div class="offer-grid">
-      <article class="offer">
-        <div class="offer-top">
-          <span class="tag">Remote</span>
-          <span class="salary">$300–$500</span>
-        </div>
-        <h3>UI/UX Designer</h3>
-        <p class="muted">Landing page + Figma mockups • 2 weeks</p>
-        <div class="chips">
-          <span class="chip">Figma</span>
-          <span class="chip">UX</span>
-          <span class="chip">Wireframes</span>
-        </div>
-        <div class="offer-actions">
-          <a href="#" class="btn small primary">Apply</a>
-          <a href="#" class="btn small ghost-dark">Details</a>
-        </div>
-      </article>
+      <div *ngIf="loadingProjects" style="grid-column: 1/-1; text-align: center; color: var(--muted);">
+        Loading projects...
+      </div>
 
-      <article class="offer">
-        <div class="offer-top">
-          <span class="tag">Hybrid</span>
-          <span class="salary">$600–$900</span>
-        </div>
-        <h3>Backend Developer (Spring)</h3>
-        <p class="muted">REST API + security • 1 month</p>
-        <div class="chips">
-          <span class="chip">Spring</span>
-          <span class="chip">JWT</span>
-          <span class="chip">PostgreSQL</span>
-        </div>
-        <div class="offer-actions">
-          <a href="#" class="btn small primary">Apply</a>
-          <a href="#" class="btn small ghost-dark">Details</a>
-        </div>
-      </article>
+      <div *ngIf="!loadingProjects && projects.length === 0"
+        style="grid-column: 1/-1; text-align: center; color: var(--muted);">
+        No active projects found.
+      </div>
 
-      <article class="offer">
+      <article class="offer" *ngFor="let project of projects">
         <div class="offer-top">
-          <span class="tag">Remote</span>
-          <span class="salary">$500–$800</span>
+          <span class="tag">Remote</span> <!-- Static for now, or add to Project entity -->
+          <span class="salary">${{ project.budget }}</span>
         </div>
-        <h3>Web Developer (Symfony)</h3>
-        <p class="muted">E-commerce project • 1 month</p>
+        <h3>{{ project.title }}</h3>
+        <p class="muted">{{ project.description | slice:0:100 }}{{ project.description.length > 100 ? '...' : '' }}</p>
+
         <div class="chips">
-          <span class="chip">Symfony</span>
-          <span class="chip">MySQL</span>
-          <span class="chip">API</span>
+          <span class="chip">Project</span>
+          <!-- Add more dynamic tags if available -->
         </div>
+
         <div class="offer-actions">
-          <a href="#" class="btn small primary">Apply</a>
+          <a [routerLink]="['/apply', project.id]" class="btn small primary">Apply</a>
           <a href="#" class="btn small ghost-dark">Details</a>
         </div>
       </article>

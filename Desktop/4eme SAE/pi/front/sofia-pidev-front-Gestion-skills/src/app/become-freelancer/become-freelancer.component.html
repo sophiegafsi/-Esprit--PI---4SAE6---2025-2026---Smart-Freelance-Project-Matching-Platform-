@@ -7,36 +7,26 @@
             </div>
 
             <form class="form" (ngSubmit)="onSubmit()">
-                <div class="field">
-                    <label for="jobTitle">Job Title</label>
-                    <input id="jobTitle" type="text" placeholder="e.g. Senior Java Developer"
-                        [(ngModel)]="profile.jobTitle" name="jobTitle" required />
-                </div>
+                <app-premium-input label="Job Title" placeholder="e.g. Senior Java Developer" icon="fa-briefcase"
+                    [(ngModel)]="profile.jobTitle" name="jobTitle" required>
+                </app-premium-input>
 
-                <div class="field">
-                    <label for="bio">Bio</label>
-                    <textarea id="bio" rows="4" placeholder="Briefly describe your experience..."
-                        [(ngModel)]="profile.bio" name="bio" required></textarea>
-                </div>
+                <app-premium-textarea label="Bio" placeholder="Briefly describe your experience..."
+                    [(ngModel)]="profile.bio" name="bio" required>
+                </app-premium-textarea>
 
-                <div class="field">
-                    <label for="skills">Skills (comma separated)</label>
-                    <input id="skills" type="text" placeholder="Java, Spring, Angular, Docker"
-                        [(ngModel)]="profile.skills" name="skills" required />
-                </div>
+                <app-premium-input label="Skills (comma separated)" placeholder="Java, Spring, Angular, Docker"
+                    icon="fa-tags" [(ngModel)]="profile.skills" name="skills" required>
+                </app-premium-input>
 
                 <div class="two">
-                    <div class="field">
-                        <label for="hourlyRate">Hourly Rate ($)</label>
-                        <input id="hourlyRate" type="number" placeholder="50" [(ngModel)]="profile.hourlyRate"
-                            name="hourlyRate" required />
-                    </div>
+                    <app-premium-input label="Hourly Rate ($)" type="number" placeholder="50" icon="fa-hand-holding-usd"
+                        [(ngModel)]="profile.hourlyRate" name="hourlyRate" required>
+                    </app-premium-input>
 
-                    <div class="field">
-                        <label for="portfolioUrl">Portfolio URL</label>
-                        <input id="portfolioUrl" type="url" placeholder="https://github.com/..."
-                            [(ngModel)]="profile.portfolioUrl" name="portfolioUrl" />
-                    </div>
+                    <app-premium-input label="Portfolio URL" type="url" placeholder="https://github.com/..."
+                        icon="fa-link" [(ngModel)]="profile.portfolioUrl" name="portfolioUrl">
+                    </app-premium-input>
                 </div>
 
                 <button class="btn orange full" type="submit">Complete Profile</button>

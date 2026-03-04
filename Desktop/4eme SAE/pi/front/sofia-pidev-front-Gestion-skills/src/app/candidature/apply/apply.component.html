@@ -1,0 +1,30 @@
+<div class="container" style="margin-top: 2rem;">
+    <div
+        style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 2rem; max-width: 600px; margin: 0 auto; backdrop-filter: blur(10px);">
+        <h2 style="color: var(--white); margin-bottom: 1.5rem; text-align: center;">Apply for Project</h2>
+
+        <div *ngIf="errorMessage"
+            style="background: rgba(255, 0, 0, 0.2); color: #ffcccc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            {{ errorMessage }}
+        </div>
+
+        <div *ngIf="successMessage"
+            style="background: rgba(0, 255, 0, 0.2); color: #ccffcc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            {{ successMessage }}
+        </div>
+
+        <form (ngSubmit)="apply()" *ngIf="!successMessage">
+            <app-premium-textarea label="Cover Letter" placeholder="Why are you the best fit for this project?"
+                [(ngModel)]="coverLetter" name="coverLetter" required>
+            </app-premium-textarea>
+
+            <app-premium-file-upload label="Attach Resume/CV (Optional)" placeholder="Click or drag PDF/Image to upload"
+                accept=".pdf,image/*" (fileChange)="onFileSelected($event)">
+            </app-premium-file-upload>
+
+            <button type="submit" class="btn primary full" [disabled]="loading || !freelancerId">
+                {{ loading ? 'Submitting...' : 'Submit Application' }}
+            </button>
+        </form>
+    </div>
+</div>

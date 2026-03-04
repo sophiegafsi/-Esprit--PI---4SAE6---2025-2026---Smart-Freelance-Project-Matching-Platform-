@@ -6,6 +6,8 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const platformId = inject(PLATFORM_ID);
+    // Must call inject() here (in injection context), NOT inside catchError callback
+    const router = inject(Router);
 
     if (isPlatformBrowser(platformId)) {
         const token = localStorage.getItem('access_token');
@@ -16,21 +18,28 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                     Authorization: `Bearer ${token}`
                 }
             });
-            return next(cloned);
+            return next(cloned).pipe(
+                catchError((error: HttpErrorResponse) => {
+                    if (error.status === 401) {
+                        localStorage.removeItem('access_token');
+                        router.navigate(['/login']);
+                    }
+                    return throwError(() => error);
+                })
+            );
         }
     }
 
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
             if (error.status === 401) {
-                // Token expired or invalid
                 if (typeof localStorage !== 'undefined') {
                     localStorage.removeItem('access_token');
                 }
-                const router = inject(Router);
                 router.navigate(['/login']);
             }
             return throwError(() => error);
         })
     );
 };
+

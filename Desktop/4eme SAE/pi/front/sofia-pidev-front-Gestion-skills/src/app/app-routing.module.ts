@@ -14,12 +14,21 @@ import { AdminGuard } from './guards/admin.guard';
 import { FreelancerGuard } from './guards/freelancer.guard';
 import { ClientGuard } from './guards/client.guard';
 
+import { ApplyComponent } from './candidature/apply/apply.component';
+import { MyApplicationsComponent } from './candidature/my-applications/my-applications.component';
+import { ProjectApplicationsComponent } from './candidature/project-applications/project-applications.component';
+import { ClientProjectsComponent } from './candidature/client-projects/client-projects.component';
+
 const routes: Routes = [
   { path: '', component: AccueilComponent },
   { path: 'accueil', component: AccueilComponent },
   { path: 'profile-job', component: ProfileJobComponent },
   { path: 'profile-freelancer', component: ProfileFreelancerComponent, canActivate: [FreelancerGuard] },
   { path: 'profile-client', component: ProfileClientComponent, canActivate: [ClientGuard] },
+  { path: 'client-projects', component: ClientProjectsComponent, canActivate: [ClientGuard] },
+  { path: 'apply/:projectId', component: ApplyComponent, canActivate: [FreelancerGuard] },
+  { path: 'my-applications', component: MyApplicationsComponent, canActivate: [FreelancerGuard] },
+  { path: 'project-applications/:projectId', component: ProjectApplicationsComponent, canActivate: [ClientGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'verify-email', component: VerifyEmailComponent },

@@ -45,7 +45,8 @@ public class SecurityConfig {
                                                                 new AntPathRequestMatcher(
                                                                                 "/api/users/cleanup-duplicates"),
                                                                 new AntPathRequestMatcher(
-                                                                                "/api/users/become-freelancer"))
+                                                                                "/api/users/become-freelancer"),
+                                                                new AntPathRequestMatcher("/api/users/{id}", "GET"))
                                                 .permitAll()
                                                 .anyRequest().authenticated())
                                 .oauth2ResourceServer(oauth2 -> oauth2

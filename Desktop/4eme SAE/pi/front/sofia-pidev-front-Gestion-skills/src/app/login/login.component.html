@@ -8,15 +8,13 @@
       </div>
 
       <form class="login-form" (ngSubmit)="onLogin()">
-        <div class="field">
-          <label for="email">Email address</label>
-          <input id="email" type="email" placeholder="you@example.com" [(ngModel)]="email" name="email" required />
-        </div>
+        <app-premium-input label="Email address" type="email" placeholder="you@example.com" icon="fa-envelope"
+          [(ngModel)]="email" name="email" [error]="emailError" required>
+        </app-premium-input>
 
-        <div class="field">
-          <label for="password">Password</label>
-          <input id="password" type="password" placeholder="••••••••" [(ngModel)]="password" name="password" required />
-        </div>
+        <app-premium-input label="Password" type="password" placeholder="••••••••" icon="fa-lock" [(ngModel)]="password"
+          name="password" [error]="passwordError" required>
+        </app-premium-input>
 
         <div class="row">
           <label class="remember">

@@ -57,7 +57,6 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     public User getUserById(@PathVariable UUID id) {
         return userService.findById(id);
     }
@@ -69,9 +68,16 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> registerUser(@RequestBody freelink.user.dto.UserDTO userDTO) {
-        userService.registerUser(userDTO);
-        return ResponseEntity.status(201).build();
+    public ResponseEntity<?> registerUser(@RequestBody freelink.user.dto.UserDTO userDTO) {
+        try {
+            userService.registerUser(userDTO);
+            return ResponseEntity.status(201).build();
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null && e.getMessage().contains("already exists")) {
+                return ResponseEntity.status(409).body("Email already in use. Please use a different email.");
+            }
+            return ResponseEntity.status(500).body("Registration failed: " + e.getMessage());
+        }
     }
 
     @PostMapping("/forgot-password")

@@ -1,0 +1,112 @@
+{
+    "realm": "freelink-realm",
+    "enabled": true,
+    "displayName": "FreeiLink Realm",
+    "sslRequired": "external",
+    "registrationAllowed": true,
+    "loginWithEmailAllowed": true,
+    "duplicateEmailsAllowed": false,
+    "resetPasswordAllowed": true,
+    "editUsernameAllowed": false,
+    "bruteForceProtected": true,
+    "smtpServer": {
+        "host": "mailhog",
+        "port": "1025",
+        "from": "noreply@freelink.com",
+        "fromDisplayName": "FreeiLink",
+        "auth": "false",
+        "starttls": "false",
+        "ssl": "false"
+    },
+    "roles": {
+        "realm": [
+            {
+                "name": "client",
+                "description": "Client role for users looking to hire",
+                "composite": false,
+                "clientRole": false
+            },
+            {
+                "name": "freelancer",
+                "description": "Freelancer role for users offering services",
+                "composite": false,
+                "clientRole": false
+            }
+        ]
+    },
+    "clients": [
+        {
+            "clientId": "user-service",
+            "name": "User Service",
+            "enabled": true,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "cuyjZO1oj5jHoefWmlGPoerryp8od9KP",
+            "redirectUris": [
+                "http://localhost:8082/*",
+                "http://localhost:4200/*",
+                "http://localhost:8080/*"
+            ],
+            "webOrigins": [
+                "http://localhost:8082",
+                "http://localhost:4200",
+                "+"
+            ],
+            "standardFlowEnabled": true,
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "authorizationServicesEnabled": false,
+            "publicClient": false,
+            "protocol": "openid-connect",
+            "fullScopeAllowed": true,
+            "protocolMappers": [
+                {
+                    "name": "email",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-property-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "email",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "email",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "name": "realm roles",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-realm-role-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "multivalued": "true",
+                        "user.attribute": "foo",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "roles",
+                        "jsonType.label": "String"
+                    }
+                }
+            ]
+        },
+        {
+            "clientId": "angular-frontend",
+            "name": "Angular Frontend",
+            "enabled": true,
+            "publicClient": true,
+            "redirectUris": [
+                "http://localhost:4200/*"
+            ],
+            "webOrigins": [
+                "http://localhost:4200"
+            ],
+            "standardFlowEnabled": true,
+            "directAccessGrantsEnabled": true,
+            "protocol": "openid-connect",
+            "fullScopeAllowed": true
+        }
+    ],
+    "defaultRoles": [
+        "client"
+    ]
+}

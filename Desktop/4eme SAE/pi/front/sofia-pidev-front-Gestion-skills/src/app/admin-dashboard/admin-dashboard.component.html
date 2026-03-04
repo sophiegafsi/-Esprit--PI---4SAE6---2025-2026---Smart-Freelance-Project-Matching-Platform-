@@ -1,39 +1,236 @@
-<div class="page">
-    <div class="container">
-        <div class="dashboard-header">
-            <h1>Admin Dashboard</h1>
-            <p>Manage all users in the system</p>
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-user-shield admin-icon"></i>
+            <span>Admin Panel</span>
         </div>
 
-        <div class="card" *ngIf="loading">
-            <p class="loading-text">Loading users...</p>
-        </div>
+        <nav class="sidebar-nav">
+            <!-- Main Users Entry -->
+            <div class="nav-group">
+                <button class="nav-item" [class.active]="activeTab === 'users'" (click)="toggleUsersMenu()">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                    <i class="fas" [ngClass]="isUsersMenuOpen ? 'fa-chevron-down' : 'fa-chevron-right'"
+                        style="margin-left: auto; font-size: 10px;"></i>
+                </button>
 
-        <div class="card" *ngIf="error">
-            <p class="error-text">{{ error }}</p>
-        </div>
+                <!-- Sub Menu -->
+                <div class="sub-nav" *ngIf="isUsersMenuOpen">
+                    <button class="sub-nav-item" [class.active]="activeSubTab === 'clients'"
+                        (click)="setActiveSubTab('clients')">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Clients</span>
+                    </button>
+                    <button class="sub-nav-item" [class.active]="activeSubTab === 'freelancers'"
+                        (click)="setActiveSubTab('freelancers')">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Freelancers</span>
+                    </button>
+                    <button class="sub-nav-item" [class.active]="activeSubTab === 'admins'"
+                        (click)="setActiveSubTab('admins')">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admins</span>
+                    </button>
+                </div>
+            </div>
 
-        <div class="users-table-wrapper" *ngIf="!loading && !error">
-            <table class="users-table">
-                <thead>
-                    <tr>
-                        <th>Email</th>
-                        <th>Name</th>
-                        <th>Role</th>
-                        <th>Job Title</th>
-                        <th>Created At</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let user of users">
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.firstName }} {{ user.lastName }}</td>
-                        <td><span class="role-badge" [class]="user.role">{{ user.role }}</span></td>
-                        <td>{{ user.jobTitle || '-' }}</td>
-                        <td>{{ user.createdAt | date:'short' }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <button class="nav-item" [class.active]="activeTab === 'applications'"
+                (click)="setActiveTab('applications')">
+                <i class="fas fa-file-invoice"></i>
+                <span>Applications</span>
+            </button>
+
+            <button class="nav-item" [class.active]="activeTab === 'contracts'" (click)="setActiveTab('contracts')">
+                <i class="fas fa-file-contract"></i>
+                <span>Contracts</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid py-4">
+            <!-- Header (Pure Title, no p) -->
+            <div class="dashboard-header mb-4 px-3">
+                <h1 class="display-5 fw-bold text-white">
+                    {{ activeTab === 'users' ? (activeSubTab | titlecase) + ' Management' : (activeTab === 'contracts' ?
+                    'System Contracts' : 'Application Overview') }}
+                </h1>
+            </div>
+
+            <div class="px-3" *ngIf="!loading">
+                <!-- CLIENTS TABLE -->
+                <div class="section-container" *ngIf="activeTab === 'users' && activeSubTab === 'clients'">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>Full Name</th>
+                                <th>Birthdate</th>
+                                <th>Country</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let client of clients">
+                                <td class="id-cell">{{ client.id.substring(0,8) }}...</td>
+                                <td>{{ client.email }}</td>
+                                <td>{{ client.firstName }} {{ client.lastName }}</td>
+                                <td>{{ client.birthDate | date:'mediumDate' }}</td>
+                                <td>{{ client.country }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- FREELANCERS TABLE -->
+                <div class="section-container" *ngIf="activeTab === 'users' && activeSubTab === 'freelancers'">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>Full Name</th>
+                                <th>Birthdate</th>
+                                <th>Country</th>
+                                <th>Job Title</th>
+                                <th>Skills</th>
+                                <th>Portfolio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let free of freelancers">
+                                <td class="id-cell">{{ free.id.substring(0,8) }}...</td>
+                                <td>{{ free.email }}</td>
+                                <td>{{ free.firstName }} {{ free.lastName }}</td>
+                                <td>{{ free.birthDate | date:'mediumDate' }}</td>
+                                <td>{{ free.country }}</td>
+                                <td>{{ free.jobTitle || '-' }}</td>
+                                <td><span class="skill-tag" *ngFor="let s of (free.skills || '').split(',')">{{ s
+                                        }}</span></td>
+                                <td><a [href]="free.portfolioUrl" target="_blank" *ngIf="free.portfolioUrl"
+                                        class="link-icon"><i class="fas fa-external-link-alt"></i></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ADMINS TABLE -->
+                <div class="section-container" *ngIf="activeTab === 'users' && activeSubTab === 'admins'">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>Full Name</th>
+                                <th>Birthdate</th>
+                                <th>Country</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let admin of admins">
+                                <td class="id-cell">{{ admin.id.substring(0,8) }}...</td>
+                                <td>{{ admin.email }}</td>
+                                <td>{{ admin.firstName }} {{ admin.lastName }}</td>
+                                <td>{{ admin.birthDate | date:'mediumDate' }}</td>
+                                <td>{{ admin.country }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- APPLICATIONS TABLE -->
+                <div class="section-container" *ngIf="activeTab === 'applications'">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Freelancer ID</th>
+                                <th>Client ID</th>
+                                <th>Project ID</th>
+                                <th>Freelancer Name</th>
+                                <th>Client Name</th>
+                                <th>Project Name</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let cand of candidatures">
+                                <td class="id-cell clickable" (click)="toggleId(cand, 'freelancerId')">
+                                    {{ cand.expanded_freelancerId ? cand.freelancerId : cand.freelancerId.substring(0,8)
+                                    + '...' }}
+                                </td>
+                                <td class="id-cell clickable" (click)="toggleId(cand, 'clientId')">
+                                    {{ cand.expanded_clientId ? (cand.clientId || '-') : (cand.clientId ||
+                                    '-').substring(0,8) + '...' }}
+                                </td>
+                                <td class="id-cell clickable" (click)="toggleId(cand, 'projectId')">
+                                    {{ cand.expanded_projectId ? cand.projectId : cand.projectId.substring(0,8) + '...'
+                                    }}
+                                </td>
+                                <td>{{ cand.freelancerName }}</td>
+                                <td>{{ cand.clientName }}</td>
+                                <td>{{ cand.projectName }}</td>
+                                <td>{{ cand.createdAt | date:'short' }}</td>
+                                <td><span class="status-badge" [class]="cand.status">{{ cand.status | lowercase
+                                        }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- CONTRACTS TABLE -->
+                <div class="section-container" *ngIf="activeTab === 'contracts'">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Contract ID</th>
+                                <th>Client Name</th>
+                                <th>Freelancer Name</th>
+                                <th>Project Name</th>
+                                <th>Budget</th>
+                                <th>Created At</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let contract of contracts">
+                                <td class="id-cell clickable" (click)="toggleId(contract, 'id')">
+                                    {{ contract.expanded_id ? contract.id : contract.id.substring(0,8) + '...' }}
+                                </td>
+                                <td>{{ contract.clientName }}</td>
+                                <td>{{ contract.freelancerName }}</td>
+                                <td>{{ contract.projectName }}</td>
+                                <td class="budget-cell">${{ contract.budget | number:'1.2-2' }}</td>
+                                <td>{{ contract.createdAt | date:'shortDate' }}</td>
+                                <td><span class="status-badge" [class]="contract.status | lowercase">{{ contract.status
+                                        | lowercase }}</span></td>
+                                <td>
+                                    <button class="btn-icon" (click)="downloadPdf(contract.id)" title="Download PDF">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Loading / Error -->
+            <div class="px-3" *ngIf="loading">
+                <div class="section-container text-center">
+                    <p class="loading-text">Synchronizing System Data...</p>
+                </div>
+            </div>
+
+            <div class="px-3" *ngIf="error">
+                <div class="section-container text-center">
+                    <p class="error-text">{{ error }}</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>

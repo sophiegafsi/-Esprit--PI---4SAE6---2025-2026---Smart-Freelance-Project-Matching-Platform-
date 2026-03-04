@@ -1,53 +1,125 @@
-.page {
-    padding: 40px 0 60px;
-    min-height: calc(100vh - 80px);
+/* Main Layout */
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #0f172a;
 }
 
-.dashboard-header {
-    text-align: center;
-    margin-bottom: 32px;
+/* Sidebar Styling */
+.sidebar {
+    width: 280px;
+    height: 100vh;
+    background: #1e293b;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    padding: 24px 0;
+    z-index: 10;
 }
 
-.dashboard-header h1 {
-    margin: 0 0 8px;
-    font-size: 32px;
-    font-weight: 900;
-    color: #fff;
+.sidebar-header {
+    padding: 0 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.dashboard-header p {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--muted);
-}
-
-.card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 32px;
-}
-
-.loading-text,
-.error-text {
-    text-align: center;
-    font-weight: 800;
-    color: var(--muted);
-    margin: 0;
-}
-
-.error-text {
+.admin-icon {
+    font-size: 24px;
     color: #f2994a;
 }
 
-.users-table-wrapper {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
+.sidebar-header span {
+    font-size: 20px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+/* Navigation Items */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 16px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.nav-item.active {
+    background: rgba(242, 153, 74, 0.1);
+    color: #f2994a;
+}
+
+/* Sub-navigation */
+.sub-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 0 4px 24px;
+}
+
+.sub-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.sub-nav-item:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.sub-nav-item.active {
+    background: rgba(255, 255, 255, 0.05);
+    color: #f2994a;
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    min-height: 100vh;
+    background: #0f172a;
+    padding: 24px;
+}
+
+/* Section Containers (Tables) */
+.section-container {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    overflow-x: auto;
 }
 
 .users-table {
@@ -55,61 +127,131 @@
     border-collapse: collapse;
 }
 
-.users-table thead {
-    background: rgba(255, 255, 255, 0.05);
-}
-
 .users-table th {
     padding: 16px;
     text-align: left;
-    font-size: 12px;
-    font-weight: 900;
-    color: rgba(255, 255, 255, 0.85);
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    letter-spacing: 0.1em;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
 }
 
 .users-table td {
     padding: 16px;
     font-size: 14px;
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.9);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.users-table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.03);
-}
-
-.users-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.role-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 999px;
+.id-cell {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: #64748b;
+    transition: all 0.2s ease;
 }
 
-.role-badge.admin {
-    background: rgba(242, 153, 74, 0.2);
+.id-cell.clickable {
+    cursor: pointer;
+    text-decoration: underline dotted rgba(255, 255, 255, 0.1);
+}
+
+.id-cell.clickable:hover {
     color: #f2994a;
-    border: 1px solid rgba(242, 153, 74, 0.3);
+    background: rgba(255, 255, 255, 0.02);
 }
 
-.role-badge.freelancer {
-    background: rgba(47, 128, 237, 0.2);
-    color: #2f80ed;
-    border: 1px solid rgba(47, 128, 237, 0.3);
+/* Tags & Badges */
+.skill-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(242, 153, 74, 0.1);
+    color: #f2994a;
+    border-radius: 4px;
+    font-size: 11px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    font-weight: 600;
 }
 
-.role-badge.client {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-badge.pending {
+    background: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+}
+
+.status-badge.accepted,
+.status-badge.active {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.status-badge.rejected,
+.status-badge.terminated {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.status-badge.draft {
+    background: rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
+}
+
+.budget-cell {
+    font-weight: 700;
+    color: #22c55e;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    /* PDF Red */
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+}
+
+.btn-icon:hover {
+    transform: scale(1.2);
+    color: #f87171;
+}
+
+.link-icon {
+    color: #3b82f6;
+    transition: color 0.2s;
+}
+
+.link-icon:hover {
+    color: #60a5fa;
+}
+
+/* Loading Indicator */
+.loading-text {
+    color: #f2994a;
+    font-weight: 700;
+    letter-spacing: 1px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.6;
+    }
 }

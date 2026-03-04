@@ -8,7 +8,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 export class AuthService {
     // Keycloak Token Endpoint
     private keycloakUrl = 'http://localhost:8080/realms/freelink-realm/protocol/openid-connect/token';
-    private clientId = 'freelink-client'; // Ensure this matches your Keycloak Client ID
+    private clientId = 'angular-frontend'; // Public client configured in freelink-realm.json
 
     private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
     authState$ = this.authState.asObservable();
@@ -89,6 +89,12 @@ export class AuthService {
 
     deleteAccount(userId: string): Observable<any> {
         return this.http.delete(`${this.userApiUrl}/${userId}`);
+    }
+
+    getUserById(userId: string): Observable<any> {
+        // Assuming User Service has GET /users/{id}
+        // Based on updateUser using /users/{id}, this should exist or be supported.
+        return this.http.get(`${this.userApiUrl}/${userId}`);
     }
 
     becomeFreelancer(profile: any): Observable<any> {

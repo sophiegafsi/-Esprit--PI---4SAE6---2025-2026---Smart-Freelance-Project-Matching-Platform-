@@ -36,23 +36,25 @@ public class KeycloakService {
         if (keycloak == null) {
             keycloak = KeycloakBuilder.builder()
                     .serverUrl(serverUrl)
-                    .realm(realm)
-                    .grantType("client_credentials")
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
+                    .realm("master") // Admin access via master realm
+                    .grantType("password") // Use password grant for admin
+                    .clientId("admin-cli") // Built-in admin CLI client
+                    .username("admin") // Keycloak admin username
+                    .password("admin") // Keycloak admin password
                     .build();
         }
         return keycloak;
     }
 
-    public void createUser(UserDTO userDTO) {
+    public String createUser(UserDTO userDTO) {
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
         user.setUsername(userDTO.getEmail());
         user.setEmail(userDTO.getEmail());
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
-        user.setEmailVerified(false); // require email verification if needed
+        user.setEmailVerified(false); // Require manual email verification
+        user.setRequiredActions(Collections.singletonList("VERIFY_EMAIL"));
 
         if (userDTO.getBirthDate() != null) {
             user.singleAttribute("birthDate", userDTO.getBirthDate());
@@ -75,15 +77,6 @@ public class KeycloakService {
                 String userId = CreatedResponseUtil.getCreatedId(response);
                 System.out.println("User created in Keycloak with ID: " + userId);
 
-                // Trigger email verification safely
-                try {
-                    usersResource.get(userId).executeActionsEmail(Collections.singletonList("VERIFY_EMAIL"));
-                    System.out.println("Verification email sent to: " + userDTO.getEmail());
-                } catch (Exception e) {
-                    System.err.println("Failed to send verification email: " + e.getMessage());
-                    // Don't fail the registration, just log it.
-                }
-
                 // Assign 'client' role
                 try {
                     org.keycloak.representations.idm.RoleRepresentation clientRole = getKeycloakInstance()
@@ -97,6 +90,16 @@ public class KeycloakService {
                     System.err.println(
                             "Failed to assign 'client' role (ensure role exists in Keycloak): " + e.getMessage());
                 }
+
+                // Send verification email via MailHog
+                try {
+                    usersResource.get(userId).executeActionsEmail(Collections.singletonList("VERIFY_EMAIL"));
+                    System.out.println("Verification email sent to: " + userDTO.getEmail());
+                } catch (Exception e) {
+                    System.err.println("Failed to send verification email: " + e.getMessage());
+                }
+
+                return userId;
 
             } else if (response.getStatus() == 409) {
                 System.err.println("User already exists: " + userDTO.getEmail());
@@ -135,6 +138,44 @@ public class KeycloakService {
             System.out.println("User deleted from Keycloak: " + keycloakId);
         } catch (Exception e) {
             System.err.println("Failed to delete user from Keycloak: " + e.getMessage());
+        }
+    }
+
+    public void updateUserRole(String keycloakId, String roleStr) {
+        if (keycloakId == null || keycloakId.isEmpty() || roleStr == null)
+            return;
+        try {
+            UsersResource usersResource = getKeycloakInstance().realm(realm).users();
+            // 1. Get all roles the user currently has at realm level
+            List<org.keycloak.representations.idm.RoleRepresentation> currentRoles = usersResource.get(keycloakId)
+                    .roles().realmLevel().listAll();
+
+            // 2. Remove those that are our managed roles (admin, freelancer, client)
+            List<org.keycloak.representations.idm.RoleRepresentation> rolesToRemove = currentRoles.stream()
+                    .filter(r -> r.getName().equalsIgnoreCase("admin") ||
+                            r.getName().equalsIgnoreCase("freelancer") ||
+                            r.getName().equalsIgnoreCase("client"))
+                    .collect(java.util.stream.Collectors.toList());
+
+            if (!rolesToRemove.isEmpty()) {
+                usersResource.get(keycloakId).roles().realmLevel().remove(rolesToRemove);
+            }
+
+            // 3. Add the ones requested
+            String[] rolesToAdd = roleStr.split(",");
+            for (String rName : rolesToAdd) {
+                String trimmedName = rName.trim().toLowerCase();
+                try {
+                    org.keycloak.representations.idm.RoleRepresentation roleRep = getKeycloakInstance()
+                            .realm(realm).roles().get(trimmedName).toRepresentation();
+                    usersResource.get(keycloakId).roles().realmLevel().add(Collections.singletonList(roleRep));
+                } catch (Exception e) {
+                    System.err.println("Role " + trimmedName + " not found in Keycloak: " + e.getMessage());
+                }
+            }
+            System.out.println("User roles updated in Keycloak for: " + keycloakId);
+        } catch (Exception e) {
+            System.err.println("Failed to update user roles in Keycloak: " + e.getMessage());
         }
     }
 
