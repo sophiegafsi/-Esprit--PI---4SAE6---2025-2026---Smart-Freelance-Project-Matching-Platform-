@@ -1,11 +1,13 @@
 package tn.esprit.gestionskills.Entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -28,6 +30,9 @@ public class skills {
 
     private String description;
 
-    @OneToMany(mappedBy = "skill")
-    private Set<skillsproof> proofs;
+    @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<skillsproof> proofs = new HashSet<>();
+
 }
+
