@@ -1,0 +1,88 @@
+.form-page {
+  min-height: 100vh;
+  color: white;
+}
+
+.form-wrapper {
+  padding: 48px 20px;
+}
+
+.form-card {
+  width: min(900px, 92%);
+  margin: auto;
+  background: linear-gradient(180deg, rgba(33, 58, 91, 0.94), rgba(21, 42, 71, 0.94));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 28px;
+  padding: 42px;
+  box-shadow: 0 20px 48px rgba(0,0,0,0.32);
+}
+
+.form-card h1 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 30px;
+  font-size: 46px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 22px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+label {
+  margin-bottom: 10px;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+input,
+textarea,
+select {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: white;
+  border-radius: 16px;
+  padding: 16px 18px;
+  font-size: 17px;
+  outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255,255,255,0.55);
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 14px 26px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.save-btn {
+  background: #2ea79b;
+  color: white;
+}
+
+.cancel-btn {
+  background: #ef4444;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

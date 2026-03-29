@@ -1,0 +1,51 @@
+<div class="planning-page">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-box">◉</div>
+      <span>FreeLink</span>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#">Dashboard</a>
+      <a class="active" href="#">Planning</a>
+      <a href="#">Tasks</a>
+      <a href="#">Profile</a>
+    </nav>
+
+    <a routerLink="/plannings/add" class="top-btn">+ Add Planning</a>
+  </header>
+
+  <section class="hero">
+    <h1>All Plannings</h1>
+    <p>Organize your schedules, tasks and deadlines in a smart and modern way.</p>
+  </section>
+
+  <section class="planning-grid" *ngIf="plannings.length > 0; else noData">
+    <div class="planning-card" *ngFor="let planning of plannings">
+      <div class="card-head">
+        <h2>{{ planning.title }}</h2>
+        <span class="badge">{{ planning.status }}</span>
+      </div>
+
+      <p class="desc">{{ planning.description }}</p>
+
+      <div class="meta">
+        <p>📅 Start: {{ planning.startDate }}</p>
+        <p>📅 End: {{ planning.endDate }}</p>
+      </div>
+
+      <div class="card-actions">
+        <a [routerLink]="['/plannings', planning.id]" class="btn-outline">Details</a>
+        <a [routerLink]="['/plannings/edit', planning.id]" class="btn-edit">Edit</a>
+        <button (click)="deletePlanning(planning.id)" class="btn-delete">Delete</button>
+      </div>
+    </div>
+  </section>
+
+  <ng-template #noData>
+    <div class="empty-box">
+      <h3>No planning found</h3>
+      <p>Create your first planning to start organizing your work.</p>
+    </div>
+  </ng-template>
+</div>

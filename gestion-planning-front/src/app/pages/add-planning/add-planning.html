@@ -1,0 +1,59 @@
+<div class="form-page">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-box">◉</div>
+      <span>FreeLink</span>
+    </div>
+
+    <nav class="nav-links">
+      <a routerLink="/plannings">Planning</a>
+      <a class="active">Add</a>
+    </nav>
+
+    <a routerLink="/plannings" class="top-btn">Back</a>
+  </header>
+
+  <div class="form-wrapper">
+    <div class="form-card">
+      <h1>Add New Planning</h1>
+
+      <form (ngSubmit)="savePlanning()" #planningForm="ngForm">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" name="title" [(ngModel)]="planning.title" required placeholder="Enter planning title" />
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" [(ngModel)]="planning.description" required rows="4" placeholder="Enter planning description"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" name="startDate" [(ngModel)]="planning.startDate" required />
+          </div>
+
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" name="endDate" [(ngModel)]="planning.endDate" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <select name="status" [(ngModel)]="planning.status" required>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="COMPLETED">COMPLETED</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="save-btn">Save</button>
+          <a routerLink="/plannings" class="cancel-btn">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
