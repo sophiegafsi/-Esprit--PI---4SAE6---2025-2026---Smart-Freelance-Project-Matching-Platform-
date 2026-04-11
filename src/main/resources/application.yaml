@@ -6,7 +6,7 @@ spring:
     name: skills-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/GestionSkills?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/gestionskillsfares?useSSL=false&serverTimezone=UTC
     username: root
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver
