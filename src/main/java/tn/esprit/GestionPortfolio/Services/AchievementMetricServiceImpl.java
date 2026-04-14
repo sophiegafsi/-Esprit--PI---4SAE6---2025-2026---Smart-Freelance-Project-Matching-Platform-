@@ -3,6 +3,7 @@ package tn.esprit.GestionPortfolio.Services;
 import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import tn.esprit.GestionPortfolio.DTO.AchievementMetricSuggestionResponse;
 import tn.esprit.GestionPortfolio.Entities.Achievement;
 import tn.esprit.GestionPortfolio.Entities.AchievementMetric;
 import tn.esprit.GestionPortfolio.Repository.AchievementMetricRepository;
@@ -14,12 +15,16 @@ public class AchievementMetricServiceImpl implements IAchievementMetricService {
 
     private final AchievementMetricRepository achievementMetricRepository;
     private final AchievementRepository achievementRepository;
+    private final AchievementMetricScoringService achievementMetricScoringService;
 
     @Override
     public AchievementMetric addAchievementMetric(Long achievementId, AchievementMetric achievementMetric) {
         Achievement achievement = achievementRepository.findById(achievementId).orElse(null);
         if (achievement != null) {
+            AchievementMetricSuggestionResponse suggestion = achievementMetricScoringService.buildSuggestion(achievementId);
             achievementMetric.setAchievement(achievement);
+            achievementMetric.setComplexityScore(suggestion.complexityScore());
+            achievementMetric.setImpactScore(suggestion.impactScore());
             return achievementMetricRepository.save(achievementMetric);
         }
         return null;
@@ -27,6 +32,12 @@ public class AchievementMetricServiceImpl implements IAchievementMetricService {
 
     @Override
     public AchievementMetric updateAchievementMetric(AchievementMetric achievementMetric) {
+        Long achievementId = achievementMetric.getAchievement() == null ? null : achievementMetric.getAchievement().getId();
+        if (achievementId != null) {
+            AchievementMetricSuggestionResponse suggestion = achievementMetricScoringService.buildSuggestion(achievementId);
+            achievementMetric.setComplexityScore(suggestion.complexityScore());
+            achievementMetric.setImpactScore(suggestion.impactScore());
+        }
         return achievementMetricRepository.save(achievementMetric);
     }
 
@@ -45,6 +56,19 @@ public class AchievementMetricServiceImpl implements IAchievementMetricService {
 
     @Override
     public AchievementMetric getMetricByAchievementId(Long achievementId) {
-        return achievementMetricRepository.findByAchievementId(achievementId).orElse(null);
+        AchievementMetric metric = achievementMetricRepository.findByAchievementId(achievementId).orElse(null);
+        if (metric == null) {
+            return null;
+        }
+
+        AchievementMetricSuggestionResponse suggestion = achievementMetricScoringService.buildSuggestion(achievementId);
+        metric.setComplexityScore(suggestion.complexityScore());
+        metric.setImpactScore(suggestion.impactScore());
+        return achievementMetricRepository.save(metric);
+    }
+
+    @Override
+    public AchievementMetricSuggestionResponse getSuggestedMetricByAchievementId(Long achievementId) {
+        return achievementMetricScoringService.buildSuggestion(achievementId);
     }
 }

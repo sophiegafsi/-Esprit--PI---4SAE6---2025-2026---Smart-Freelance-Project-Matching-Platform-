@@ -15,25 +15,39 @@ public class AchievementSkillServiceImpl implements IAchievementSkillService {
 
     private final AchievementSkillRepository achievementSkillRepository;
     private final AchievementRepository achievementRepository;
+    private final AchievementMetricScoringService achievementMetricScoringService;
 
     @Override
     public AchievementSkill addAchievementSkill(Long achievementId, AchievementSkill achievementSkill) {
         Achievement achievement = achievementRepository.findById(achievementId).orElse(null);
         if (achievement != null) {
             achievementSkill.setAchievement(achievement);
-            return achievementSkillRepository.save(achievementSkill);
+            AchievementSkill saved = achievementSkillRepository.save(achievementSkill);
+            achievementMetricScoringService.syncMetricForAchievement(achievementId);
+            return saved;
         }
         return null;
     }
 
     @Override
     public AchievementSkill updateAchievementSkill(AchievementSkill achievementSkill) {
-        return achievementSkillRepository.save(achievementSkill);
+        AchievementSkill saved = achievementSkillRepository.save(achievementSkill);
+        Long achievementId = saved.getAchievement() == null ? null : saved.getAchievement().getId();
+        if (achievementId != null) {
+            achievementMetricScoringService.syncMetricForAchievement(achievementId);
+        }
+        return saved;
     }
 
     @Override
     public void deleteAchievementSkill(Long id) {
-        achievementSkillRepository.deleteById(id);
+        achievementSkillRepository.findById(id).ifPresent(skill -> {
+            Long achievementId = skill.getAchievement() == null ? null : skill.getAchievement().getId();
+            achievementSkillRepository.delete(skill);
+            if (achievementId != null) {
+                achievementMetricScoringService.syncMetricForAchievement(achievementId);
+            }
+        });
     }
 
     @Override

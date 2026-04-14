@@ -2,6 +2,7 @@ package tn.esprit.GestionPortfolio.Controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.GestionPortfolio.DTO.AchievementMetricSuggestionResponse;
 import tn.esprit.GestionPortfolio.Entities.AchievementMetric;
 import tn.esprit.GestionPortfolio.Services.IAchievementMetricService;
 
@@ -32,5 +33,10 @@ public class AchievementMetricController {
     @GetMapping("/achievement/{achievementId}")
     public AchievementMetric getMetricByAchievementId(@PathVariable Long achievementId) {
         return achievementMetricService.getMetricByAchievementId(achievementId);
+    }
+
+    @GetMapping("/achievement/{achievementId}/suggested")
+    public AchievementMetricSuggestionResponse getSuggestedMetricByAchievementId(@PathVariable Long achievementId) {
+        return achievementMetricService.getSuggestedMetricByAchievementId(achievementId);
     }
 }
