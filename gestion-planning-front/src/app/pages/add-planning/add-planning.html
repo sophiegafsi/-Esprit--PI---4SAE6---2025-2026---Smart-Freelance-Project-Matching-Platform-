@@ -60,11 +60,13 @@
 
         <div class="form-group">
           <label>Status</label>
-          <select name="status" [(ngModel)]="planning.status">
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="COMPLETED">COMPLETED</option>
-            <option value="CANCELLED">CANCELLED</option>
-          </select>
+          <div class="select-wrapper">
+            <select class="form-select" name="status" [(ngModel)]="planning.status">
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="COMPLETED">COMPLETED</option>
+              <option value="CANCELLED">CANCELLED</option>
+            </select>
+          </div>
         </div>
 
         <div class="actions">

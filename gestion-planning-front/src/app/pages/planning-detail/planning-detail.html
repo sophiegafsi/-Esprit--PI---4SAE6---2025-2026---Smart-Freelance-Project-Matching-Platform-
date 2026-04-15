@@ -183,20 +183,24 @@
         <div class="form-row">
           <div class="form-group">
             <label>⚡ Priority</label>
-            <select name="priority" [(ngModel)]="newTask.priority">
-              <option value="LOW">LOW</option>
-              <option value="MEDIUM">MEDIUM</option>
-              <option value="HIGH">HIGH</option>
-            </select>
+            <div class="select-wrapper">
+              <select class="form-select" name="priority" [(ngModel)]="newTask.priority">
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+              </select>
+            </div>
           </div>
 
           <div class="form-group">
             <label>🚦 Status</label>
-            <select name="status" [(ngModel)]="newTask.status">
-              <option value="TODO">TODO</option>
-              <option value="IN_PROGRESS">IN_PROGRESS</option>
-              <option value="DONE">DONE</option>
-            </select>
+            <div class="select-wrapper">
+              <select class="form-select" name="status" [(ngModel)]="newTask.status">
+                <option value="TODO">TODO</option>
+                <option value="IN_PROGRESS">IN_PROGRESS</option>
+                <option value="DONE">DONE</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -318,20 +322,24 @@
       <div class="form-row">
         <div class="form-group">
           <label>⚡ Priority</label>
-          <select name="editPriority" [(ngModel)]="editTaskData.priority">
-            <option value="LOW">LOW</option>
-            <option value="MEDIUM">MEDIUM</option>
-            <option value="HIGH">HIGH</option>
-          </select>
+          <div class="select-wrapper">
+            <select class="form-select" name="editPriority" [(ngModel)]="editTaskData.priority">
+              <option value="LOW">LOW</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="HIGH">HIGH</option>
+            </select>
+          </div>
         </div>
 
         <div class="form-group">
           <label>🚦 Status</label>
-          <select name="editStatus" [(ngModel)]="editTaskData.status">
-            <option value="TODO">TODO</option>
-            <option value="IN_PROGRESS">IN_PROGRESS</option>
-            <option value="DONE">DONE</option>
-          </select>
+          <div class="select-wrapper">
+            <select class="form-select" name="editStatus" [(ngModel)]="editTaskData.status">
+              <option value="TODO">TODO</option>
+              <option value="IN_PROGRESS">IN_PROGRESS</option>
+              <option value="DONE">DONE</option>
+            </select>
+          </div>
         </div>
       </div>
 

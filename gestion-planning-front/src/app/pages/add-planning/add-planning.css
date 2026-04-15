@@ -100,8 +100,7 @@ label {
 }
 
 input,
-textarea,
-select {
+textarea {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.12);
   color: white;
@@ -119,6 +118,48 @@ textarea::placeholder {
 textarea {
   resize: vertical;
   min-height: 110px;
+}
+
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.form-select {
+  width: 100%;
+  padding: 16px 48px 16px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: #223a5e;
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+  transition: 0.3s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.form-select:focus {
+  border-color: #d89a5b;
+  box-shadow: 0 0 0 3px rgba(216, 154, 91, 0.15);
+}
+
+.form-select option {
+  background-color: #1f3656;
+  color: #ffffff;
+}
+
+.select-wrapper::after {
+  content: "⌄";
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  color: #ffffff;
+  font-size: 20px;
+  pointer-events: none;
 }
 
 .actions {

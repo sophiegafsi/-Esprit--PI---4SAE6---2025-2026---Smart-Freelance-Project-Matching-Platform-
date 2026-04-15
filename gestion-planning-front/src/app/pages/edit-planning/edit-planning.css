@@ -45,6 +45,7 @@
   color: rgba(255,255,255,0.8);
   font-weight: 600;
   transition: 0.2s ease;
+  text-decoration: none;
 }
 
 .nav-links a.active,
@@ -60,6 +61,7 @@
   font-weight: 700;
   background: rgba(255,255,255,0.04);
   transition: 0.2s ease;
+  text-decoration: none;
 }
 
 .top-btn:hover {
@@ -155,8 +157,7 @@ label {
 }
 
 input,
-textarea,
-select {
+textarea {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.12);
   color: white;
@@ -174,8 +175,7 @@ textarea::placeholder {
 }
 
 input:focus,
-textarea:focus,
-select:focus {
+textarea:focus {
   border-color: rgba(244,162,89,0.8);
   box-shadow: 0 0 0 4px rgba(244,162,89,0.12);
   transform: translateY(-1px);
@@ -184,6 +184,48 @@ select:focus {
 textarea {
   resize: vertical;
   min-height: 130px;
+}
+
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.form-select {
+  width: 100%;
+  padding: 17px 48px 17px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: #223a5e;
+  color: #fff;
+  font-size: 17px;
+  outline: none;
+  transition: 0.3s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.form-select:focus {
+  border-color: #d89a5b;
+  box-shadow: 0 0 0 4px rgba(216, 154, 91, 0.15);
+}
+
+.form-select option {
+  background-color: #1f3656;
+  color: #ffffff;
+}
+
+.select-wrapper::after {
+  content: "⌄";
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  color: #ffffff;
+  font-size: 20px;
+  pointer-events: none;
 }
 
 .actions {
@@ -202,6 +244,7 @@ textarea {
   cursor: pointer;
   transition: 0.25s ease;
   font-size: 16px;
+  text-decoration: none;
 }
 
 .save-btn {
