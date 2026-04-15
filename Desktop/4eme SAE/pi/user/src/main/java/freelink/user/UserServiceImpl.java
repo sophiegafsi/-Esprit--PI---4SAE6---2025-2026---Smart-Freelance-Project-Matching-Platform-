@@ -386,7 +386,7 @@ public class UserServiceImpl implements UserService {
     public void markNotificationAsRead(UUID notificationId) {
         System.out.println(">>> Marking notification [" + notificationId + "] as read");
         notificationRepository.findById(notificationId).ifPresent(notif -> {
-            notif.setIsRead(true);
+            notif.setRead(true);
             notificationRepository.save(notif);
         });
     }
