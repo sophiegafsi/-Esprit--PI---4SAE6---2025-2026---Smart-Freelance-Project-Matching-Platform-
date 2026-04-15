@@ -376,7 +376,7 @@ public class UserServiceImpl implements UserService {
                 .message(message)
                 .type(type)
                 .actionUrl(actionUrl)
-                .read(false)
+                .isRead(false)
                 .createdAt(LocalDateTime.now())
                 .build();
         return notificationRepository.save(notification);
@@ -386,7 +386,7 @@ public class UserServiceImpl implements UserService {
     public void markNotificationAsRead(UUID notificationId) {
         System.out.println(">>> Marking notification [" + notificationId + "] as read");
         notificationRepository.findById(notificationId).ifPresent(notif -> {
-            notif.setRead(true);
+            notif.setIsRead(true);
             notificationRepository.save(notif);
         });
     }
