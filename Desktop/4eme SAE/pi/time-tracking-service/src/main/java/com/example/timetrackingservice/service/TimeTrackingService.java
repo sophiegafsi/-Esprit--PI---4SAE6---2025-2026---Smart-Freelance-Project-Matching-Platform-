@@ -81,6 +81,12 @@ public class TimeTrackingService {
         return workSessionRepository.findByContractId(contractId);
     }
 
+    public List<WorkSnapshot> getSnapshotsForSession(UUID sessionId) {
+        WorkSession session = workSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+        return workSnapshotRepository.findByWorkSession(session);
+    }
+
     @Transactional
     public WorkSession updateSessionStatus(UUID sessionId, SessionStatus newStatus) {
         WorkSession session = workSessionRepository.findById(sessionId)

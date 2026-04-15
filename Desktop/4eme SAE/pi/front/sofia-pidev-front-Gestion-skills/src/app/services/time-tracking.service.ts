@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -42,5 +43,19 @@ export class TimeTrackingService {
 
   updateSessionStatus(sessionId: string, status: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/${sessionId}/status?status=${status}`, {});
+  }
+
+  downloadSnapshots(sessionId: string): void {
+    this.http.get(`${this.apiUrl}/${sessionId}/download-snapshots`, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `session-${sessionId}-screenshots.zip`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => console.error('Download failed', err)
+    });
   }
 }

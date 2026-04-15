@@ -46,4 +46,8 @@ export class WorkReviewComponent implements OnInit {
       this.closeSnapshots();
     });
   }
+
+  downloadSnapshots(sessionId: string) {
+    this.timeTrackingService.downloadSnapshots(sessionId);
+  }
 }
