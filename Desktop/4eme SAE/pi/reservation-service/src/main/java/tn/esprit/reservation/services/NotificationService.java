@@ -64,10 +64,10 @@ public class NotificationService {
                     : "Update: Freelancer " + freelancerName + " declined/cancelled your booking for " + availability.getDate() + ".";
 
             sendGlobalNotification(
-                booking.getUserId(), 
+                booking.getUserKeycloakId(), 
                 msg, 
                 updateType, 
-                "/browse-freelancers"
+                "/my-bookings"
             );
         });
     }
@@ -102,7 +102,7 @@ public class NotificationService {
 
     private void sendReminder(Booking booking, Availability availability, String msg, String type) {
         // Notify Client
-        sendGlobalNotification(booking.getUserId(), msg, type, "/browse-freelancers");
+        sendGlobalNotification(booking.getUserKeycloakId(), msg, type, "/my-bookings");
 
         // Notify Freelancer
         sendGlobalNotification(

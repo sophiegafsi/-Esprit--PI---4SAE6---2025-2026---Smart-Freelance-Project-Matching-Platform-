@@ -59,7 +59,9 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<Booking> create(@RequestBody Booking booking) {
+    public ResponseEntity<Booking> create(@RequestBody Booking booking, @AuthenticationPrincipal Jwt jwt) {
+        // Automatically link the booking to the authenticated user's Keycloak ID for notifications
+        booking.setUserKeycloakId(jwt.getSubject()); 
         Booking created = bookingService.create(booking);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }

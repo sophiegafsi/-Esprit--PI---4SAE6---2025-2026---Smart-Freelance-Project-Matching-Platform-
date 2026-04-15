@@ -24,6 +24,9 @@ public class Booking {
     private String userId;
 
     @Column(nullable = false)
+    private String userKeycloakId; // The Keycloak sub (ID) for notifications
+
+    @Column(nullable = false)
     private String freelancerId;
 
     @Column(nullable = false)
