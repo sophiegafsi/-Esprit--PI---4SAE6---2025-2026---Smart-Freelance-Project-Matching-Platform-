@@ -1,16 +1,20 @@
 package com.example.recompense.Service;
 
+import com.example.recompense.DTO.FreelancerRewardInsightDTO;
 import com.example.recompense.DTO.MonthlyRewardProgressDTO;
 import com.example.recompense.DTO.RewardDashboardDTO;
 import com.example.recompense.DTO.RewardEvaluationSyncRequest;
+import com.example.recompense.DTO.RewardOpportunityDTO;
 import com.example.recompense.DTO.RewardProcessingResponse;
 import com.example.recompense.DTO.TopFreelancerDTO;
 import com.example.recompense.Entity.Badge;
 import com.example.recompense.Entity.FreelancerRewardProfile;
+import com.example.recompense.Entity.Recompense;
 import com.example.recompense.Entity.RewardHistory;
 import com.example.recompense.Entity.UserBadge;
 import com.example.recompense.Entity.UserPoints;
 import com.example.recompense.Repository.FreelancerRewardProfileRepository;
+import com.example.recompense.Repository.RecompenseRepository;
 import com.example.recompense.Repository.RewardHistoryRepository;
 import com.example.recompense.Repository.UserBadgeRepository;
 import com.example.recompense.Repository.UserPointsRepository;
@@ -37,6 +41,7 @@ public class RewardEngineService {
     private static final String SCORE_BADGE_TYPE = "SCORE_BADGE";
     private static final String POINTS_BADGE_TYPE = "POINTS_BADGE";
     private static final String LEVEL_TYPE = "LEVEL";
+    private static final String RECOMPENSE_TYPE = "RECOMPENSE";
     private static final String AWARDED_ACTION = "AWARDED";
     private static final String REVOKED_ACTION = "REVOKED";
     private static final String UPGRADED_ACTION = "UPGRADED";
@@ -48,6 +53,7 @@ public class RewardEngineService {
     private final UserBadgeRepository userBadgeRepository;
     private final UserPointsRepository userPointsRepository;
     private final FreelancerRewardProfileRepository profileRepository;
+    private final RecompenseRepository recompenseRepository;
     private final RewardHistoryRepository rewardHistoryRepository;
     private final NotificationService notificationService;
     private final EmailService emailService;
@@ -57,6 +63,7 @@ public class RewardEngineService {
                                UserBadgeRepository userBadgeRepository,
                                UserPointsRepository userPointsRepository,
                                FreelancerRewardProfileRepository profileRepository,
+                               RecompenseRepository recompenseRepository,
                                RewardHistoryRepository rewardHistoryRepository,
                                NotificationService notificationService,
                                EmailService emailService,
@@ -65,6 +72,7 @@ public class RewardEngineService {
         this.userBadgeRepository = userBadgeRepository;
         this.userPointsRepository = userPointsRepository;
         this.profileRepository = profileRepository;
+        this.recompenseRepository = recompenseRepository;
         this.rewardHistoryRepository = rewardHistoryRepository;
         this.notificationService = notificationService;
         this.emailService = emailService;
@@ -99,6 +107,7 @@ public class RewardEngineService {
         );
 
         profileRepository.save(profile);
+        awardEligibleRecompenses(profile, request);
 
         RewardProcessingResponse response = new RewardProcessingResponse();
         response.setFreelancerEmail(profile.getUserEmail());
@@ -132,6 +141,16 @@ public class RewardEngineService {
         }
 
         return updated;
+    }
+
+    public int assignPendingRecompenses() {
+        int assigned = 0;
+
+        for (FreelancerRewardProfile profile : profileRepository.findAll()) {
+            assigned += awardEligibleRecompenses(profile, buildRewardRequestFromProfile(profile));
+        }
+
+        return assigned;
     }
 
     public RewardDashboardDTO getDashboard() {
@@ -173,6 +192,20 @@ public class RewardEngineService {
     @Transactional(readOnly = true)
     public Optional<FreelancerRewardProfile> getProfile(String email) {
         return profileRepository.findByUserEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    public List<FreelancerRewardInsightDTO> getAllRewardInsights() {
+        return profileRepository.findAll().stream()
+                .sorted(Comparator.comparing(FreelancerRewardProfile::getUpdatedAt).reversed())
+                .map(this::buildRewardInsight)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<FreelancerRewardInsightDTO> getRewardInsight(String email) {
+        return profileRepository.findByUserEmail(email)
+                .map(this::buildRewardInsight);
     }
 
     @Transactional(readOnly = true)
@@ -419,6 +452,77 @@ public class RewardEngineService {
         );
     }
 
+    private int awardEligibleRecompenses(FreelancerRewardProfile profile,
+                                         RewardEvaluationSyncRequest request) {
+
+        int totalPoints = safeInteger(request.getTotalPoints());
+        int assigned = 0;
+
+        List<Recompense> eligibleRecompenses = recompenseRepository.findByIsActiveTrue()
+                .stream()
+                .filter(recompense -> safeInteger(recompense.getPointsRequired()) <= totalPoints)
+                .filter(recompense -> recompense.getStock() == null || recompense.getStock() == -1 || recompense.getStock() > 0)
+                .sorted(Comparator.comparing(Recompense::getPointsRequired, Comparator.nullsFirst(Integer::compareTo)))
+                .toList();
+
+        for (Recompense recompense : eligibleRecompenses) {
+            boolean alreadyAwarded = rewardHistoryRepository.existsByUserEmailAndRewardNameAndRewardTypeAndActionType(
+                    profile.getUserEmail(),
+                    recompense.getTitle(),
+                    RECOMPENSE_TYPE,
+                    AWARDED_ACTION
+            );
+
+            if (alreadyAwarded) {
+                continue;
+            }
+
+            String description = "Automatic reward unlocked after reaching "
+                    + safeInteger(recompense.getPointsRequired())
+                    + " points.";
+
+            RewardHistory history = buildHistory(
+                    profile,
+                    recompense.getTitle(),
+                    RECOMPENSE_TYPE,
+                    AWARDED_ACTION,
+                    request,
+                    description
+            );
+            rewardHistoryRepository.save(history);
+
+            if (recompense.getStock() != null && recompense.getStock() > 0) {
+                recompense.setStock(recompense.getStock() - 1);
+                recompenseRepository.save(recompense);
+            }
+
+            notificationService.createAndBroadcast(
+                    profile.getUserEmail(),
+                    "Reward unlocked: " + recompense.getTitle()
+                            + " | total points " + totalPoints
+            );
+
+            String emailBody = "Hello " + safe(profile.getUserName(), profile.getUserEmail()) + ",\n\n"
+                    + "You unlocked the reward \"" + recompense.getTitle() + "\".\n"
+                    + "Required points: " + safeInteger(recompense.getPointsRequired()) + "\n"
+                    + "Your total points: " + totalPoints + "\n"
+                    + "Average score: " + formatDecimal(request.getAverageScore()) + "\n"
+                    + "Level: " + safe(profile.getCurrentLevel(), "N/A") + "\n\n"
+                    + safe(recompense.getDescription(), "Congratulations on your new reward.");
+
+            emailService.sendBadgeEmail(
+                    profile.getUserEmail(),
+                    "New reward unlocked: " + recompense.getTitle(),
+                    emailBody,
+                    null,
+                    null
+            );
+            assigned++;
+        }
+
+        return assigned;
+    }
+
     private void transitionLevel(FreelancerRewardProfile profile,
                                  String nextLevel,
                                  RewardEvaluationSyncRequest request) {
@@ -472,6 +576,20 @@ public class RewardEngineService {
         history.setCompletedProjectsSnapshot(request.getCompletedProjects());
         history.setEventDate(resolveEventDate(request));
         return history;
+    }
+
+    private RewardEvaluationSyncRequest buildRewardRequestFromProfile(FreelancerRewardProfile profile) {
+        RewardEvaluationSyncRequest request = new RewardEvaluationSyncRequest();
+        request.setFreelancerEmail(profile.getUserEmail());
+        request.setFreelancerName(profile.getUserName());
+        request.setCurrentScore(safeInteger(profile.getLatestScore()));
+        request.setAverageScore(profile.getAverageScore() == null ? 0.0 : profile.getAverageScore());
+        request.setTotalPoints(safeInteger(profile.getTotalPoints()));
+        request.setTotalEvaluations(safeInteger(profile.getTotalEvaluations()));
+        request.setPositiveEvaluations(safeInteger(profile.getPositiveEvaluations()));
+        request.setCompletedProjects(safeInteger(profile.getCompletedProjects()));
+        request.setEvaluatedAt(profile.getLastEvaluationAt() == null ? LocalDateTime.now() : profile.getLastEvaluationAt());
+        return request;
     }
 
     private String buildAwardReason(Badge badge, RewardEvaluationSyncRequest request) {
@@ -564,6 +682,159 @@ public class RewardEngineService {
                 .toList();
     }
 
+    private FreelancerRewardInsightDTO buildRewardInsight(FreelancerRewardProfile profile) {
+        double averageScore = profile.getAverageScore() == null ? 0.0 : profile.getAverageScore();
+        int totalPoints = safeInteger(profile.getTotalPoints());
+
+        Badge nextScoreBadge = nextBadge(SCORE_CONDITION, averageScore);
+        Badge nextPointsBadge = nextBadge(POINTS_CONDITION, totalPoints);
+
+        List<RewardOpportunityDTO> opportunities = buildRewardOpportunities(profile, totalPoints);
+        Optional<RewardOpportunityDTO> nextRecompense = opportunities.stream()
+                .filter(opportunity -> RECOMPENSE_TYPE.equals(opportunity.getType()))
+                .filter(opportunity -> !Boolean.TRUE.equals(opportunity.getAlreadyAwarded()))
+                .filter(opportunity -> Boolean.TRUE.equals(opportunity.getAvailable()))
+                .filter(opportunity -> !Boolean.TRUE.equals(opportunity.getEligible()))
+                .sorted(Comparator.comparing(RewardOpportunityDTO::getRequiredValue, Comparator.nullsLast(Double::compareTo)))
+                .findFirst();
+
+        int eligibleRecompensesCount = (int) opportunities.stream()
+                .filter(opportunity -> RECOMPENSE_TYPE.equals(opportunity.getType()))
+                .filter(opportunity -> Boolean.TRUE.equals(opportunity.getEligible()))
+                .count();
+        int lockedRecompensesCount = (int) opportunities.stream()
+                .filter(opportunity -> RECOMPENSE_TYPE.equals(opportunity.getType()))
+                .filter(opportunity -> !Boolean.TRUE.equals(opportunity.getEligible()))
+                .filter(opportunity -> !Boolean.TRUE.equals(opportunity.getAlreadyAwarded()))
+                .count();
+        int availableRecompensesCount = (int) opportunities.stream()
+                .filter(opportunity -> RECOMPENSE_TYPE.equals(opportunity.getType()))
+                .filter(opportunity -> Boolean.TRUE.equals(opportunity.getAvailable()))
+                .count();
+
+        FreelancerRewardInsightDTO insight = new FreelancerRewardInsightDTO();
+        insight.setUserEmail(profile.getUserEmail());
+        insight.setUserName(profile.getUserName());
+        insight.setCurrentLevel(profile.getCurrentLevel());
+        insight.setPerformanceStatus(calculatePerformanceStatus(profile));
+        insight.setNextScoreBadge(nextScoreBadge == null ? null : nextScoreBadge.getName());
+        insight.setScoreToNextBadge(nextScoreBadge == null
+                ? 0.0
+                : roundRemaining(safeDouble(nextScoreBadge.getConditionValue()) - averageScore));
+        insight.setNextPointsBadge(nextPointsBadge == null ? null : nextPointsBadge.getName());
+        insight.setPointsToNextBadge(nextPointsBadge == null
+                ? 0
+                : Math.max(0, safeDouble(nextPointsBadge.getConditionValue()).intValue() - totalPoints));
+        insight.setNextRecompense(nextRecompense.map(RewardOpportunityDTO::getTitle).orElse(null));
+        insight.setPointsToNextRecompense(nextRecompense
+                .map(RewardOpportunityDTO::getRemainingValue)
+                .map(Double::intValue)
+                .orElse(0));
+        insight.setEligibleRecompensesCount(eligibleRecompensesCount);
+        insight.setLockedRecompensesCount(lockedRecompensesCount);
+        insight.setAvailableRecompensesCount(availableRecompensesCount);
+        insight.setOpportunities(opportunities);
+        insight.setRecommendations(buildRecommendations(profile, nextScoreBadge, nextPointsBadge, nextRecompense));
+        return insight;
+    }
+
+    private Badge nextBadge(String conditionType, double currentValue) {
+        return badgeService.findActiveBadgesByCondition(conditionType)
+                .stream()
+                .filter(badge -> Boolean.TRUE.equals(badge.getAutoAssignable()))
+                .filter(badge -> safeDouble(badge.getConditionValue()) > currentValue)
+                .min(Comparator.comparing(Badge::getConditionValue, Comparator.nullsLast(Double::compareTo)))
+                .orElse(null);
+    }
+
+    private List<RewardOpportunityDTO> buildRewardOpportunities(FreelancerRewardProfile profile, int totalPoints) {
+        List<RewardOpportunityDTO> opportunities = new ArrayList<>();
+
+        for (Recompense recompense : recompenseRepository.findByIsActiveTrue()) {
+            int requiredPoints = safeInteger(recompense.getPointsRequired());
+            boolean available = recompense.getStock() == null || recompense.getStock() == -1 || recompense.getStock() > 0;
+            boolean alreadyAwarded = rewardHistoryRepository.existsByUserEmailAndRewardNameAndRewardTypeAndActionType(
+                    profile.getUserEmail(),
+                    recompense.getTitle(),
+                    RECOMPENSE_TYPE,
+                    AWARDED_ACTION
+            );
+
+            RewardOpportunityDTO opportunity = new RewardOpportunityDTO();
+            opportunity.setType(RECOMPENSE_TYPE);
+            opportunity.setTitle(recompense.getTitle());
+            opportunity.setDescription(recompense.getDescription());
+            opportunity.setCurrentValue((double) totalPoints);
+            opportunity.setRequiredValue((double) requiredPoints);
+            opportunity.setRemainingValue((double) Math.max(0, requiredPoints - totalPoints));
+            opportunity.setEligible(totalPoints >= requiredPoints && available && !alreadyAwarded);
+            opportunity.setAlreadyAwarded(alreadyAwarded);
+            opportunity.setAvailable(available);
+            opportunities.add(opportunity);
+        }
+
+        opportunities.sort(Comparator
+                .comparing(RewardOpportunityDTO::getEligible, Comparator.nullsLast(Boolean::compareTo)).reversed()
+                .thenComparing(RewardOpportunityDTO::getRequiredValue, Comparator.nullsLast(Double::compareTo)));
+
+        return opportunities;
+    }
+
+    private String calculatePerformanceStatus(FreelancerRewardProfile profile) {
+        double averageScore = profile.getAverageScore() == null ? 0.0 : profile.getAverageScore();
+        int totalEvaluations = safeInteger(profile.getTotalEvaluations());
+        int totalPoints = safeInteger(profile.getTotalPoints());
+
+        if (totalEvaluations == 0) {
+            return "WAITING_FOR_EVALUATIONS";
+        }
+        if (averageScore >= 4.5 && totalPoints >= 500) {
+            return "ELITE_READY";
+        }
+        if (averageScore >= 4.0 && totalPoints >= 250) {
+            return "PREMIUM_PROGRESS";
+        }
+        if (averageScore < 3.0) {
+            return "NEEDS_ATTENTION";
+        }
+        return "PROGRESSING";
+    }
+
+    private List<String> buildRecommendations(FreelancerRewardProfile profile,
+                                              Badge nextScoreBadge,
+                                              Badge nextPointsBadge,
+                                              Optional<RewardOpportunityDTO> nextRecompense) {
+        List<String> recommendations = new ArrayList<>();
+        double averageScore = profile.getAverageScore() == null ? 0.0 : profile.getAverageScore();
+        int totalPoints = safeInteger(profile.getTotalPoints());
+
+        if (nextScoreBadge != null) {
+            recommendations.add("Improve the average score by "
+                    + formatDecimal(roundRemaining(safeDouble(nextScoreBadge.getConditionValue()) - averageScore))
+                    + " to unlock the badge " + nextScoreBadge.getName() + ".");
+        } else {
+            recommendations.add("All score badges are currently unlocked for this score level.");
+        }
+
+        if (nextPointsBadge != null) {
+            recommendations.add("Earn "
+                    + Math.max(0, safeDouble(nextPointsBadge.getConditionValue()).intValue() - totalPoints)
+                    + " more points to unlock the badge " + nextPointsBadge.getName() + ".");
+        }
+
+        nextRecompense.ifPresent(opportunity -> recommendations.add("The next automatic reward is "
+                + opportunity.getTitle()
+                + "; "
+                + opportunity.getRemainingValue().intValue()
+                + " more points are required."));
+
+        if ("NEEDS_ATTENTION".equals(calculatePerformanceStatus(profile))) {
+            recommendations.add("Review the last client feedback before assigning high value rewards.");
+        }
+
+        return recommendations;
+    }
+
     private TopFreelancerDTO toTopFreelancer(FreelancerRewardProfile profile) {
         TopFreelancerDTO dto = new TopFreelancerDTO();
         dto.setUserEmail(profile.getUserEmail());
@@ -643,6 +914,15 @@ public class RewardEngineService {
 
     private int safeInteger(Integer value) {
         return value == null ? 0 : value;
+    }
+
+    private Double safeDouble(Double value) {
+        return value == null ? 0.0 : value;
+    }
+
+    private Double roundRemaining(Double value) {
+        double safeValue = value == null ? 0.0 : value;
+        return Math.max(0.0, Math.round(safeValue * 100.0) / 100.0);
     }
 
     private String safe(String value, String fallback) {

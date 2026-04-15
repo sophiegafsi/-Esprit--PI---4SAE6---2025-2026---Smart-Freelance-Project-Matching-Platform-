@@ -1,6 +1,7 @@
 package com.example.recompense.Controller;
 
 import com.example.recompense.DTO.CertificatePayloadDTO;
+import com.example.recompense.DTO.FreelancerRewardInsightDTO;
 import com.example.recompense.DTO.RewardDashboardDTO;
 import com.example.recompense.DTO.RewardEvaluationSyncRequest;
 import com.example.recompense.DTO.RewardProcessingResponse;
@@ -61,6 +62,20 @@ public class RewardController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/insights")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<List<FreelancerRewardInsightDTO>> getInsights() {
+        return ResponseEntity.ok(rewardEngineService.getAllRewardInsights());
+    }
+
+    @GetMapping("/insights/{email}")
+    @PreAuthorize("hasRole('admin') or @rewardSecurity.canAccessEmail(authentication, #email)")
+    public ResponseEntity<FreelancerRewardInsightDTO> getInsight(@PathVariable String email) {
+        return rewardEngineService.getRewardInsight(email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/history")
     @PreAuthorize("hasRole('admin') or (#email != null && @rewardSecurity.canAccessEmail(authentication, #email))")
     public ResponseEntity<List<RewardHistory>> getHistory(@RequestParam(required = false) String email) {
@@ -113,6 +128,16 @@ public class RewardController {
         return ResponseEntity.ok(Map.of(
                 "message", "Stored freelancer levels recalculated successfully.",
                 "updatedProfiles", updatedProfiles
+        ));
+    }
+
+    @PostMapping("/assign-pending-rewards")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Map<String, Object>> assignPendingRewards() {
+        int assignedRewards = rewardEngineService.assignPendingRecompenses();
+        return ResponseEntity.ok(Map.of(
+                "message", "Eligible rewards assigned successfully.",
+                "assignedRewards", assignedRewards
         ));
     }
 }

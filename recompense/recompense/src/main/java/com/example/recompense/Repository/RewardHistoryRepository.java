@@ -10,4 +10,9 @@ public interface RewardHistoryRepository extends JpaRepository<RewardHistory, Lo
     List<RewardHistory> findByUserEmailOrderByEventDateDesc(String userEmail);
 
     List<RewardHistory> findAllByOrderByEventDateDesc();
+
+    boolean existsByUserEmailAndRewardNameAndRewardTypeAndActionType(String userEmail,
+                                                                     String rewardName,
+                                                                     String rewardType,
+                                                                     String actionType);
 }

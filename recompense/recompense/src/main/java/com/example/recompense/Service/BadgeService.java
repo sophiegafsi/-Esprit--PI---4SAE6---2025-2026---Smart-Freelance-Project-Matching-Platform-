@@ -114,6 +114,18 @@ public class BadgeService {
                 .orElse(null);
     }
 
+    public List<Badge> findActiveBadgesByCondition(String conditionType) {
+        String normalizedConditionType = normalizeConditionType(conditionType);
+        if (normalizedConditionType == null) {
+            return List.of();
+        }
+
+        return badgeRepository.findByIsActiveTrue()
+                .stream()
+                .filter(badge -> normalizedConditionType.equals(normalizeConditionType(badge.getConditionType())))
+                .toList();
+    }
+
     private void validateBadge(Badge badge) {
         if (badge.getName() == null || badge.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Le nom du badge est obligatoire");
