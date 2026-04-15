@@ -18,6 +18,14 @@
         <h1 class="profile-name">{{ freelancerView.name }}</h1>
         <p class="profile-title">{{ freelancerView.title }}</p>
         <button class="btn clear" (click)="toggleEdit()">Modifier le Profil</button>
+        <div class="profile-actions"
+          style="margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn ghost" routerLink="/skills">Mes Compétences</button>
+          <button class="btn ghost" routerLink="/portfolio">Mon Portfolio</button>
+          <button class="btn primary" routerLink="/availability/new">📅 Add Availability</button>
+          <button class="btn ghost" routerLink="/my-availabilities">🗓️ My Availabilities</button>
+          <button class="btn primary" routerLink="/my-bookings" style="background: #10b981; border-color: #10b981;">📝 Manage Bookings</button>
+        </div>
       </ng-container>
 
       <!-- EDIT MODE (Image URL) -->

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CandidatureService } from '../../services/candidature.service';
 import { AuthService } from '../../services/auth.service';
@@ -17,12 +17,14 @@ export class ApplyComponent implements OnInit {
   successMessage: string = '';
   project: any = null;
   loading: boolean = false;
+  checkingGrammar: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private candidatureService: CandidatureService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -32,7 +34,7 @@ export class ApplyComponent implements OnInit {
       this.candidatureService.getAllProjects().subscribe(projects => {
         this.project = projects.find(p => p.id === this.projectId);
         if (this.project && this.project.status === 'CLOSED') {
-          this.errorMessage = "This project is no longer accepting applications.";
+          this.errorMessage = "Freelink: This project is no longer accepting applications.";
         }
       });
     }
@@ -42,10 +44,10 @@ export class ApplyComponent implements OnInit {
         this.freelancerId = user.id;
         // Optional: Check if user is actually a freelancer
         if (!this.authService.isFreelancer()) {
-          this.errorMessage = "Only freelancers can apply.";
+          this.errorMessage = "Freelink: Only freelancers can apply to projects.";
         }
       } else {
-        this.errorMessage = "You must be logged in to apply.";
+        this.errorMessage = "Freelink: Please log in to your account to apply.";
       }
     });
   }
@@ -54,14 +56,43 @@ export class ApplyComponent implements OnInit {
     this.selectedFile = file;
   }
 
+  checkGrammar(): void {
+    if (!this.coverLetter.trim()) {
+      this.errorMessage = 'Freelink AI: Please write your cover letter before auto-correcting.';
+      return;
+    }
+
+    this.checkingGrammar = true;
+    this.errorMessage = '';
+
+    this.candidatureService.checkGrammar(this.coverLetter).subscribe({
+      next: (correctedText) => {
+        this.coverLetter = correctedText;
+        this.checkingGrammar = false;
+        this.successMessage = "Freelink Insight: Cover letter auto-corrected successfully!";
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      },
+      error: (err) => {
+        console.error(err);
+        this.errorMessage = 'Freelink Server Error: Failed to auto-correct grammar. Our AI services might be busy.';
+        this.checkingGrammar = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   apply(): void {
     if (!this.freelancerId || !this.projectId) {
-      this.errorMessage = 'Missing freelancer or project information.';
+      this.errorMessage = 'Freelink check failed: Missing freelancer or project information.';
       return;
     }
 
     if (!this.coverLetter) {
-      this.errorMessage = 'Please provide a cover letter.';
+      this.errorMessage = 'Freelink check failed: Please provide a cover letter.';
       return;
     }
 
@@ -72,13 +103,13 @@ export class ApplyComponent implements OnInit {
     this.candidatureService.apply(this.freelancerId, this.projectId, this.coverLetter, this.selectedFile)
       .subscribe({
         next: (res) => {
-          this.successMessage = 'Application submitted successfully!';
+          this.successMessage = 'Freelink Success: Application submitted successfully!';
           this.loading = false;
           setTimeout(() => this.router.navigate(['/my-applications']), 2000);
         },
         error: (err) => {
           console.error(err);
-          this.errorMessage = 'Failed to submit application. ' + (err.error?.message || err.message || '');
+          this.errorMessage = 'Freelink Server Error: Failed to submit application. ' + (err.error?.message || err.message || '');
           this.loading = false;
         }
       });

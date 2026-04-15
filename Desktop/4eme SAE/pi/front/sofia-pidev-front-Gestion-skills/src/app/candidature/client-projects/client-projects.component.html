@@ -9,8 +9,8 @@
     </div>
 
     <div *ngIf="!loading && projects.length === 0" style="text-align: center; color: var(--muted); padding: 2rem;">
-        <p>You haven't posted any projects yet.</p>
-        <a href="#" class="btn primary">Post a Job</a> <!-- Link to job posting if available -->
+        <p>Freelink: You haven't posted any projects yet.</p>
+        <a routerLink="/postuler" class="btn primary">Post a Job</a> <!-- Link to job posting if available -->
     </div>
 
     <div class="projects-grid" style="display: grid; gap: 1.5rem;">

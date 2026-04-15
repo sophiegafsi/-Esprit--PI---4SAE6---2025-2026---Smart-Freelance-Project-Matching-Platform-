@@ -14,7 +14,7 @@
     </div>
 
     <div *ngIf="!loading && applications.length === 0" style="text-align: center; color: var(--muted); padding: 2rem;">
-        <p>No applications received yet.</p>
+        <p>Freelink: No applications received yet.</p>
     </div>
 
     <div class="applications-grid" style="display: grid; gap: 1.5rem;">
@@ -38,9 +38,21 @@
                 </div>
             </div>
 
-            <p style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; color: var(--muted);">
+            <p
+                style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; color: var(--muted); margin-bottom: 0.5rem;">
                 {{ app.coverLetter }}
             </p>
+
+            <!-- Grammar Analysis Report -->
+            <div *ngIf="app.grammarReport"
+                style="background: rgba(39, 174, 96, 0.1); border-left: 4px solid #27ae60; padding: 0.8rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;">
+                <div style="color: #2ecc71; font-weight: bold; margin-bottom: 0.3rem;">
+                    <i class="fas fa-magic me-2"></i> AI Grammar Insights
+                </div>
+                <div style="color: #bdc3c7; white-space: pre-wrap; font-style: italic;">
+                    {{ app.grammarReport }}
+                </div>
+            </div>
 
             <div *ngIf="app.fileName" style="margin-bottom: 1rem;">
                 <span style="color: var(--white); margin-right: 0.5rem;">Attachment:</span>
@@ -51,7 +63,11 @@
             </div>
 
             <div style="display: flex; gap: 1rem; margin-top: 1rem;" *ngIf="app.status === 'PENDING'">
-                <button (click)="accept(app)" class="btn primary small">Accept & Create Contract</button>
+                <button (click)="accept(app)" class="btn primary small" [disabled]="hasActiveContract"
+                    [title]="hasActiveContract ? 'Another candidate is already selected for this project.' : ''"
+                    [ngStyle]="{'opacity': hasActiveContract ? '0.5' : '1', 'cursor': hasActiveContract ? 'not-allowed' : 'pointer'}">
+                    Accept & Create Contract
+                </button>
                 <button (click)="reject(app)" class="btn ghost-dark small"
                     style="color: #e74c3c; border-color: rgba(231, 76, 60, 0.5);">Reject</button>
             </div>
@@ -68,6 +84,13 @@
                         <i class="fas fa-file-signature me-1"></i>
                         {{ getContractStatusText(app.contract.status) }}
                     </span>
+
+                    <!-- Review Tracked Work Button -->
+                    <button *ngIf="app.contract?.status === 'COMPLETED'" class="btn info small"
+                        [routerLink]="['/work-review', app.contract?.id]"
+                        style="margin-left: 1rem; background: #9b59b6; color: white; border-radius: 6px; padding: 5px 12px; border: none; font-weight: bold; font-size: 0.85rem; cursor: pointer;">
+                        <i class="fas fa-clipboard-check"></i> Review Tracked Work
+                    </button>
                 </div>
             </div>
         </div>
@@ -99,17 +122,12 @@
                 </div>
 
                 <div class="row gx-3 mb-4">
-                    <div class="col-md-4">
-                        <app-premium-input label="Total Budget" type="number" placeholder="0.00" icon="fa-dollar-sign"
-                            [(ngModel)]="contractBudget" name="contractBudget" [error]="contractErrors.budget">
-                        </app-premium-input>
-                    </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <app-premium-input label="Start Date" type="date" icon="fa-calendar-alt"
                             [(ngModel)]="contractStartDate" name="contractStartDate" [error]="contractErrors.startDate">
                         </app-premium-input>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <app-premium-input label="End Date" type="date" icon="fa-calendar-check"
                             [(ngModel)]="contractEndDate" name="contractEndDate" [error]="contractErrors.endDate">
                         </app-premium-input>

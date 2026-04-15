@@ -1,0 +1,33 @@
+<div class="popup-overlay" *ngIf="popup.isOpen">
+  <div class="popup-box" [ngClass]="popup.type">
+    <button class="popup-close" type="button" (click)="close()">×</button>
+
+    <div class="popup-icon">
+      <span *ngIf="popup.type === 'success'">✓</span>
+      <span *ngIf="popup.type === 'error'">!</span>
+      <span *ngIf="popup.type === 'warning'">⚠</span>
+      <span *ngIf="popup.type === 'info'">i</span>
+      <span *ngIf="popup.type === 'confirm'">?</span>
+    </div>
+
+    <h2>{{ popup.title }}</h2>
+    <p class="popup-message" [innerHTML]="popup.message"></p>
+
+    <div class="popup-actions">
+      <button
+        *ngIf="popup.type === 'confirm'"
+        class="popup-btn cancel-btn"
+        type="button"
+        (click)="cancel()">
+        {{ popup.cancelText }}
+      </button>
+
+      <button
+        class="popup-btn confirm-btn"
+        type="button"
+        (click)="popup.onConfirm ? confirm() : close()">
+        {{ popup.confirmText }}
+      </button>
+    </div>
+  </div>
+</div>

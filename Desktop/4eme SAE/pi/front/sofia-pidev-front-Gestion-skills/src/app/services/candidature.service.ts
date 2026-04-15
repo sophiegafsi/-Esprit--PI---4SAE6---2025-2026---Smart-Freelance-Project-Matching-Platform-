@@ -8,10 +8,14 @@ import { Candidature } from '../models/candidature.model';
 })
 export class CandidatureService {
 
-  // Direct access to Condidature Service (port 8083) to match existing pattern
-  private apiUrl = 'http://localhost:8083/api/candidatures';
+  // Routed via API Gateway
+  private apiUrl = 'http://localhost:8081/condidature/api/candidatures';
 
   constructor(private http: HttpClient) { }
+
+  checkGrammar(coverLetter: string): Observable<string> {
+    return this.http.post(`${this.apiUrl}/check-grammar`, coverLetter, { responseType: 'text' });
+  }
 
   apply(freelancerId: string, projectId: string, coverLetter: string, file?: File): Observable<Candidature> {
     const formData = new FormData();
@@ -51,6 +55,10 @@ export class CandidatureService {
     return this.http.get<Candidature[]>(`${this.apiUrl}/project/${projectId}?clientId=${clientId}`);
   }
 
+  getProjectApplicationsForAdmin(projectId: string): Observable<Candidature[]> {
+    return this.http.get<Candidature[]>(`${this.apiUrl}/admin/project/${projectId}`);
+  }
+
   acceptApplication(id: string, clientId: string): Observable<Candidature> {
     return this.http.put<Candidature>(`${this.apiUrl}/${id}/accept?clientId=${clientId}`, {});
   }
@@ -60,23 +68,18 @@ export class CandidatureService {
   }
 
   // --- PROJECT ACTIONS ---
+  private projectApiUrl = 'http://localhost:8081/projet/api/projets';
+
   getAllProjects(): Observable<any[]> {
-    // apiUrl is .../api/candidatures. We need .../api/projects
-    // Let's assume standard REST convention or define new URL.
-    // Given the backend controller is ProjectController @RequestMapping("/api/projects")
-    // And CandidatureService apiUrl is .../candidatures
-    const projectApiUrl = this.apiUrl.replace('/candidatures', '/projects');
-    return this.http.get<any[]>(projectApiUrl);
+    return this.http.get<any[]>(`${this.projectApiUrl}/allprojets`);
   }
 
   getProjectsByClient(clientId: string): Observable<any[]> {
-    const projectApiUrl = this.apiUrl.replace('/candidatures', '/projects');
-    return this.http.get<any[]>(`${projectApiUrl}/client/${clientId}`);
+    return this.http.get<any[]>(`${this.projectApiUrl}/client/${clientId}`);
   }
 
   getProjectById(projectId: string): Observable<any> {
-    const projectApiUrl = this.apiUrl.replace('/candidatures', '/projects');
-    return this.http.get<any>(`${projectApiUrl}/${projectId}`);
+    return this.http.get<any>(`${this.projectApiUrl}/getprojet/${projectId}`);
   }
 
   getAllCandidatures(): Observable<Candidature[]> {
@@ -84,7 +87,7 @@ export class CandidatureService {
   }
 
   // --- CONTRACT ACTIONS ---
-  private contractUrl = 'http://localhost:8083/api/contracts';
+  private contractUrl = 'http://localhost:8081/condidature/api/contracts';
 
   createContract(contract: any): Observable<any> {
     return this.http.post<any>(this.contractUrl, contract);

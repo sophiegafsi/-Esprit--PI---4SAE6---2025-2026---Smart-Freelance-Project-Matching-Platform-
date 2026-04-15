@@ -14,7 +14,7 @@
     </div>
 
     <div *ngIf="!loading && applications.length === 0" style="text-align: center; color: var(--muted); padding: 2rem;">
-        <p>You haven't applied to any projects yet.</p>
+        <p>Freelink: You haven't applied to any projects yet.</p>
     </div>
 
     <div class="applications-grid" style="display: grid; gap: 1.5rem;">
@@ -75,6 +75,10 @@
                         style="padding: 6px 12px; border-radius: 99px; font-size: 0.8rem; font-weight: bold; color: white;">
                         {{ app.status }}
                     </span>
+                    <div *ngIf="app.contract?.status === 'ABORTED'"
+                        style="margin-top: 8px; color: #e74c3c; font-size: 0.75rem; font-weight: bold; max-width: 100px;">
+                        <i class="fas fa-exclamation-triangle"></i> Offer Expired
+                    </div>
                 </div>
             </div>
 
@@ -132,6 +136,13 @@
                         style="margin-left: 1rem; background: #27ae60; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: bold; color: white;">
                         <i class="fas fa-check-circle"></i> Fully Signed
                     </span>
+
+                    <!-- Launch Time Tracker Button -->
+                    <button class="btn info small" *ngIf="app.contract?.status === 'COMPLETED'"
+                        (click)="launchTracker(app.contract.id, currentUserId)"
+                        style="margin-left: 1rem; background: #3498db; color: white; border-radius: 6px; padding: 5px 12px; border: none; font-weight: bold; font-size: 0.85rem; cursor: pointer;">
+                        <i class="fas fa-clock"></i> Launch Time Tracker
+                    </button>
                 </ng-container>
             </div>
 

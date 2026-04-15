@@ -2,8 +2,8 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-    selector: 'app-premium-textarea',
-    template: `
+  selector: 'app-premium-textarea',
+  template: `
     <div class="premium-field" [class.has-focus]="isFocused" [class.has-value]="value" [class.has-error]="error">
       <label *ngIf="label" [for]="id">{{ label }}</label>
       <div class="input-wrapper glass">
@@ -15,7 +15,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
           [(ngModel)]="value"
           (focus)="onFocus()"
           (blur)="onBlur()"
-          (input)="onChange(value)"
+          (ngModelChange)="onChange($event)"
           class="premium-input-element"
         ></textarea>
         <div class="border-gradient"></div>
@@ -23,7 +23,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
       <div *ngIf="error" class="error-msg anim-fade-in">{{ error }}</div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .premium-field {
       margin-bottom: 1.5rem;
       position: relative;
@@ -97,50 +97,50 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
       animation: fadeIn 0.3s ease forwards;
     }
   `],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => PremiumTextareaComponent),
-            multi: true
-        }
-    ]
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => PremiumTextareaComponent),
+      multi: true
+    }
+  ]
 })
 export class PremiumTextareaComponent implements ControlValueAccessor {
-    @Input() label: string = '';
-    @Input() placeholder: string = '';
-    @Input() rows: number = 4;
-    @Input() id: string = 'textarea-' + Math.random().toString(36).substring(2, 9);
-    @Input() error: string = '';
+  @Input() label: string = '';
+  @Input() placeholder: string = '';
+  @Input() rows: number = 4;
+  @Input() id: string = 'textarea-' + Math.random().toString(36).substring(2, 9);
+  @Input() error: string = '';
 
-    value: any = '';
-    isFocused = false;
-    disabled = false;
+  value: any = '';
+  isFocused = false;
+  disabled = false;
 
-    onChange: any = () => { };
-    onTouched: any = () => { };
+  onChange: any = () => { };
+  onTouched: any = () => { };
 
-    onFocus() {
-        this.isFocused = true;
-        this.onTouched();
-    }
+  onFocus() {
+    this.isFocused = true;
+    this.onTouched();
+  }
 
-    onBlur() {
-        this.isFocused = false;
-    }
+  onBlur() {
+    this.isFocused = false;
+  }
 
-    writeValue(value: any): void {
-        this.value = value;
-    }
+  writeValue(value: any): void {
+    this.value = value;
+  }
 
-    registerOnChange(fn: any): void {
-        this.onChange = fn;
-    }
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
 
-    registerOnTouched(fn: any): void {
-        this.onTouched = fn;
-    }
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
 
-    setDisabledState(isDisabled: boolean): void {
-        this.disabled = isDisabled;
-    }
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
 }

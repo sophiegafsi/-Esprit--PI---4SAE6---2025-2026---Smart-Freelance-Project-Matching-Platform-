@@ -1,0 +1,71 @@
+<div class="bookings-container">
+    <div class="glass-card">
+        <header class="page-header">
+            <div class="header-info">
+                <span class="badge">{{ role }} DASHBOARD</span>
+                <h1>{{ role === 'FREELANCER' ? 'Booking Requests' : 'My Reservations' }}</h1>
+                <p class="subtitle">
+                    {{ role === 'FREELANCER' ? 'Manage incoming requests from clients.' : 'Track the status of your upcoming sessions.' }}
+                </p>
+            </div>
+            <div class="header-icon">
+                <i class="fas" [ngClass]="role === 'FREELANCER' ? 'fa-calendar-check' : 'fa-clipboard-list'"></i>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- Loading -->
+            <div *ngIf="loading" class="state-container">
+                <div class="loader"></div>
+                <p>Fetching bookings...</p>
+            </div>
+
+            <!-- Error -->
+            <div *ngIf="error" class="error-msg">
+                <i class="fas fa-exclamation-circle"></i> {{ error }}
+            </div>
+
+            <!-- Empty -->
+            <div *ngIf="!loading && !error && bookings.length === 0" class="state-container empty">
+                <div class="empty-icon">🗓️</div>
+                <h3>No Bookings Found</h3>
+                <p>You don't have any {{ role === 'FREELANCER' ? 'requests' : 'reservations' }} at the moment.</p>
+            </div>
+
+            <!-- List -->
+            <div *ngIf="!loading && bookings.length > 0" class="bookings-list">
+                <div class="booking-item" *ngFor="let b of bookings">
+                    <div class="booking-main">
+                        <div class="user-avatar">
+                            {{ role === 'FREELANCER' ? (b.userName | slice:0:1) : 'F' }}
+                        </div>
+                        <div class="booking-info">
+                            <h3>{{ role === 'FREELANCER' ? b.userName : (b.freelancerName || 'Freelancer') }}</h3>
+                            <p class="notes" *ngIf="b.notes">"{{ b.notes }}"</p>
+                            <div class="meta">
+                                <span><i class="far fa-clock"></i> {{ b.createdAt | date:'short' }}</span>
+                                <span *ngIf="role === 'FREELANCER'"><i class="far fa-envelope"></i> {{ b.userEmail }}</span>
+                                <span *ngIf="role === 'CLIENT'"><i class="fas fa-id-badge"></i> ID: #{{ b.id }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="booking-status">
+                        <span [class]="'status-pill ' + getStatusClass(b.status)">
+                            {{ b.status }}
+                        </span>
+                        
+                        <div class="actions" *ngIf="b.status === 'PENDING'">
+                            <button *ngIf="role === 'FREELANCER'" class="btn btn-confirm" (click)="confirmBooking(b.id)" title="Accept">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-cancel" (click)="cancelBooking(b.id)" title="Cancel/Refuse">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>

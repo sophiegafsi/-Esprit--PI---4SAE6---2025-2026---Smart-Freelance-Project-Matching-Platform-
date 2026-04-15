@@ -13,7 +13,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/contracts")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Adjust for production
+
 public class ContractController {
 
     private final ContractService contractService;

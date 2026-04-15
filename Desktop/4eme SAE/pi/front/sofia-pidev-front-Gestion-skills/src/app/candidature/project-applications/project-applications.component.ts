@@ -21,12 +21,13 @@ export class ProjectApplicationsComponent implements OnInit {
   showContractModal: boolean = false;
   selectedApp: Candidature | null = null;
   contractTerms: string = '';
-  contractBudget: number = 0;
   contractStartDate: string = '';
   contractEndDate: string = '';
   clientSignature: string = '';
   isSubmittingContract: boolean = false;
   contractErrors: any = {};
+
+  hasActiveContract: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -43,48 +44,61 @@ export class ProjectApplicationsComponent implements OnInit {
         if (this.projectId) {
           this.loadApplications();
         } else {
-          this.errorMessage = 'Project ID not found in URL.';
+          this.errorMessage = 'Freelink: Project ID not found.';
           this.loading = false;
         }
       } else {
-        this.errorMessage = 'You must be logged in as a Client.';
+        this.errorMessage = 'Freelink: You must be securely logged in as a Client to view this.';
         this.loading = false;
       }
     });
   }
 
   loadApplications(): void {
-    if (!this.projectId || !this.clientId) return;
+    if (!this.projectId) return;
 
     this.loading = true;
-    this.candidatureService.getProjectApplications(this.projectId, this.clientId).subscribe({
-      next: (data) => {
-        this.applications = data.map(app => ({
-          ...app,
-          expanded: false,
-          contract: null
-        }));
+    this.hasActiveContract = false;
 
-        this.applications.forEach(app => {
-          this.authService.getUserById(app.freelancerId).subscribe({
-            next: (user) => app.freelancerName = user.firstName + ' ' + user.lastName,
-            error: () => app.freelancerName = 'Unknown Freelancer'
+    let requestObservable;
+    if (this.authService.isAdmin()) {
+      requestObservable = this.candidatureService.getProjectApplicationsForAdmin(this.projectId);
+    } else if (this.clientId) {
+      requestObservable = this.candidatureService.getProjectApplications(this.projectId, this.clientId);
+    } else {
+      this.errorMessage = 'Freelink: Cannot load applications without client ID or admin access.';
+      this.loading = false;
+      return;
+    }
+
+    requestObservable.subscribe({
+      next: (data) => {
+        this.candidatureService.getAllContracts().subscribe(contracts => {
+          this.applications = data.map(app => {
+            const contract = contracts.find(c => c.candidatureId === app.id);
+            if (contract && contract.status !== 'ABORTED') {
+              this.hasActiveContract = true;
+            }
+            return {
+              ...app,
+              expanded: false,
+              contract: contract
+            };
           });
 
-          if (app.status === 'ACCEPTED') {
-            this.candidatureService.getAllContracts().subscribe(contracts => {
-              const contract = contracts.find(c => c.candidatureId === app.id);
-              if (contract) {
-                app.contract = contract;
-              }
+          this.applications.forEach(app => {
+            this.authService.getUserById(app.freelancerId).subscribe({
+              next: (user) => app.freelancerName = user.firstName + ' ' + user.lastName,
+              error: () => app.freelancerName = 'Unknown Freelancer'
             });
-          }
+          });
+
+          this.loading = false;
         });
-        this.loading = false;
       },
       error: (err) => {
         console.error(err);
-        this.errorMessage = 'Failed to load applications. Ensure you are the owner of this project.';
+        this.errorMessage = 'Freelink Server Error: Failed to load applications. Ensure you are the owner of this project.';
         this.loading = false;
       }
     });
@@ -94,7 +108,6 @@ export class ProjectApplicationsComponent implements OnInit {
     this.selectedApp = app;
     this.showContractModal = true;
     this.contractTerms = "The freelancer agrees to provide services for the project...\n- Quality assurance\n- Weekly updates\n- Final delivery in source code";
-    this.contractBudget = 0;
   }
 
   closeContractModal(): void {
@@ -109,10 +122,7 @@ export class ProjectApplicationsComponent implements OnInit {
     this.contractErrors = {};
     let isValid = true;
 
-    if (this.contractBudget <= 0) {
-      this.contractErrors.budget = 'Budget must be greater than 0';
-      isValid = false;
-    }
+
 
     if (this.contractStartDate && this.contractEndDate) {
       if (new Date(this.contractEndDate) <= new Date(this.contractStartDate)) {
@@ -122,7 +132,7 @@ export class ProjectApplicationsComponent implements OnInit {
     }
 
     if (!this.clientSignature) {
-      this.errorMessage = 'Please provide your signature.';
+      this.errorMessage = 'Freelink Validation: Please provide your signature to proceed.';
       return;
     }
 
@@ -136,7 +146,6 @@ export class ProjectApplicationsComponent implements OnInit {
       clientId: this.clientId,
       freelancerId: this.selectedApp.freelancerId,
       terms: this.contractTerms,
-      budget: this.contractBudget,
       startDate: this.contractStartDate ? new Date(this.contractStartDate).toISOString() : null,
       endDate: this.contractEndDate ? new Date(this.contractEndDate).toISOString() : null,
       status: 'PENDING'
@@ -149,26 +158,26 @@ export class ProjectApplicationsComponent implements OnInit {
             this.candidatureService.acceptApplication(this.selectedApp!.id, this.clientId!).subscribe({
               next: (updatedApp) => {
                 if (this.selectedApp) this.selectedApp.status = updatedApp.status;
-                this.successMessage = `Contract created and signed!`;
+                this.successMessage = `Freelink Success: Contract created and signed!`;
                 this.closeContractModal();
                 this.isSubmittingContract = false;
                 this.loadApplications(); // Refresh to show status
                 setTimeout(() => this.successMessage = '', 3000);
               },
               error: (err) => {
-                this.errorMessage = 'Contract created but failed to update application status.';
+                this.errorMessage = 'Freelink Server Error: Contract created but failed to link properly.';
                 this.isSubmittingContract = false;
               }
             });
           },
           error: (err) => {
-            this.errorMessage = 'Contract created but signature failed.';
+            this.errorMessage = 'Freelink Server Error: Contract created but signature failed.';
             this.isSubmittingContract = false;
           }
         });
       },
       error: (err) => {
-        this.errorMessage = 'Failed to create contract.';
+        this.errorMessage = 'Freelink Server Error: Failed to create contract on our network.';
         this.isSubmittingContract = false;
       }
     });
@@ -176,14 +185,14 @@ export class ProjectApplicationsComponent implements OnInit {
 
   reject(app: Candidature): void {
     if (!this.clientId) return;
-    if (confirm('Are you sure you want to reject this application?')) {
+    if (confirm('Freelink: Are you sure you want to reject this talent application?')) {
       this.candidatureService.rejectApplication(app.id, this.clientId).subscribe({
         next: (updatedApp) => {
           app.status = updatedApp.status;
-          this.successMessage = `Application rejected.`;
+          this.successMessage = `Freelink Update: Application rejected successfully.`;
           setTimeout(() => this.successMessage = '', 3000);
         },
-        error: (err) => this.errorMessage = 'Failed to reject application.'
+        error: (err) => this.errorMessage = 'Freelink Server Error: Failed to reject application.'
       });
     }
   }
@@ -201,14 +210,14 @@ export class ProjectApplicationsComponent implements OnInit {
           window.URL.revokeObjectURL(url);
         });
       } else {
-        alert('Contract not found for this application.');
+        alert('Freelink: Contract not found for this application.');
       }
     });
   }
 
   downloadFile(app: Candidature): void {
     if (!app.data || !app.fileName) {
-      alert('No file attached to this application.');
+      alert('Freelink: No file attached to this application.');
       return;
     }
     const byteCharacters = atob(app.data);

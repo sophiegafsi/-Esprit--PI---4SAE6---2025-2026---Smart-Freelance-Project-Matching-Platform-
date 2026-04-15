@@ -46,6 +46,11 @@
                 <i class="fas fa-file-contract"></i>
                 <span>Contracts</span>
             </button>
+
+            <button class="nav-item" routerLink="/reclamations" routerLinkActive="active">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Reclamations</span>
+            </button>
         </nav>
     </div>
 
@@ -190,7 +195,7 @@
                                 <th>Client Name</th>
                                 <th>Freelancer Name</th>
                                 <th>Project Name</th>
-                                <th>Budget</th>
+                                <th>Hourly Rate</th>
                                 <th>Created At</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -204,7 +209,7 @@
                                 <td>{{ contract.clientName }}</td>
                                 <td>{{ contract.freelancerName }}</td>
                                 <td>{{ contract.projectName }}</td>
-                                <td class="budget-cell">${{ contract.budget | number:'1.2-2' }}</td>
+                                <td class="budget-cell">${{ contract.hourlyRate | number:'1.2-2' }}/hr</td>
                                 <td>{{ contract.createdAt | date:'shortDate' }}</td>
                                 <td><span class="status-badge" [class]="contract.status | lowercase">{{ contract.status
                                         | lowercase }}</span></td>

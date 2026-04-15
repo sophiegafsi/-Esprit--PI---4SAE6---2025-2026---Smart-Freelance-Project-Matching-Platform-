@@ -15,6 +15,8 @@ public class ReclamationDTO {
     private Statut statut;
     private Priorite priorite;
     private Type type;
+    private String idUtilisateur;
+    private String idCible;
 
     // 🔥 nouveaux champs
     private boolean urgent;
@@ -76,6 +78,22 @@ public class ReclamationDTO {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public String getIdUtilisateur() {
+        return idUtilisateur;
+    }
+
+    public void setIdUtilisateur(String idUtilisateur) {
+        this.idUtilisateur = idUtilisateur;
+    }
+
+    public String getIdCible() {
+        return idCible;
+    }
+
+    public void setIdCible(String idCible) {
+        this.idCible = idCible;
     }
 
     public boolean isUrgent() {

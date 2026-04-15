@@ -1,0 +1,104 @@
+:host,:host *{box-sizing:border-box}
+
+:host{
+  display:block;
+  min-height:100vh;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background:linear-gradient(180deg,var(--fl-bg1) 0%,var(--fl-bg0) 100%);
+  padding:48px 20px;
+  color:var(--fl-text);
+}
+
+.page{
+  width:min(1120px,100%);
+  margin:0 auto;
+}
+
+.header{
+  position:relative;
+  background:linear-gradient(135deg,rgba(56,140,214,.55),rgba(43,103,165,.55));
+  border:1px solid var(--fl-border2);
+  border-radius:18px;
+  padding:22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  color:#fff;
+  overflow:hidden;
+  box-shadow:var(--fl-shadow);
+}
+.header::before{
+  content:"";
+  position:absolute;
+  inset:-40px;
+  background:
+    radial-gradient(circle at 20% 40%, rgba(255,255,255,.16) 0 2px, transparent 3px),
+    radial-gradient(circle at 60% 30%, rgba(255,255,255,.14) 0 2px, transparent 3px),
+    radial-gradient(circle at 80% 65%, rgba(255,255,255,.12) 0 2px, transparent 3px);
+  background-size:120px 120px;
+  opacity:.55;
+  pointer-events:none;
+}
+.header h2{position:relative;z-index:1;margin:0;font-weight:900;letter-spacing:-.02em}
+.header button{position:relative;z-index:1}
+
+.btn{
+  padding:10px 14px;
+  border-radius:999px;
+  border:1px solid var(--fl-border2);
+  background:transparent;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.btn:hover{filter:brightness(1.03)}
+
+.grid{
+  margin-top:18px;
+  display:grid;
+  gap:14px;
+}
+
+.card{
+  background:var(--fl-surface);
+  border:1px solid var(--fl-border);
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.22);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.rank{
+  font-weight:900;
+  font-size:18px;
+  min-width:64px;
+  color:#fff;
+}
+
+.name{
+  flex:1 1 auto;
+  text-align:center;
+  font-weight:900;
+  font-size:18px;
+  color:#fff;
+}
+
+.score{
+  font-weight:900;
+  color:#0b1b2a;
+  background:rgba(242,153,74,.92);
+  border:1px solid rgba(242,153,74,.45);
+  padding:10px 12px;
+  border-radius:999px;
+  white-space:nowrap;
+}
+
+@media (max-width:650px){
+  :host{padding:28px 14px}
+  .card{flex-direction:column;align-items:flex-start}
+  .name{text-align:left}
+}

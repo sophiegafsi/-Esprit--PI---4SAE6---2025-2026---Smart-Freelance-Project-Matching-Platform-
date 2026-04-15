@@ -12,16 +12,22 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/candidatures")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+
 public class CandidatureController {
 
     private final CandidatureService candidatureService;
+    private final freelink.condidature.service.LanguageToolService languageToolService;
 
     // --- FREELANCER ENDPOINTS ---
 
+    @PostMapping("/check-grammar")
+    public ResponseEntity<String> checkGrammar(@RequestBody String coverLetter) {
+        return ResponseEntity.ok(languageToolService.autoCorrectCoverLetter(coverLetter));
+    }
+
     @PostMapping(consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Candidature> apply(@RequestParam("freelancerId") UUID freelancerId,
-            @RequestParam("projectId") UUID projectId,
+            @RequestParam("projectId") Long projectId,
             @RequestParam(value = "coverLetter", required = false) String coverLetter,
             @RequestParam(value = "file", required = false) org.springframework.web.multipart.MultipartFile file) {
         return ResponseEntity.ok(candidatureService.apply(freelancerId, projectId, coverLetter, file));
@@ -54,9 +60,14 @@ public class CandidatureController {
     // --- CLIENT ENDPOINTS ---
 
     @GetMapping("/project/{projectId}")
-    public ResponseEntity<List<Candidature>> getProjectApplications(@PathVariable("projectId") UUID projectId,
+    public ResponseEntity<List<Candidature>> getProjectApplications(@PathVariable("projectId") Long projectId,
             @RequestParam("clientId") UUID clientId) {
         return ResponseEntity.ok(candidatureService.getProjectApplications(projectId, clientId));
+    }
+
+    @GetMapping("/admin/project/{projectId}")
+    public ResponseEntity<List<Candidature>> getProjectApplicationsForAdmin(@PathVariable("projectId") Long projectId) {
+        return ResponseEntity.ok(candidatureService.getProjectApplicationsForAdmin(projectId));
     }
 
     @PutMapping("/{id}/accept")
@@ -69,5 +80,11 @@ public class CandidatureController {
     public ResponseEntity<Candidature> rejectApplication(@PathVariable("id") UUID id,
             @RequestParam("clientId") UUID clientId) {
         return ResponseEntity.ok(candidatureService.rejectApplication(id, clientId));
+    }
+
+    @DeleteMapping("/project/{projectId}")
+    public ResponseEntity<Void> deleteByProject(@PathVariable("projectId") Long projectId) {
+        candidatureService.deleteApplicationsByProject(projectId);
+        return ResponseEntity.noContent().build();
     }
 }

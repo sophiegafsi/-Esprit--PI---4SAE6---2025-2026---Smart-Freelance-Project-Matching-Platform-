@@ -11,7 +11,6 @@ export class BecomeFreelancerComponent {
     profile = {
         jobTitle: '',
         bio: '',
-        skills: '',
         hourlyRate: 0,
         portfolioUrl: ''
     };

@@ -28,6 +28,28 @@ import { PremiumInputComponent } from './shared/components/premium-controls/prem
 import { PremiumTextareaComponent } from './shared/components/premium-controls/premium-textarea.component';
 import { PremiumSelectComponent } from './shared/components/premium-controls/premium-select.component';
 import { PremiumFileUploadComponent } from './shared/components/premium-controls/premium-file-upload.component';
+import { TimeTrackerComponent } from './time-tracker/time-tracker.component';
+import { WorkReviewComponent } from './work-review/work-review.component';
+
+// Reclamations (Standalone)
+import { ReclamationListComponent } from './reclamation-list/reclamation-list';
+import { ReclamationFormComponent } from './reclamation-form/reclamation-form';
+import { ReclamationDetailComponent } from './reclamation-detail/reclamation-detail';
+import { ReponseFormComponent } from './reponse-form/reponse-form';
+import { ReponseListComponent } from './reponse-list/reponse-list';
+
+// Planning (Standalone)
+import { ListPlanning } from './planning/pages/list-planning/list-planning';
+import { PlanningDetail } from './planning/pages/planning-detail/planning-detail';
+import { AddPlanning } from './planning/pages/add-planning/add-planning';
+import { EditPlanning } from './planning/pages/edit-planning/edit-planning';
+import { PopupComponent } from './planning/pages/popup/popup';
+
+// Reservation
+import { BrowseFreelancersComponent } from './reservation/pages/browse-freelancers/browse-freelancers.component';
+import { AddAvailabilityComponent } from './reservation/pages/add-availability/add-availability.component';
+import { MyAvailabilitiesComponent } from './reservation/pages/my-availabilities/my-availabilities.component';
+import { MyBookingsComponent } from './reservation/pages/my-bookings/my-bookings.component';
 
 @NgModule({
   declarations: [
@@ -52,12 +74,30 @@ import { PremiumFileUploadComponent } from './shared/components/premium-controls
     PremiumInputComponent,
     PremiumTextareaComponent,
     PremiumSelectComponent,
-    PremiumFileUploadComponent
+    PremiumFileUploadComponent,
+    TimeTrackerComponent,
+    WorkReviewComponent,
+    // Reservation
+    BrowseFreelancersComponent,
+    AddAvailabilityComponent,
+    MyAvailabilitiesComponent,
+    MyBookingsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    ReclamationListComponent,
+    ReclamationFormComponent,
+    ReclamationDetailComponent,
+    ReponseFormComponent,
+    ReponseListComponent,
+    // Planning
+    ListPlanning,
+    PlanningDetail,
+    AddPlanning,
+    EditPlanning,
+    PopupComponent
   ],
   providers: [
     provideClientHydration(),

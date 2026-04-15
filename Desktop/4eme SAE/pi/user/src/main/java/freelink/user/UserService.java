@@ -16,6 +16,8 @@ public interface UserService {
 
     User findByEmail(String email);
 
+    java.util.Optional<User> findByKeycloakId(String keycloakId);
+
     User findById(UUID id);
 
     User update(UUID id, User user);
@@ -27,4 +29,9 @@ public interface UserService {
     void forgotPassword(String email);
 
     User becomeFreelancer(User user, freelink.user.dto.FreelancerProfileDTO profileDTO);
+
+    // Notifications
+    List<Notification> getUserNotifications(UUID userId);
+    Notification createNotification(UUID userId, String message, String type, String actionUrl);
+    void markNotificationAsRead(UUID notificationId);
 }

@@ -1,8 +1,0 @@
-﻿REPOSITORY                  TAG       IMAGE ID                                                                  CREATED       SIZE
-keycloak-yesterday-v2       latest    sha256:e668ada5e319462fecfc9c068709af6bfb21a308359c1f0be553982633ac3ca4   7 days ago    631MB
-mailhog-yesterday           latest    sha256:823144d2ae82fc4a85d341561c1ce20326c9dd32e9cb34b97ce9cce09e1292ee   7 days ago    392MB
-keycloak-yesterday          latest    sha256:8b3a401427b23c9840b76b23241d39ccff203ca07fc543b6898ed11eb0b26fb1   7 days ago    638MB
-keycloak-restored           latest    sha256:621691a4e4f7eb325ff74b3511423b5552450e39010e7ee6148ba29604724aaa   7 days ago    459MB
-quay.io/keycloak/keycloak   latest    sha256:98c12efac63e23bcd3b53bba270073d20a188c7339632bc9146e0790373af152   13 days ago   463MB
-quay.io/keycloak/keycloak   23.0.3    sha256:33825b7d2d9e317215939851e10b1e184b4f876de1b5b25cf448e425c47802bd   2 years ago   459MB
-mailhog/mailhog             latest    sha256:4de68494cd0dbcbc141beb755eedce4d328ab10b2d1061d74c2489e0af5f28a9   5 years ago   392MB

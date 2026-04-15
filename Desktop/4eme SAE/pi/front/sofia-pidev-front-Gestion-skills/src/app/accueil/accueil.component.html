@@ -6,8 +6,8 @@
       <p>Freelancers apply to your projects, you choose the best profile easily.</p>
 
       <div class="hero-cta">
-        <a href="#offers" class="btn primary">Browse Jobs</a>
-        <a href="#applications" class="btn orange">Apply Now</a>
+        <a routerLink="/projets" class="btn primary">Browse Jobs</a>
+        <a class="btn orange" routerLink="/signup">Join Freelink</a>
       </div>
 
       <div class="hero-stats">
@@ -118,79 +118,48 @@
 
         <div class="offer-actions">
           <a [routerLink]="['/apply', project.id]" class="btn small primary">Apply</a>
-          <a href="#" class="btn small ghost-dark">Details</a>
+          <button class="btn small ghost-dark" (click)="toggleDetails(project)">
+            {{ expandedProjectId === project.id ? 'Hide Details' : 'Details' }}
+          </button>
+        </div>
+
+        <!-- Inline Tasks Details -->
+        <div class="project-tasks-inline" *ngIf="expandedProjectId === project.id">
+          <div *ngIf="loadingTasksFor === project.id" class="small-loading">
+            <div class="spinner-small"></div>
+            <span>Loading tasks...</span>
+          </div>
+
+          <div *ngIf="loadingTasksFor !== project.id && project.tasks">
+            <h4 class="tasks-heading">Project Tasks ({{ project.tasks.length }})</h4>
+            <div class="tasks-list" *ngIf="project.tasks.length > 0">
+              <div class="task-item-inline" *ngFor="let task of project.tasks">
+                <div class="task-head-inline">
+                  <strong>{{ task.taskname }}</strong>
+                  <span class="task-date">{{ task.deadline | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <p class="task-desc-inline">{{ task.description }}</p>
+              </div>
+            </div>
+            <div class="no-tasks-inline" *ngIf="project.tasks.length === 0">
+              No specific tasks provided yet.
+            </div>
+          </div>
         </div>
       </article>
     </div>
   </div>
 
-  <!-- APPLICATION FORM -->
-  <div class="container section-block" id="applications">
-    <div class="section-head">
-      <h2 class="section-title">Apply for a Job</h2>
-      <span class="hint">Fast • Simple • Professional</span>
-    </div>
 
-    <div class="form-wrap">
-      <form class="apply-form">
-        <div class="form-row">
-          <div class="field">
-            <label>Full name</label>
-            <input type="text" placeholder="Ex: John Doe" />
-          </div>
-          <div class="field">
-            <label>Email</label>
-            <input type="email" placeholder="Ex: john@email.com" />
-          </div>
-        </div>
 
-        <div class="form-row">
-          <div class="field">
-            <label>Target position</label>
-            <select>
-              <option>Web Developer (Symfony)</option>
-              <option>Backend Developer (Spring)</option>
-              <option>UI/UX Designer</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Portfolio / GitHub link</label>
-            <input type="text" placeholder="https://github.com/..." />
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Message</label>
-          <textarea rows="5" placeholder="Briefly explain your experience and why you are applying..."></textarea>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn ghost-dark">Cancel</button>
-          <button type="submit" class="btn primary">Submit Application</button>
-        </div>
-      </form>
-
-      <div class="tips">
-        <h3>Tips</h3>
-        <ul>
-          <li>Add your GitHub or portfolio link</li>
-          <li>Explain your experience in 3–4 lines</li>
-          <li>Be clear about your availability</li>
-        </ul>
+  <!-- FOOTER -->
+  <footer id="contact">
+    <div class="container footer-inner">
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">FAQ</a>
+        <a href="#">Contact</a>
       </div>
+      <div class="footer-copy">© 2026 – FreeLink. All rights reserved.</div>
     </div>
-  </div>
-
-</section>
-
-<!-- FOOTER -->
-<footer id="contact">
-  <div class="container footer-inner">
-    <div class="footer-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">FAQ</a>
-      <a href="#">Contact</a>
-    </div>
-    <div class="footer-copy">© 2026 – FreeLink. All rights reserved.</div>
-  </div>
-</footer>
+  </footer>

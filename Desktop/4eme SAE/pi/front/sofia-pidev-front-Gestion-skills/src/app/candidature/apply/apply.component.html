@@ -18,6 +18,13 @@
                 [(ngModel)]="coverLetter" name="coverLetter" required>
             </app-premium-textarea>
 
+            <div style="display: flex; justify-content: flex-end; margin-top: -0.5rem; margin-bottom: 1rem;">
+                <button type="button" (click)="checkGrammar()" class="btn ghost-dark small"
+                    [disabled]="checkingGrammar || !coverLetter">
+                    <i class="fas fa-magic me-1"></i> {{ checkingGrammar ? 'Correcting...' : 'Auto-Correct Letter' }}
+                </button>
+            </div>
+
             <app-premium-file-upload label="Attach Resume/CV (Optional)" placeholder="Click or drag PDF/Image to upload"
                 accept=".pdf,image/*" (fileChange)="onFileSelected($event)">
             </app-premium-file-upload>

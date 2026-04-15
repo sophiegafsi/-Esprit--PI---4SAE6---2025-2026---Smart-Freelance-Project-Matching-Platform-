@@ -3,15 +3,15 @@ package freelink.condidature.service;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
 import freelink.condidature.entity.Contract;
-import freelink.condidature.entity.Project;
 import freelink.condidature.repository.ContractRepository;
-import freelink.condidature.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
-import java.time.LocalDateTime;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 
+import java.time.LocalDateTime;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
@@ -24,14 +24,26 @@ import java.util.Map;
 public class ContractService {
 
         private final ContractRepository contractRepository;
-        private final ProjectRepository projectRepository;
         private final freelink.condidature.repository.CandidatureRepository candidatureRepository;
         private final org.springframework.web.client.RestTemplate restTemplate;
 
         private static final String USER_SERVICE_URL = "http://localhost:8082/api/users/";
+        private static final String PROJET_SERVICE_URL = "http://localhost:8081/projet/api/projets";
 
         @Transactional
         public Contract createContract(Contract contract) {
+                try {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> user = restTemplate.getForObject(USER_SERVICE_URL + contract.getFreelancerId(), Map.class);
+                        if (user != null && user.containsKey("hourlyRate") && user.get("hourlyRate") != null) {
+                                contract.setHourlyRate(Double.valueOf(user.get("hourlyRate").toString()));
+                        } else {
+                                contract.setHourlyRate(0.0);
+                        }
+                } catch (Exception e) {
+                        System.err.println("Failed to fetch freelancer hourly rate for " + contract.getFreelancerId() + ": " + e.getMessage());
+                        contract.setHourlyRate(0.0);
+                }
                 return contractRepository.save(contract);
         }
 
@@ -64,12 +76,20 @@ public class ContractService {
                 contract.setFreelancerSignature(signature);
                 if (contract.getStatus() == Contract.ContractStatus.ONESIDED) {
                         contract.setStatus(Contract.ContractStatus.COMPLETED);
+                        sendNotification(contract.getClientId(), "The freelancer has successfully signed the project contract.", "SUCCESS", "/projet-dashboard");
 
                         // 1. Close the Project
-                        projectRepository.findById(contract.getProjectId()).ifPresent(project -> {
-                                project.setStatus(Project.ProjectStatus.CLOSED);
-                                projectRepository.save(project);
-                        });
+                        try {
+                                Map<?, ?> project = restTemplate.getForObject(PROJET_SERVICE_URL + "/getprojet/" + contract.getProjectId(), Map.class);
+                                if (project != null) {
+                                        // Creating updated project object payload
+                                        project.remove("id"); 
+                                        ((Map<String, Object>)project).put("status", "CLOSED");
+                                        restTemplate.exchange(PROJET_SERVICE_URL + "/updateprojet/" + contract.getProjectId(), HttpMethod.PUT, new HttpEntity<>(project), Map.class);
+                                }
+                        } catch (Exception e) {
+                                System.err.println("Failed to update project status: " + e.getMessage());
+                        }
 
                         // 2. Reject all other pending applications for this project
                         List<freelink.condidature.entity.Candidature> allApps = candidatureRepository
@@ -87,11 +107,10 @@ public class ContractService {
                 return contractRepository.save(contract);
         }
 
-        @Scheduled(fixedRate = 60000) // Run every 60 seconds for testing
+        @Scheduled(fixedRate = 3600000) // Run every hour
         @Transactional
         public void abortExpiredContracts() {
-                // For testing: abort if older than 1 minute.
-                LocalDateTime threshold = LocalDateTime.now().minusMinutes(1);
+                LocalDateTime threshold = LocalDateTime.now().minusDays(7);
 
                 List<Contract> expiredContracts = contractRepository.findAll().stream()
                                 .filter(c -> c.getStatus() == Contract.ContractStatus.ONESIDED)
@@ -103,7 +122,6 @@ public class ContractService {
                         contract.setStatus(Contract.ContractStatus.ABORTED);
                         contractRepository.save(contract);
 
-                        // Reject associated candidature
                         candidatureRepository.findById(contract.getCandidatureId()).ifPresent(app -> {
                                 app.setStatus(freelink.condidature.entity.Candidature.Status.REJECTED);
                                 candidatureRepository.save(app);
@@ -137,11 +155,12 @@ public class ContractService {
 
                 String projectTitle = "Professional Project";
                 try {
-                        UUID pId = contract.getProjectId();
+                        Long pId = contract.getProjectId();
                         if (pId != null) {
-                                projectTitle = projectRepository.findById(pId)
-                                                .map(Project::getTitle)
-                                                .orElse("Unknown Project");
+                                Map<?, ?> project = restTemplate.getForObject(PROJET_SERVICE_URL + "/getprojet/" + pId, Map.class);
+                                if (project != null && project.get("title") != null) {
+                                        projectTitle = project.get("title").toString();
+                                }
                         }
                 } catch (Exception e) {
                         System.err.println("Failed to fetch project title for contract " + contractId + ": "
@@ -224,8 +243,8 @@ public class ContractService {
                 document.add(financialsHeader);
 
                 document.add(new Paragraph(
-                                "The agreed total budget for this project is: " + (contract.getBudget() != null
-                                                ? "$" + String.format("%.2f", contract.getBudget())
+                                "The automated hourly rate for this project is: " + (contract.getHourlyRate() != null
+                                                ? "$" + String.format("%.2f", contract.getHourlyRate()) + "/hr"
                                                 : "TBD"),
                                 FontFactory.getFont(FontFactory.HELVETICA, 12)));
 
@@ -312,5 +331,18 @@ public class ContractService {
 
                 table.addCell(cellLabel);
                 table.addCell(cellValue);
+        }
+
+        private void sendNotification(UUID userId, String message, String type, String actionUrl) {
+                try {
+                        java.util.Map<String, String> payload = new java.util.HashMap<>();
+                        payload.put("message", message);
+                        payload.put("type", type);
+                        if (actionUrl != null) payload.put("actionUrl", actionUrl);
+
+                        restTemplate.postForObject(USER_SERVICE_URL + userId + "/notifications", payload, String.class);
+                } catch (Exception e) {
+                        System.err.println("Failed to send notification: " + e.getMessage());
+                }
         }
 }

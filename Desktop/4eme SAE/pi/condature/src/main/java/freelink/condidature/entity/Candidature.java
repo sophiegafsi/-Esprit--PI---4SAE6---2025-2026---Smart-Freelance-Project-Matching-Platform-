@@ -25,13 +25,8 @@ public class Candidature {
 
     private UUID freelancerId;
 
-    @ManyToOne
-    @JoinColumn(name = "projectId", insertable = false, updatable = false)
-    @JsonBackReference("project-candidature")
-    private Project project;
-
     @Column(name = "projectId")
-    private UUID projectId;
+    private Long projectId;
 
     @OneToOne(mappedBy = "candidature", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("candidature-contract")
@@ -46,6 +41,9 @@ public class Candidature {
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] data;
+
+    @Column(columnDefinition = "TEXT")
+    private String grammarReport;
 
     @Enumerated(EnumType.STRING)
     private Status status;

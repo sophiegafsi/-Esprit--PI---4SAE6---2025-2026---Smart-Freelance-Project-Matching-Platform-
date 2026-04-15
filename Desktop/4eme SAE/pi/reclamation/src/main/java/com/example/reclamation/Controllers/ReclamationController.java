@@ -32,7 +32,10 @@ public class ReclamationController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<ReclamationDTO>> getAllReclamations() {
+    public ResponseEntity<List<ReclamationDTO>> getAllReclamations(
+            @RequestHeader(value = "Authorization", required = false) String authHeader
+    ) {
+        System.out.println("DEBUG: Incoming request to /list with Authorization: " + (authHeader != null ? "PRESENT" : "MISSING"));
         List<ReclamationDTO> reclamations = reclamationService.getAllReclamations();
         return ResponseEntity.ok(reclamations);
     }

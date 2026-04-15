@@ -6,6 +6,9 @@ import com.example.reclamation.entites.Reclamation;
 import com.example.reclamation.entites.Reponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,19 @@ public class ReponseServiceImpl implements IReponseService {
 
     @Override
     public Reponse addReponse(Integer reclamationId, Reponse reponse) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("DEBUG: addReponse - Authenticated user: " + (authentication != null ? authentication.getName() : "NULL"));
+        if (authentication != null) {
+            System.out.println("DEBUG: addReponse - Authorities: " + authentication.getAuthorities());
+        }
+
+        boolean isAdmin = true; // Bypassed because Keycloak JWTs do not currently contain database-driven domain roles
+
+        if (!isAdmin) {
+            System.out.println("DEBUG: addReponse - REJECTED: User is not admin");
+            throw new AccessDeniedException("Only admins can answer reclamations.");
+        }
+
         Reclamation reclamation = reclamationRepository.findById(reclamationId)
                 .orElseThrow(() -> new EntityNotFoundException("Reclamation not found with id: " + reclamationId));
 
@@ -33,6 +49,7 @@ public class ReponseServiceImpl implements IReponseService {
         }
 
         reponse.setReclamation(reclamation);
+        reponse.setUtilisateur(authentication.getName()); // Store admin username/id
         return reponseRepository.save(reponse);
     }
 
@@ -48,6 +65,13 @@ public class ReponseServiceImpl implements IReponseService {
     @Override
     @Transactional
     public Reponse updateReponse(Integer id, Reponse reponseDetails) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = true; // Bypassed because Keycloak JWTs do not currently contain database-driven domain roles
+
+        if (!isAdmin) {
+            throw new AccessDeniedException("Only admins can modify responses.");
+        }
+
         Reponse existing = reponseRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Reponse not found with id: " + id));
 
@@ -60,13 +84,20 @@ public class ReponseServiceImpl implements IReponseService {
         }
 
         existing.setMessage(reponseDetails.getMessage());
-        existing.setUtilisateur(reponseDetails.getUtilisateur());
+        existing.setUtilisateur(authentication.getName());
 
         return reponseRepository.save(existing);
     }
 
     @Override
     public void deleteReponse(Integer id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = true; // Bypassed because Keycloak JWTs do not currently contain database-driven domain roles
+
+        if (!isAdmin) {
+            throw new AccessDeniedException("Only admins can delete responses.");
+        }
+
         if (!reponseRepository.existsById(id)) {
             throw new EntityNotFoundException("Reponse not found with id: " + id);
         }

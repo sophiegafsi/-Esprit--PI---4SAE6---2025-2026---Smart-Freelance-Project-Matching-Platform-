@@ -12,7 +12,10 @@ import java.util.UUID;
 public interface CandidatureRepository extends JpaRepository<Candidature, UUID> {
     List<Candidature> findByFreelancerId(UUID freelancerId);
 
-    List<Candidature> findByProjectId(UUID projectId);
+    List<Candidature> findByProjectId(Long projectId);
 
-    Optional<Candidature> findByFreelancerIdAndProjectId(UUID freelancerId, UUID projectId);
+    Optional<Candidature> findByFreelancerIdAndProjectId(UUID freelancerId, Long projectId);
+
+    @org.springframework.transaction.annotation.Transactional
+    void deleteByProjectId(Long projectId);
 }

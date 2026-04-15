@@ -30,10 +30,11 @@ export class AuthService {
 
     constructor(private http: HttpClient) { }
 
-    // API Gateway URL for User Service
+    // Direct access to User Service (Bypassing Gateway for stability)
     private userApiUrl = 'http://localhost:8082/api/users';
 
     signup(userData: any): Observable<any> {
+
         return this.http.post(`${this.userApiUrl}/register`, userData);
     }
 
@@ -49,6 +50,10 @@ export class AuthService {
             error: () => this.currentUserSubject.next(null)
         });
         return request;
+    }
+
+    getCurrentUserValue(): any {
+        return this.currentUserSubject.value;
     }
 
     loadCurrentUser(): void {

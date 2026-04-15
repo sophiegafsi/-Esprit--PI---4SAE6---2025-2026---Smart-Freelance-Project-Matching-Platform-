@@ -17,6 +17,7 @@ export interface Candidature {
     projectTitle?: string;
     clientName?: string;
     freelancerName?: string;
+    grammarReport?: string;
     expanded?: boolean;
     contract?: any;
 }

@@ -7,21 +7,65 @@
 
         <nav class="nav-links">
             <a routerLink="/">Home</a>
-            <a href="#">Browse Freelancers</a>
-            <a href="#">Post a Job</a>
+            <a routerLink="/browse-freelancers" routerLinkActive="active">Browse Freelancers</a>
             <a href="#">How it works</a>
             <a *ngIf="isAdmin" routerLink="/admin/dashboard" routerLinkActive="active">Admin Dashboard</a>
             <a *ngIf="isFreelancer" routerLink="/profile-freelancer" routerLinkActive="active">My Profile</a>
             <a *ngIf="isFreelancer" routerLink="/my-applications" routerLinkActive="active">My Applications</a>
+            <a *ngIf="isFreelancer" routerLink="/planning" routerLinkActive="active">Planning</a>
             <a *ngIf="isClient && !isFreelancer" routerLink="/profile-client" routerLinkActive="active">My Profile</a>
             <a *ngIf="isClient && !isFreelancer" routerLink="/client-projects" routerLinkActive="active">My Projects</a>
+            <a *ngIf="isLoggedIn && !isAdmin" routerLink="/reclamations" routerLinkActive="active">Reclamations</a>
 
         </nav>
 
-        <div class="nav-actions">
+        <div class="nav-actions" style="display: flex; align-items: center;">
             <a *ngIf="isLoggedIn && !isFreelancer" class="btn primary" routerLink="/become-freelancer"
-                style="margin-right: 10px;">Become
-                a Freelancer</a>
+                style="margin-right: 15px;">Become a Freelancer</a>
+
+            <!-- Notification Bell -->
+            <div *ngIf="isLoggedIn" style="position: relative; margin-right: 20px;">
+                <button (click)="toggleNotifications()"
+                    style="background: none; border: none; color: white; cursor: pointer; position: relative; padding: 5px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span *ngIf="unreadCount > 0"
+                        style="position: absolute; top: -2px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; border: 2px solid var(--navbar-bg);">{{
+                        unreadCount }}</span>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div *ngIf="showNotifications"
+                    style="position: absolute; right: -10px; top: 45px; background: white; border-radius: 8px; width: 320px; max-height: 400px; overflow-y: auto; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.2);"
+                    (mouseleave)="closeNotifications()">
+                    <div
+                        style="padding: 12px 15px; border-bottom: 1px solid #eaeaea; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border-radius: 8px 8px 0 0;">
+                        <h6 style="margin: 0; color: #2c3e50; font-weight: bold;">Notifications</h6>
+                        <small style="color: #7f8c8d; font-weight: 500;">{{ unreadCount }} unread</small>
+                    </div>
+                    <div style="padding: 20px; text-align: center; color: #95a5a6; font-size: 0.9rem;"
+                        *ngIf="notifications.length === 0">
+                        <i class="far fa-bell-slash mb-2" style="font-size: 2rem; opacity: 0.5;"></i><br>
+                        You're all caught up!
+                    </div>
+                    <div *ngFor="let n of notifications"
+                        [ngStyle]="{'background': n.read ? 'white' : '#f4fbff', 'border-bottom': '1px solid #f1f2f6', 'padding': '12px 15px', 'cursor': 'pointer', 'transition': 'background 0.2s'}"
+                        (click)="markAsRead(n)" hover-class="bg-light">
+                        <div style="font-size: 0.85rem; color: #34495e; margin-bottom: 5px; line-height: 1.4;">
+                            <i class="fas fa-circle me-2"
+                                [ngStyle]="{'color': n.type === 'SUCCESS' ? '#2ecc71' : (n.type === 'WARNING' ? '#f1c40f' : '#3498db')}"
+                                style="font-size: 0.5rem; vertical-align: middle;"></i>
+                            <span [ngStyle]="{'font-weight': n.read ? 'normal' : '600'}">{{ n.message }}</span>
+                        </div>
+                        <div style="color: #95a5a6; font-size: 0.7rem; text-align: right; margin-top: 4px;">{{
+                            n.createdAt | date:'short' }}</div>
+                    </div>
+                </div>
+            </div>
+
             <span *ngIf="isLoggedIn" style="margin-right: 15px; font-size: 14px; color: var(--text-muted);">
                 {{ currentUser?.email }}
             </span>

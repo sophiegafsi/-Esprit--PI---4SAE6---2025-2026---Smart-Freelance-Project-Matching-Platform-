@@ -30,13 +30,8 @@ public class Contract {
     @Column(name = "candidatureId")
     private UUID candidatureId;
 
-    @ManyToOne
-    @JoinColumn(name = "projectId", insertable = false, updatable = false)
-    @JsonBackReference("project-contract")
-    private Project project;
-
     @Column(name = "projectId")
-    private UUID projectId;
+    private Long projectId;
 
     private UUID clientId;
     private UUID freelancerId;
@@ -44,7 +39,7 @@ public class Contract {
     @Column(columnDefinition = "TEXT")
     private String terms;
 
-    private Double budget;
+    private Double hourlyRate; // Added for hourly tracking
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;

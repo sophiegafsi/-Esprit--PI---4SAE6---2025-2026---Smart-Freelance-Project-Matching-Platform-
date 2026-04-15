@@ -21,6 +21,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
     private final KeycloakService keycloakService;
     private final EntityManager entityManager;
 
@@ -233,6 +234,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public java.util.Optional<User> findByKeycloakId(String keycloakId) {
+        return userRepository.findByKeycloakId(keycloakId);
+    }
+
+    @Override
     public User findById(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -355,5 +361,33 @@ public class UserServiceImpl implements UserService {
         }
 
         return saved;
+    }
+
+    // --- Notifications ---
+    @Override
+    public List<Notification> getUserNotifications(UUID userId) {
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    @Override
+    public Notification createNotification(UUID userId, String message, String type, String actionUrl) {
+        Notification notification = Notification.builder()
+                .userId(userId)
+                .message(message)
+                .type(type)
+                .actionUrl(actionUrl)
+                .read(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+        return notificationRepository.save(notification);
+    }
+
+    @Override
+    public void markNotificationAsRead(UUID notificationId) {
+        System.out.println(">>> Marking notification [" + notificationId + "] as read");
+        notificationRepository.findById(notificationId).ifPresent(notif -> {
+            notif.setRead(true);
+            notificationRepository.save(notif);
+        });
     }
 }

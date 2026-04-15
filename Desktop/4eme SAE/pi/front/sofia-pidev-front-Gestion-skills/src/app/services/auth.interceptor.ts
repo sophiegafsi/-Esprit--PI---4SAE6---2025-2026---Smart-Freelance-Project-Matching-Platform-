@@ -12,7 +12,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     if (isPlatformBrowser(platformId)) {
         const token = localStorage.getItem('access_token');
 
-        if (token) {
+        // Send anonymous requests for Notifications so Spring Security permitAll() natively accepts them 
+        if (token && !req.url.includes('/notifications')) {
             const cloned = req.clone({
                 setHeaders: {
                     Authorization: `Bearer ${token}`
@@ -21,8 +22,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             return next(cloned).pipe(
                 catchError((error: HttpErrorResponse) => {
                     if (error.status === 401) {
-                        localStorage.removeItem('access_token');
-                        router.navigate(['/login']);
+                        // Prevent background polling from triggering a destructive logout
+                        if (!req.url.includes('/notifications')) {
+                            localStorage.removeItem('access_token');
+                            router.navigate(['/login']);
+                        }
                     }
                     return throwError(() => error);
                 })
@@ -33,10 +37,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
             if (error.status === 401) {
-                if (typeof localStorage !== 'undefined') {
-                    localStorage.removeItem('access_token');
+                if (!req.url.includes('/notifications')) {
+                    if (typeof localStorage !== 'undefined') {
+                        localStorage.removeItem('access_token');
+                    }
+                    router.navigate(['/login']);
                 }
-                router.navigate(['/login']);
             }
             return throwError(() => error);
         })

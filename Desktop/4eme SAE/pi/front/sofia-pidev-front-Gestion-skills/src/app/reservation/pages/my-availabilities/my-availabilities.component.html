@@ -1,0 +1,57 @@
+<div class="my-page">
+    <!-- Header -->
+    <section class="page-header">
+        <div class="header-inner">
+            <div>
+                <p class="mini-label">🗓️ My Availability</p>
+                <h1>My Availability Slots</h1>
+                <p class="subtitle">Manage your published time slots. Clients will see these and book you for projects.
+                </p>
+            </div>
+            <button class="add-btn" (click)="addNew()">+ Add New Slot</button>
+        </div>
+    </section>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Loading your slots...</p>
+    </div>
+
+    <!-- Errors -->
+    <div class="error-box" *ngIf="error && !loading">{{ error }}</div>
+    <div class="error-box" *ngIf="deleteError">{{ deleteError }}</div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && !error && availabilities.length === 0">
+        <p class="empty-icon">📭</p>
+        <h3>No Availability Slots Yet</h3>
+        <p>Add your first slot so clients can find and book you.</p>
+        <button class="add-btn" (click)="addNew()">+ Add Your First Slot</button>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="grid" *ngIf="!loading && availabilities.length > 0">
+        <div class="slot-card" *ngFor="let a of availabilities">
+            <div class="slot-header">
+                <div class="date-chip">📅 {{ a.date }}</div>
+                <div class="status-chip" [class.active]="a.isActive" [class.inactive]="!a.isActive">
+                    {{ a.isActive ? 'Active' : 'Inactive' }}
+                </div>
+            </div>
+
+            <p class="slot-description">{{ a.description }}</p>
+
+            <div class="slot-details">
+                <div class="detail-item">🕐 {{ a.startTime }} – {{ a.endTime }}</div>
+                <div class="detail-item">📍 {{ a.location }}</div>
+                <div class="detail-item">👥 {{ a.maxSlots }} slots available</div>
+            </div>
+
+            <div class="slot-actions">
+                <button class="edit-btn" (click)="edit(a.id)">✏️ Edit</button>
+                <button class="delete-btn" (click)="delete(a.id)">🗑️ Delete</button>
+            </div>
+        </div>
+    </div>
+</div>

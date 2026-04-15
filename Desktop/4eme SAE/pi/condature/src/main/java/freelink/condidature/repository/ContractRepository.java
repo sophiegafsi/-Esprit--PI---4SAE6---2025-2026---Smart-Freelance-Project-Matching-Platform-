@@ -13,7 +13,7 @@ public interface ContractRepository extends JpaRepository<Contract, UUID> {
 
     List<Contract> findByFreelancerId(UUID freelancerId);
 
-    List<Contract> findByProjectId(UUID projectId);
+    List<Contract> findByProjectId(Long projectId);
 
     List<Contract> findByCandidatureId(UUID candidatureId);
 }

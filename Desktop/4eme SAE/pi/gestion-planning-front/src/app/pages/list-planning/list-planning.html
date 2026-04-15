@@ -1,0 +1,107 @@
+<div class="planning-page">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-box">◉</div>
+      <span>FreeLink</span>
+      <small>Dashboard</small>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#">Dashboard</a>
+      <a class="active" routerLink="/plannings">Planning</a>
+      <a href="#">Tasks</a>
+      <a href="#">Profile</a>
+    </nav>
+
+    <a routerLink="/plannings/add" class="top-btn">+ Add Planning</a>
+  </header>
+
+  <section class="hero">
+    <h1>All Plannings</h1>
+    <p>Organize your schedules, tasks and deadlines in a smart and modern way.</p>
+  </section>
+
+  <div class="search-wrapper">
+    <div class="search-bar">
+      <span class="search-icon">⌕</span>
+
+      <input
+        type="text"
+        [(ngModel)]="searchKeyword"
+        (input)="onSearchChange()"
+        placeholder="Search planning by title, description or status..."
+      />
+
+      <button
+        *ngIf="searchKeyword"
+        type="button"
+        class="clear-btn"
+        (click)="clearSearch()">
+        ✕
+      </button>
+    </div>
+  </div>
+
+  <section class="planning-grid" *ngIf="plannings.length > 0; else noData">
+    <div class="planning-card" *ngFor="let planning of plannings">
+      <div class="card-head">
+        <h2>{{ planning.title }}</h2>
+        <span class="status-badge">{{ planning.status }}</span>
+      </div>
+
+      <p class="description">{{ planning.description }}</p>
+
+      <div class="dates">
+        <p>🗓️ Start: {{ planning.startDate }}</p>
+        <p>🗓️ End: {{ planning.endDate }}</p>
+      </div>
+
+      <div class="progress-card small-progress" *ngIf="planning.id">
+        <div class="progress-header">
+          <span>Weighted Progress</span>
+          <span>{{ weightedProgressMap[planning.id] || 0 }}%</span>
+        </div>
+
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            [style.width.%]="weightedProgressMap[planning.id] || 0">
+          </div>
+        </div>
+      </div>
+
+      <div class="efficiency-card" *ngIf="planning.id && efficiencyMap[planning.id]">
+        <div class="efficiency-head">
+          <span>Efficiency Score</span>
+          <span>{{ efficiencyMap[planning.id].efficiencyScore }}%</span>
+        </div>
+
+        <div class="progress-bar">
+          <div
+            class="efficiency-fill"
+            [style.width.%]="efficiencyMap[planning.id].efficiencyScore">
+          </div>
+        </div>
+
+        <div class="efficiency-meta">
+          <span>Level: {{ efficiencyMap[planning.id].efficiencyLevel }}</span>
+          <span>Wasted: {{ efficiencyMap[planning.id].wastedMinutes }} min</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a [routerLink]="['/plannings', planning.id]" class="details-btn">Details</a>
+        <a [routerLink]="['/plannings/edit', planning.id]" class="edit-btn">Edit</a>
+        <button (click)="deletePlanning(planning.id)" class="delete-btn">Delete</button>
+      </div>
+    </div>
+  </section>
+
+  <ng-template #noData>
+    <section class="empty-state">
+      <h2>No planning found</h2>
+      <p>Try another keyword or create a new planning.</p>
+      <a routerLink="/plannings/add" class="top-btn">+ Add Planning</a>
+    </section>
+  </ng-template>
+</div>

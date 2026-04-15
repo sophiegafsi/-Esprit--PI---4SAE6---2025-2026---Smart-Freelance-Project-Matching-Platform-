@@ -40,6 +40,10 @@ public class Reclamation {
     @Enumerated(EnumType.STRING)
     private Type type;
 
+    private String idUtilisateur;
+
+    private String idCible;
+
     @OneToMany(mappedBy = "reclamation", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Reponse> reponses;

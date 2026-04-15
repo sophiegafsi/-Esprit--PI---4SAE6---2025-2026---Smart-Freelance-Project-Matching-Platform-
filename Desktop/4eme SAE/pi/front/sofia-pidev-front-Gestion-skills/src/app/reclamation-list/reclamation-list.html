@@ -1,0 +1,168 @@
+<div class="admin-reclamations-page">
+  <div class="dashboard-header">
+    <div class="header-left">
+      <span class="section-tag">{{ isAdmin ? 'Admin Panel' : 'User Support' }}</span>
+      <h1>{{ isAdmin ? 'Complaint Management' : 'My Reclamations' }}</h1>
+      <p>{{ isAdmin ? 'Monitor, review, and process user complaints.' : 'Track the status of your complaints and
+        communicate with support.' }}</p>
+    </div>
+
+    <div class="header-actions" *ngIf="!isAdmin">
+      <button class="primary-btn" (click)="goToCreate()">
+        <i class="fas fa-plus"></i> Send a Complaint
+      </button>
+    </div>
+
+    <div class="header-stats" *ngIf="!isLoading && reclamations.length > 0">
+      <div class="stat-card">
+        <span class="stat-label">Total</span>
+        <strong>{{ totalReclamations }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Pending</span>
+        <strong>{{ enAttenteCount }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">In Progress</span>
+        <strong>{{ enCoursCount }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="empty-state">
+    <p>Loading complaints...</p>
+  </div>
+
+  <div *ngIf="!isLoading && errorMessage" class="empty-state error-state">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <div class="filters-bar" *ngIf="!isLoading && reclamations.length > 0">
+    <input type="text" placeholder="Search by subject or description..." [(ngModel)]="filters.search"
+      (input)="applyFilters()" class="filter-input" />
+
+    <select [(ngModel)]="filters.type" (change)="applyFilters()" class="filter-select">
+      <option value="">All types</option>
+      <option value="PROJET">Project</option>
+      <option value="PAIEMENT">Payment</option>
+      <option value="UTILISATEUR">User</option>
+      <option value="TECHNIQUE">Technical</option>
+    </select>
+
+    <select [(ngModel)]="filters.priorite" (change)="applyFilters()" class="filter-select">
+      <option value="">All priorities</option>
+      <option value="BASSE">Low</option>
+      <option value="MOYENNE">Medium</option>
+      <option value="HAUTE">High</option>
+      <option value="CRITIQUE">Critical</option>
+    </select>
+
+    <select [(ngModel)]="filters.statut" (change)="applyFilters()" class="filter-select">
+      <option value="">All statuses</option>
+      <option value="EN_ATTENTE">Pending</option>
+      <option value="EN_COURS">In Progress</option>
+      <option value="RESOLUE">Resolved</option>
+      <option value="REJETEE">Rejected</option>
+    </select>
+
+    <button class="reset-btn" (click)="resetFilters()">Reset</button>
+  </div>
+
+  <div class="dashboard-card" *ngIf="!isLoading && reclamations.length > 0">
+    <div class="card-top">
+      <div>
+        <h2>Complaint List</h2>
+        <p>Overview of complaints recorded in the system</p>
+      </div>
+    </div>
+
+    <div *ngIf="filteredReclamations.length > 0" class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Subject</th>
+            <th>Type</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Urgency</th>
+            <th>Date</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let rec of filteredReclamations; let i = index; trackBy: trackByReclamation"
+            [ngClass]="{ 'urgent-row': rec.urgent }">
+            <td class="index-cell">#{{ i + 1 }}</td>
+
+            <td>
+              <div class="subject-cell">
+                <span class="subject-title">{{ rec.sujet }}</span>
+
+                <span *ngIf="rec.urgent" class="urgent-alert">
+                  ⚠️ Requires immediate attention
+                </span>
+              </div>
+            </td>
+
+            <td>{{ getTypeLabel(rec.type) }}</td>
+
+            <td>
+              <span class="badge" [ngClass]="rec.priorite?.toLowerCase()">
+                {{ getPrioriteLabel(rec.priorite) }}
+              </span>
+            </td>
+
+            <td>
+              <span class="badge status" [ngClass]="rec.statut?.toLowerCase()">
+                {{ getStatutLabel(rec.statut) }}
+              </span>
+            </td>
+
+            <td>
+              <span *ngIf="rec.urgent" class="urgent-badge">URGENT</span>
+              <span *ngIf="!rec.urgent" class="normal-badge">Normal</span>
+
+              <small *ngIf="rec.urgent && rec.urgentReason" class="urgent-reason">
+                {{ getUrgentReasonLabel(rec.urgentReason) }}
+              </small>
+            </td>
+
+            <td>{{ rec.dateCreation | date:'dd/MM/yyyy' }}</td>
+
+            <td class="actions">
+              <button class="btn-icon view-btn" (click)="viewDetails(rec.idReclamation!)" title="View">
+                👁️
+              </button>
+              <button *ngIf="!isAdmin" class="btn-icon edit-btn" (click)="editReclamation(rec.idReclamation!)"
+                title="Edit">
+                ✏️
+              </button>
+              <button *ngIf="!isAdmin" class="btn-icon delete-btn" (click)="deleteReclamation(rec.idReclamation!)"
+                title="Delete">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="filteredReclamations.length === 0" class="empty-state inside-empty">
+      <p>No complaints match the selected filters.</p>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage && reclamations.length === 0" class="empty-state">
+    <div class="empty-icon">📂</div>
+    <p>No complaints found.</p>
+    <div *ngIf="!isAdmin" class="mt-4">
+      <button class="primary-btn" (click)="goToCreate()">
+        <i class="fas fa-plus"></i> Send your first complaint
+      </button>
+    </div>
+  </div>
+</div>

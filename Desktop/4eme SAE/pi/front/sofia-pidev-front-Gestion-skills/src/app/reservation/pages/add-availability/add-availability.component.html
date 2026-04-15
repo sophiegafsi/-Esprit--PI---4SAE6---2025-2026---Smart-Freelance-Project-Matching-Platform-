@@ -1,0 +1,74 @@
+<div class="form-page">
+    <div class="form-wrapper">
+        <div class="form-card">
+            <div class="title-block">
+                <p class="mini-label">📅 Availability</p>
+                <h1>{{ isEditMode ? 'Edit Availability' : 'Add Your Availability' }}</h1>
+                <p class="subtitle">{{ isEditMode ? 'Update your time slot details below.' : 'Publish a time slot so
+                    clients can find and book you.' }}</p>
+            </div>
+
+            <!-- Loading skeleton during edit load -->
+            <div class="loading-state" *ngIf="loading">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+
+            <form *ngIf="!loading" (ngSubmit)="onSubmit()" #f="ngForm">
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="desc">Description / Skills offered <span class="req">*</span></label>
+                    <textarea id="desc" [(ngModel)]="availability.description" name="description"
+                        placeholder="e.g. Full-stack development, Angular + Spring Boot, UI/UX Design..." required
+                        minlength="10"></textarea>
+                </div>
+
+                <!-- Date + Max Slots -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="date">Date <span class="req">*</span></label>
+                        <input id="date" type="date" [(ngModel)]="availability.date" name="date" [min]="today"
+                            required />
+                    </div>
+                    <div class="form-group">
+                        <label for="slots">Max Slots <span class="req">*</span></label>
+                        <input id="slots" type="number" [(ngModel)]="availability.maxSlots" name="maxSlots" min="1"
+                            max="20" required />
+                    </div>
+                </div>
+
+                <!-- Start + End Time -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start">Start Time <span class="req">*</span></label>
+                        <input id="start" type="time" [(ngModel)]="availability.startTime" name="startTime" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="end">End Time <span class="req">*</span></label>
+                        <input id="end" type="time" [(ngModel)]="availability.endTime" name="endTime" required />
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="form-group">
+                    <label for="location">Location <span class="req">*</span></label>
+                    <input id="location" type="text" [(ngModel)]="availability.location" name="location"
+                        placeholder="e.g. Remote, Paris, Tunis..." required />
+                </div>
+
+                <!-- Feedback -->
+                <div class="alert success" *ngIf="success">✅ {{ success }}</div>
+                <div class="alert error" *ngIf="error">⚠️ {{ error }}</div>
+
+                <!-- Actions -->
+                <div class="actions">
+                    <button type="submit" class="save-btn" [disabled]="saving">
+                        <span *ngIf="!saving">{{ isEditMode ? '💾 Update' : '🚀 Publish' }}</span>
+                        <span *ngIf="saving">Saving...</span>
+                    </button>
+                    <button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

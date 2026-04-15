@@ -61,6 +61,13 @@ public class UserController {
         return userService.findById(id);
     }
 
+    @GetMapping("/keycloak/{keycloakId}")
+    public ResponseEntity<User> getUserByKeycloakId(@PathVariable String keycloakId) {
+        return userService.findByKeycloakId(keycloakId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public User updateUser(@PathVariable UUID id, @RequestBody User user) {
@@ -221,5 +228,42 @@ public class UserController {
         if (hasRole(u, "freelancer"))
             return 1;
         return 2;
+    }
+
+    // --- Notifications ---
+
+    @GetMapping("/{userId}/notifications")
+    public ResponseEntity<List<Notification>> getUserNotifications(@PathVariable UUID userId) {
+        return ResponseEntity.ok(userService.getUserNotifications(userId));
+    }
+
+    @PostMapping("/{userId}/notifications")
+    public ResponseEntity<Notification> createNotification(
+            @PathVariable UUID userId,
+            @RequestBody Map<String, String> payload) {
+        String message = payload.get("message");
+        String type = payload.getOrDefault("type", "INFO");
+        String actionUrl = payload.get("actionUrl");
+        return ResponseEntity.ok(userService.createNotification(userId, message, type, actionUrl));
+    }
+
+    @PostMapping("/notifications/by-keycloak/{keycloakId}")
+    public ResponseEntity<Notification> createNotificationByKeycloak(
+            @PathVariable String keycloakId,
+            @RequestBody Map<String, String> payload) {
+        return userService.findByKeycloakId(keycloakId)
+                .map(user -> {
+                    String message = payload.get("message");
+                    String type = payload.getOrDefault("type", "INFO");
+                    String actionUrl = payload.get("actionUrl");
+                    return ResponseEntity.ok(userService.createNotification(user.getId(), message, type, actionUrl));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/notifications/{id}/read")
+    public ResponseEntity<Void> markNotificationAsRead(@PathVariable UUID id) {
+        userService.markNotificationAsRead(id);
+        return ResponseEntity.ok().build();
     }
 }

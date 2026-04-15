@@ -44,7 +44,7 @@ export class LoginComponent {
             },
             error: (err) => {
                 console.error('Login failed', err);
-                this.errorMessage = 'Invalid credentials or login failed';
+                this.errorMessage = 'Freelink Web App: Invalid credentials or login failed.';
             }
         });
     }

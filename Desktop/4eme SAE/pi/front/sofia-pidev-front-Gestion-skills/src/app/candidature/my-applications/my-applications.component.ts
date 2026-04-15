@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CandidatureService } from '../../services/candidature.service';
 import { AuthService } from '../../services/auth.service';
 import { Candidature } from '../../models/candidature.model';
+import { TimeTrackingService } from '../../services/time-tracking.service';
 
 @Component({
   selector: 'app-my-applications',
@@ -23,11 +24,12 @@ export class MyApplicationsComponent implements OnInit {
   selectedContractId: string | null = null;
   isSubmittingSignature: boolean = false;
 
-  private currentUserId: string = '';
+  public currentUserId: string = '';
 
   constructor(
     private candidatureService: CandidatureService,
-    private authService: AuthService
+    private authService: AuthService,
+    private timeTrackingService: TimeTrackingService
   ) { }
 
   ngOnInit(): void {
@@ -36,7 +38,7 @@ export class MyApplicationsComponent implements OnInit {
         this.currentUserId = user.id;
         this.loadApplications(user.id);
       } else {
-        this.errorMessage = 'You must be logged in.';
+        this.errorMessage = 'Freelink: You must be securely logged into your account to view your applications.';
         this.loading = false;
       }
     });
@@ -45,42 +47,39 @@ export class MyApplicationsComponent implements OnInit {
   loadApplications(userId: string): void {
     this.candidatureService.getMyApplications(userId).subscribe({
       next: (data) => {
-        this.applications = data.map(app => ({
-          ...app,
-          editing: false,
-          editDraft: '',
-          expanded: false
-        }));
-        this.loading = false;
-
-        this.applications.forEach(app => {
-          this.candidatureService.getProjectById(app.projectId).subscribe({
-            next: (project) => {
-              app.projectTitle = project.title;
-              if (project.clientId) {
-                this.authService.getUserById(project.clientId).subscribe({
-                  next: (user) => app.clientName = user.firstName + ' ' + user.lastName,
-                  error: () => app.clientName = 'Unknown Client'
-                });
-              }
-            },
-            error: () => app.projectTitle = 'Unknown Project'
+        this.candidatureService.getAllContracts().subscribe(contracts => {
+          this.applications = data.map(app => {
+            const contract = contracts.find(c => c.candidatureId === app.id);
+            return {
+              ...app,
+              editing: false,
+              editDraft: '',
+              expanded: false,
+              contract: contract,
+              canFreelancerSign: contract?.status === 'ONESIDED'
+            };
           });
+          this.loading = false;
 
-          if (app.status === 'ACCEPTED') {
-            this.candidatureService.getAllContracts().subscribe(contracts => {
-              const contract = contracts.find(c => c.candidatureId === app.id);
-              if (contract) {
-                app.contract = contract;
-                app.canFreelancerSign = contract.status === 'ONESIDED';
-              }
+          this.applications.forEach(app => {
+            this.candidatureService.getProjectById(app.projectId).subscribe({
+              next: (project) => {
+                app.projectTitle = project.title;
+                if (project.clientId) {
+                  this.authService.getUserById(project.clientId).subscribe({
+                    next: (user) => app.clientName = user.firstName + ' ' + user.lastName,
+                    error: () => app.clientName = 'Unknown Client'
+                  });
+                }
+              },
+              error: () => app.projectTitle = 'Unknown Project'
             });
-          }
+          });
         });
       },
       error: (err) => {
         console.error(err);
-        this.errorMessage = 'Failed to load applications.';
+        this.errorMessage = 'Freelink Server Error: Failed to load your applications.';
         this.loading = false;
       }
     });
@@ -98,7 +97,7 @@ export class MyApplicationsComponent implements OnInit {
 
   saveEdit(app: any): void {
     if (!app.editDraft || !app.editDraft.trim()) {
-      alert('Cover letter cannot be empty.');
+      alert('Freelink Rules: Cover letter cannot be empty.');
       return;
     }
     this.candidatureService.updateApplication(app.id, this.currentUserId, app.editDraft.trim()).subscribe({
@@ -108,13 +107,13 @@ export class MyApplicationsComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        alert('Failed to update application.');
+        alert('Freelink Server Error: Failed to update application.');
       }
     });
   }
 
   deleteApplication(app: any): void {
-    if (!confirm(`Withdraw application?`)) return;
+    if (!confirm(`Freelink: Are you sure you want to withdraw this application?`)) return;
     this.candidatureService.deleteApplication(app.id, this.currentUserId).subscribe({
       next: () => {
         this.applications = this.applications.filter(a => a.id !== app.id);
@@ -175,7 +174,7 @@ export class MyApplicationsComponent implements OnInit {
     this.isSubmittingSignature = true;
     this.candidatureService.signContractByFreelancer(this.selectedContractId, signatureData).subscribe({
       next: () => {
-        this.successMessage = 'Contract signed successfully!';
+        this.successMessage = 'Freelink Success: Contract signed successfully!';
         this.closeSignatureModal();
         this.isSubmittingSignature = false;
         this.loadApplications(this.currentUserId);
@@ -186,5 +185,9 @@ export class MyApplicationsComponent implements OnInit {
         this.isSubmittingSignature = false;
       }
     });
+  }
+
+  launchTracker(contractId: string, freelancerId: string) {
+    this.timeTrackingService.launchTracker(contractId, freelancerId);
   }
 }

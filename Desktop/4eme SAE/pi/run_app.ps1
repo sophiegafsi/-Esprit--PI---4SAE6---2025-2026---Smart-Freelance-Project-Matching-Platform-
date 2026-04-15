@@ -1,29 +1,33 @@
 # run_app.ps1
 # Runs the Frontend, Gateway, User Service, and Eureka Server.
+# Using 'java -jar' with explicit JAR resolution for better stability.
 
 Write-Host "Checking Keycloak status..."
-# Check if keycloak container is running
 $keycloak = docker ps --filter "name=keycloak" --format "{{.ID}}"
 if (-not $keycloak) {
-    Write-Warning "Keycloak container (keycloak-yesterday) does not seem to be running. You might need to run 'docker-compose up -d' first."
-}
-else {
+    Write-Warning "Keycloak container does not seem to be running. Run 'docker-compose up -d' first."
+} else {
     Write-Host "Keycloak is running."
 }
 
-Write-Host "Starting Eureka Server..."
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'eureka-server\eureka-server'; .\mvnw clean install -DskipTests; .\mvnw spring-boot:run"
+function Start-JavaService {
+    param([string]$name, [string]$path)
+    Write-Host "Starting $name..."
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$path'; Write-Host '--- Build Start: $name ---'; .\mvnw clean install -DskipTests; if (`$?) { `$jar = Get-ChildItem target/*.jar | Where-Object { `$_.Name -notmatch '.original' } | Select-Object -First 1; if (`$jar) { Write-Host 'Running: ' `$jar.Name; java -jar `$jar.FullName } else { Write-Error 'No executable JAR found in target folder!' } } else { Write-Error 'Maven Build Failed!' }; Read-Host 'Service stopped. Press Enter to close window...'"
+}
 
-Write-Host "Starting API Gateway..."
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'API-Gateway\API-Gateway'; .\mvnw clean install -DskipTests; .\mvnw spring-boot:run"
-
-Write-Host "Starting User Service..."
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'user'; .\mvnw clean install -DskipTests; .\mvnw spring-boot:run"
-
-Write-Host "Starting Condidature Service..."
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'condature'; .\mvnw clean install -DskipTests; .\mvnw spring-boot:run"
-
+Start-JavaService "Eureka Server" "eureka-server\eureka-server"
+Start-JavaService "API Gateway" "API-Gateway\API-Gateway"
+Start-JavaService "User Service" "user"
+Start-JavaService "Condidature Service" "condature"
+Start-JavaService "Projet Service" "porjectservice"
+Start-JavaService "Time Tracking Service" "time-tracking-service"
+Start-JavaService "Reclamation Service" "reclamation"
+Start-JavaService "Skills Service" "skills-service"
+Start-JavaService "Portfolio Service" "portfolio-service"
+Start-JavaService "Planning Service" "gestion-planing"
+Start-JavaService "Reservation Service" "reservation-service"
 Write-Host "Starting Frontend..."
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'front\sofia-pidev-front-Gestion-skills'; npm install; ng serve"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'front\sofia-pidev-front-Gestion-skills'; npm install; ng serve; Read-Host 'Frontend stopped. Press Enter to close...'"
 
 Write-Host "All requested services initiated."

@@ -1,8 +1,9 @@
 export interface Project {
-    id: string;
+    id: number | string;
     title: string;
     description: string;
     clientId: string;
     budget: number;
     status: 'OPEN' | 'CLOSED';
+    tasks?: any[];
 }

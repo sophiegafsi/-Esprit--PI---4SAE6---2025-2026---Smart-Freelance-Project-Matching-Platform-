@@ -1,8 +1,0 @@
-REPOSITORY                  TAG       IMAGE ID       CREATED       SIZE
-keycloak-yesterday-v2       latest    e668ada5e319   7 days ago    631MB
-mailhog-yesterday           latest    823144d2ae82   7 days ago    392MB
-keycloak-yesterday          latest    8b3a401427b2   7 days ago    638MB
-keycloak-restored           latest    621691a4e4f7   7 days ago    459MB
-quay.io/keycloak/keycloak   latest    98c12efac63e   13 days ago   463MB
-quay.io/keycloak/keycloak   23.0.3    33825b7d2d9e   2 years ago   459MB
-mailhog/mailhog             latest    4de68494cd0d   5 years ago   392MB

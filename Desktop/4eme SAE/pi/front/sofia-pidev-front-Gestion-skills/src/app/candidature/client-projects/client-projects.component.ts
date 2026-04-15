@@ -24,11 +24,11 @@ export class ClientProjectsComponent implements OnInit {
         if (this.authService.isClient()) {
           this.loadProjects(user.id);
         } else {
-          this.errorMessage = 'Access denied. Client role required.';
+          this.errorMessage = 'Freelink Access Denied: Client role is required to view your projects.';
           this.loading = false;
         }
       } else {
-        this.errorMessage = 'You must be logged in.';
+        this.errorMessage = 'Freelink: Please log in to your account to continue.';
         this.loading = false;
       }
     });
@@ -42,7 +42,7 @@ export class ClientProjectsComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.errorMessage = 'Failed to load projects.';
+        this.errorMessage = 'Freelink Server Error: Failed to load your projects.';
         this.loading = false;
       }
     });
