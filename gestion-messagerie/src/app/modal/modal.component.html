@@ -1,0 +1,26 @@
+<div class="modal-overlay" *ngIf="options" (click)="cancel()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>{{ options.title }}</h3>
+            <button class="close-btn" (click)="cancel()">×</button>
+        </div>
+
+        <div class="modal-body">
+            <p class="modal-message">{{ options.message }}</p>
+
+            <div *ngIf="options.type === ModalType.PROMPT" class="modal-input-container">
+                <input type="text" [(ngModel)]="inputValue" (keyup.enter)="confirm()" placeholder="Enter value..."
+                    autofocus>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button *ngIf="options.type !== ModalType.ALERT" class="btn ghost" (click)="cancel()">
+                {{ options.cancelText || 'Cancel' }}
+            </button>
+            <button class="btn orange" (click)="confirm()">
+                {{ options.confirmText || 'OK' }}
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,418 @@
+<!-- TOP NAV (FreeLink theme) -->
+<header class="navbar">
+    <div class="container nav-inner">
+        <a class="brand" href="#">
+            <span class="logo" aria-hidden="true"></span>
+            <span>FreeLink</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Browse Freelancers</a>
+            <a href="#">Post a Job</a>
+            <a href="#">How it works</a>
+            <a href="#" class="active">Messages</a>
+        </nav>
+
+        <div class="nav-actions">
+            <!-- Debug Tools -->
+            <div class="debug-tools" style="display: flex; gap: 8px; margin-right: 15px;">
+                <button class="btn" style="background: #2a2a2a; color: #fff; font-size: 11px; padding: 5px 10px;"
+                    (click)="switchUser()">
+                    👤 Switch: {{ myUserId === 1 ? 'Free' : 'Client' }}
+                </button>
+                <button class="btn" style="background: #2a2a2a; color: #fff; font-size: 11px; padding: 5px 10px;"
+                    (click)="seedRealisticData()">
+                    🌱 Seed Data
+                </button>
+            </div>
+
+            <div class="pill user-pill">
+                <span class="mini-avatar">{{ myUserId === 1 ? 'SG' : 'MA' }}</span>
+                <span class="user-name">{{ myUserId === 1 ? 'Soufia Gafsi' : 'Mohamed Ali' }}</span>
+            </div>
+            <a class="btn orange" href="#">Post a Job</a>
+        </div>
+    </div>
+</header>
+
+<!-- PAGE -->
+<main class="page">
+    <div class="container shell">
+
+        <!-- LEFT: Conversations -->
+        <aside class="left">
+            <div class="panel-head">
+                <h1 class="title">Conversations</h1>
+                <button class="icon-btn" aria-label="New message" (click)="createNewConversation()">＋</button>
+            </div>
+
+            <div class="search">
+                <span class="search-ic">🔎</span>
+                <input type="text" placeholder="Search conversations..." [(ngModel)]="searchText"
+                    (keyup)="filterConversations()" />
+            </div>
+
+            <div class="list">
+                @if (isLoadingConversations) {
+                <!-- Skeleton Loader for Conversations -->
+                <div class="skeleton-container">
+                    <div
+                        style="padding: 10px; text-align: center; color: var(--primary); font-size: 13px; font-weight: 900; animation: pulse 2s infinite;">
+                        ⚡ Establishing secure connection to server...
+                    </div>
+                    @for (i of [1,2,3,4,5,6]; track i) {
+                    <div class="skeleton-item">
+                        <div class="skeleton skeleton-avatar"></div>
+                        <div class="skeleton-info">
+                            <div class="skeleton-line full"></div>
+                            <div class="skeleton-line mid"></div>
+                            <div class="skeleton-line short"></div>
+                        </div>
+                    </div>
+                    }
+                </div>
+                } @else {
+                <!-- Dynamic Conversation List -->
+                @for (c of filteredConversations; track c.id) {
+                <div class="thread-wrapper" style="position: relative;">
+                    <button class="thread" [class.active]="c.id === currentConversation?.id"
+                        (click)="selectConversation(c)">
+
+                        <span class="avatar">{{ c.avatar || (c.title | slice:0:2) }}</span>
+                        <span class="thread-main">
+                            <span class="row1">
+                                <span class="name">{{ c.title }}</span>
+                                <span class="time">{{ c.lastMessageAt | date:'shortTime' }}</span>
+                            </span>
+                            <span class="row2">
+                                <span class="role">{{ c.role || 'Freelancer' }}</span>
+                                @if (c.badge) {
+                                <span class="badge">{{ c.badge }}</span>
+                                }
+                            </span>
+                            <span class="preview">{{ c.preview || 'Click to view messages' }}</span>
+                        </span>
+                    </button>
+
+                    <!-- 3-Dot Menu Button -->
+                    <button class="menu-btn" (click)="toggleMenu($event, c.id)"
+                        style="position: absolute; right: 10px; top: 10px; background: none; border: none; cursor: pointer; font-size: 20px; color: var(--muted); padding: 5px;">
+                        ⋮
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    @if (openMenuId === c.id) {
+                    <div class="dropdown-menu" (click)="$event.stopPropagation()"
+                        style="position: absolute; right: 10px; top: 40px; background: white; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 150px; overflow: hidden;">
+                        <button class="dropdown-item" (click)="editConversation($event, c); closeMenu()"
+                            style="width: 100%; padding: 12px 16px; border: none; background: none; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; color: #333; transition: background 0.2s;">
+                            <span style="font-size: 16px;">✏️</span>
+                            <span>Edit</span>
+                        </button>
+                        <button class="dropdown-item" (click)="deleteConversation($event, c.id); closeMenu()"
+                            style="width: 100%; padding: 12px 16px; border: none; background: none; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; color: #d32f2f; transition: background 0.2s;">
+                            <span style="font-size: 16px;">🗑️</span>
+                            <span>Delete</span>
+                        </button>
+                    </div>
+                    }
+                </div>
+                }
+                @empty {
+                <div style="padding: 20px; text-align: center; color: var(--muted);">
+                    No conversations yet.
+                </div>
+                }
+                }
+            </div>
+        </aside>
+
+        <!-- CENTER: Chat -->
+        <section class="center">
+            @if (currentConversation) {
+            <!-- Chat header -->
+            <div class="chat-top">
+                <div class="chat-user">
+                    <span class="avatar big">{{ currentConversation.avatar || (currentConversation.title | slice:0:2)
+                        }}</span>
+                    <div>
+                        <div class="chat-name">{{ currentConversation.title }}</div>
+                        <div class="chat-sub">Online</div>
+                    </div>
+                </div>
+
+                <!-- Message Search -->
+                <div style="flex: 1; max-width: 300px; margin: 0 20px;">
+                    <input type="text" placeholder="🔍 Search messages or files..." [(ngModel)]="messageSearchText"
+                        (input)="filterMessages()" class="message-search-input"
+                        style="width: 100%; padding: 8px 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; background: rgba(255,255,255,0.1); color: #fff; font-size: 13px; font-weight: 800; outline: none; transition: all 0.2s;" />
+                </div>
+
+                <div class="chat-actions">
+                    <button class="icon-btn" aria-label="Call">📞</button>
+                    <button class="icon-btn" aria-label="Video">🎥</button>
+                    <button class="icon-btn" aria-label="More">⋯</button>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-body" #scrollContainer>
+                @if (isLoadingMessages) {
+                <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                    <div class="loading-spinner"></div>
+                </div>
+                } @else {
+                @for (msg of filteredMessages; track msg.id) {
+                <div class="msg" [ngClass]="msg.senderId === myUserId ? 'you' : 'them'">
+                    <!-- Text content -->
+                    @if (msg.content) {
+                    <div class="bubble-container"
+                        style="position: relative; display: flex; align-items: center; gap: 8px;">
+                        <div class="bubble">
+                            {{ msg.content }}
+                            @if (msg.isEdited) {
+                            <span class="edited-tag"
+                                style="font-size: 10px; opacity: 0.6; margin-left: 4px;">(edited)</span>
+                            }
+                        </div>
+
+                        <!-- Message Actions Menu (Messenger-style) -->
+                        <button class="msg-menu-btn" (click)="toggleMessageMenu($event, msg.id!)"
+                            style="background: none; border: none; cursor: pointer; color: var(--muted); padding: 4px; border-radius: 50%; transition: opacity 0.2s, background 0.2s;">
+                            ⋮
+                        </button>
+
+                        <!-- Message Dropdown -->
+                        @if (openMsgMenuId === msg.id) {
+                        <div class="msg-dropdown" (click)="$event.stopPropagation()"
+                            style="position: absolute; top: 100%; right: 0; background: white; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 120px; overflow: hidden; margin-top: 8px;">
+                            @if (canEditMessage(msg)) {
+                            <button class="dropdown-item" (click)="editMessage(msg); closeMessageMenu()"
+                                style="width: 100%; padding: 10px 14px; border: none; background: none; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #333; transition: background 0.2s;">
+                                <span>✏️</span>
+                                <span>Edit</span>
+                            </button>
+                            }
+                            <button class="dropdown-item" (click)="deleteMessage(msg.id!); closeMessageMenu()"
+                                style="width: 100%; padding: 10px 14px; border: none; background: none; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #d32f2f; transition: background 0.2s;">
+                                <span>🗑️</span>
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                        }
+                    </div>
+                    }
+
+                    <!-- File attachment -->
+                    @if (msg.attachmentName) {
+                    <div class="bubble attachment-bubble" (click)="downloadAttachment(msg)"
+                        style="cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 14px;">
+                        <span style="font-size: 28px;">📎</span>
+                        <div style="flex: 1; min-width: 0;">
+                            <div
+                                style="font-weight: 900; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {{ msg.attachmentName }}
+                            </div>
+                            <div style="font-size: 11px; opacity: 0.8; font-weight: 800;">
+                                {{ formatFileSize(msg.attachmentSize || 0) }} • Click to download
+                            </div>
+                        </div>
+                    </div>
+                    }
+
+                    <div class="meta">{{ msg.sentAt | date:'shortTime' }}</div>
+                </div>
+                }
+                }
+            </div>
+
+            <!-- Composer -->
+            <div class="composer" [class.editing]="editingMessage" style="position: relative;">
+                <!-- Editing Indicator -->
+                @if (editingMessage) {
+                <div class="editing-indicator"
+                    style="position: absolute; top: -35px; left: 0; right: 0; background: var(--primary); color: white; padding: 6px 14px; border-radius: 12px 12px 0 0; font-size: 11px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1); border-bottom: none; animation: slideUp 0.2s ease-out;">
+                    <span>📝 Editing message...</span>
+                    <button (click)="cancelEdit()"
+                        style="background: none; border: none; color: white; cursor: pointer; font-size: 14px; font-weight: 900;">✕</button>
+                </div>
+                }
+
+                <!-- Hidden File Input -->
+                <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;"
+                    accept="image/*,.pdf,.doc,.docx,.txt,.zip" />
+
+                <!-- Attach Button (Disabled when editing) -->
+                @if (!editingMessage) {
+                <button class="icon-btn" aria-label="Attach" (click)="fileInput.click()">📎</button>
+                }
+
+                <!-- Emoji Picker Button -->
+                <button class="icon-btn emoji-trigger" aria-label="Emoji" (click)="toggleEmojiPicker($event)"
+                    style="font-size: 20px;">
+                    😊
+                </button>
+
+                <!-- Emoji Picker Popup -->
+                @if (showEmojiPicker) {
+                <div class="emoji-picker" (click)="$event.stopPropagation()"
+                    style="position: absolute; bottom: 60px; left: 60px; background: white; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); padding: 16px; z-index: 1000; display: grid; grid-template-columns: repeat(5, 48px); gap: 4px; width: 280px;">
+                    @for (emoji of emojis; track emoji) {
+                    <button class="emoji-item" (click)="insertEmoji(emoji)"
+                        style="background: none; border: none; font-size: 28px; cursor: pointer; padding: 8px; border-radius: 8px; transition: background 0.2s; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px;">
+                        {{ emoji }}
+                    </button>
+                    }
+                </div>
+                }
+
+                <!-- File Preview (shows when file is selected) -->
+                @if (filePreview && !editingMessage) {
+                <div class="file-preview-card"
+                    style="position: absolute; bottom: 60px; left: 0; right: 0; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px);">
+                    <span style="font-size: 24px;">📄</span>
+                    <div style="flex: 1; min-width: 0;">
+                        <div
+                            style="font-weight: 900; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            {{ filePreview.name }}
+                        </div>
+                        <div style="font-size: 11px; color: var(--muted); font-weight: 800;">
+                            {{ filePreview.size }}
+                        </div>
+                    </div>
+                    <button (click)="removeFile()"
+                        style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 10px; color: #fff; cursor: pointer; font-size: 12px; font-weight: 900;">
+                        ✖
+                    </button>
+                </div>
+                }
+
+                <input type="text" [placeholder]="editingMessage ? 'Update your message...' : 'Write a message...'"
+                    [(ngModel)]="newMessageText" (keyup.enter)="sendMessage()" (click)="closeEmojiPicker()" />
+
+                <button class="send" [class.save-btn]="editingMessage" type="button"
+                    [attr.aria-label]="editingMessage ? 'Save' : 'Send'" (click)="sendMessage()">
+                    {{ editingMessage ? '✓' : '➤' }}
+                </button>
+            </div>
+            } @else {
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; color: var(--muted);">
+                Select a conversation to start chatting
+            </div>
+            }
+        </section>
+
+        <!-- RIGHT: Info panel like Upwork -->
+        <aside class="right">
+            @if (currentConversation) {
+            <div class="card info">
+                <div class="info-top">
+                    <span class="avatar big">{{ currentConversation.avatar || (currentConversation.title | slice:0:2)
+                        }}</span>
+                    <div>
+                        <div class="info-name">{{ currentConversation.title }}</div>
+                        <div class="info-sub">Freelancer • UI/UX</div>
+                    </div>
+                </div>
+
+                <a class="contract" href="#">View contract</a>
+
+                <div class="divider"></div>
+
+                <div class="block">
+                    <div class="block-title">Activity timeline</div>
+
+                    <div class="timeline">
+                        <div class="t-row">
+                            <span class="t-dot done"></span>
+                            <div>
+                                <div class="t-title">Contract started</div>
+                                <div class="t-sub">May 14</div>
+                            </div>
+                        </div>
+                        <!-- Static timeline for demo -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- PERFORMANCE METRICS PANEL -->
+            <div class="card performance"
+                style="margin-top: 20px; border: 1px solid rgba(255,165,0,0.2); background: rgba(0,0,0,0.02);">
+                <div class="block-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>📊 Performance Engine</span>
+                    @if (performanceLoading) {
+                    <span class="loading-dot"></span>
+                    }
+                </div>
+
+                @if (freelancerMetrics) {
+                <div class="metric-group" style="padding: 12px 15px;">
+                    <!-- PCS Score -->
+                    <div class="metric-item" style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="font-size: 11px; font-weight: 900; color: var(--muted);">PCS SCORE</span>
+                            <span style="font-size: 13px; font-weight: 900; color: var(--primary);">{{
+                                freelancerMetrics.pcs | number:'1.1-1' }}%</span>
+                        </div>
+                        <div class="progress-bar"
+                            style="height: 6px; background: #eee; border-radius: 3px; overflow: hidden;">
+                            <div [style.width.%]="freelancerMetrics.pcs"
+                                style="height: 100%; background: var(--primary); transition: width 0.5s;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-metrics Grid -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                        <div class="mini-score">
+                            <div class="val">{{ freelancerMetrics.responseSpeedScore | number:'1.0-0' }}%</div>
+                            <div class="lab">Speed</div>
+                        </div>
+                        <div class="mini-score">
+                            <div class="val">{{ freelancerMetrics.slaCompliance | number:'1.0-0' }}%</div>
+                            <div class="lab">SLA</div>
+                        </div>
+                        <div class="mini-score">
+                            <div class="val">{{ freelancerMetrics.per | number:'1.0-0' }}%</div>
+                            <div class="lab">Efficiency</div>
+                        </div>
+                        <div class="mini-score">
+                            <div class="val">{{ freelancerMetrics.trustIndex | number:'1.1-1' }}%</div>
+                            <div class="lab">Trust</div>
+                        </div>
+                    </div>
+
+                    <div class="divider" style="margin: 15px 0;"></div>
+
+                    <!-- Conversation Specifics -->
+                    @if (conversationMetrics) {
+                    <div class="metric-row"
+                        style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
+                        <span style="color: var(--muted); font-weight: 700;">Engagement Index (CEI)</span>
+                        <span style="font-weight: 900;">{{ conversationMetrics.cei | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="metric-row"
+                        style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
+                        <span style="color: var(--muted); font-weight: 700;">Risk Score</span>
+                        <span style="font-weight: 900;"
+                            [style.color]="conversationMetrics.riskScore > 50 ? '#d32f2f' : '#2e7d32'">
+                            {{ conversationMetrics.riskScore | number:'1.1-1' }}%
+                        </span>
+                    </div>
+                    <div class="metric-row" style="display: flex; justify-content: space-between; font-size: 12px;">
+                        <span style="color: var(--muted); font-weight: 700;">EWMA Response Time</span>
+                        <span style="font-weight: 900;">{{ freelancerMetrics.ewma | number:'1.0-0' }}m</span>
+                    </div>
+                    }
+                </div>
+                } @else {
+                <div style="padding: 20px; text-align: center; color: var(--muted); font-size: 12px;">
+                    Select a conversation to analyze performance data.
+                </div>
+                }
+            </div>
+            }
+        </aside>
+
+    </div>
+</main>
