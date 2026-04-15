@@ -32,7 +32,12 @@ public class NotificationService {
      * Send notification via User Service REST API
      */
     private void sendGlobalNotification(String userId, String message, String type, String actionUrl) {
+        if (userId == null || userId.isBlank() || userId.equalsIgnoreCase("null")) {
+            log.warn("Payload userId is null, skipping notification: {}", message);
+            return;
+        }
         try {
+            // Try by Keycloak ID first (Standard for this app)
             String url = USER_SERVICE_URL + "/notifications/by-keycloak/" + userId;
             Map<String, String> payload = new HashMap<>();
             payload.put("message", message);
@@ -40,9 +45,21 @@ public class NotificationService {
             payload.put("actionUrl", actionUrl);
 
             restTemplate.postForEntity(url, payload, Void.class);
-            log.info("Successfully sent global notification to user '{}' (keycloak) via user-service", userId);
+            log.info("Successfully sent notification to Keycloak user '{}'", userId);
         } catch (Exception e) {
-            log.error("Failed to send global notification to user '{}': {}", userId, e.getMessage());
+            log.warn("Keycloak lookup failed for '{}', falling back to local ID lookup...", userId);
+            try {
+                // FALLBACK: Try by Local UUID (userId)
+                String url = USER_SERVICE_URL + "/" + userId + "/notifications";
+                Map<String, String> payload = new HashMap<>();
+                payload.put("message", message);
+                payload.put("type", type);
+                payload.put("actionUrl", actionUrl);
+                restTemplate.postForEntity(url, payload, Void.class);
+                log.info("Successfully sent notification to Local user '{}'", userId);
+            } catch (Exception e2) {
+                log.error("Total failure sending notification to '{}': {}", userId, e2.getMessage());
+            }
         }
     }
 
@@ -63,8 +80,14 @@ public class NotificationService {
                     ? "Great news! Freelancer " + freelancerName + " confirmed your booking for " + availability.getDate() + "."
                     : "Update: Freelancer " + freelancerName + " declined/cancelled your booking for " + availability.getDate() + ".";
 
+            // Use Keycloak ID if present, otherwise fallback to local userId
+            String targetId = booking.getUserKeycloakId();
+            if (targetId == null || targetId.isBlank()) {
+                targetId = booking.getUserId();
+            }
+
             sendGlobalNotification(
-                booking.getUserKeycloakId(), 
+                targetId, 
                 msg, 
                 updateType, 
                 "/my-bookings"
@@ -102,7 +125,11 @@ public class NotificationService {
 
     private void sendReminder(Booking booking, Availability availability, String msg, String type) {
         // Notify Client
-        sendGlobalNotification(booking.getUserKeycloakId(), msg, type, "/my-bookings");
+        String targetId = booking.getUserKeycloakId();
+        if (targetId == null || targetId.isBlank()) {
+            targetId = booking.getUserId();
+        }
+        sendGlobalNotification(targetId, msg, type, "/my-bookings");
 
         // Notify Freelancer
         sendGlobalNotification(
