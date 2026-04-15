@@ -1,3 +1,5 @@
+package com.example.timetrackingservice.repository;
+
 import com.example.timetrackingservice.entity.WorkSession;
 import com.example.timetrackingservice.entity.WorkSnapshot;
 import org.springframework.data.jpa.repository.JpaRepository;
