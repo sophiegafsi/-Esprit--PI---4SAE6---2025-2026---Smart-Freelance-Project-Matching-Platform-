@@ -26,6 +26,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.status = 'CONFIRMED' AND (b.reminder1hSent = false OR b.reminder24hSent = false)")
     List<Booking> findBookingsNeedingReminders();
 
-    @Query("SELECT b FROM Booking b JOIN Availability a ON b.availabilityId = a.id WHERE a.freelancerName = :freelancerName")
-    List<Booking> findByFreelancerName(@Param("freelancerName") String freelancerName);
+    List<Booking> findByFreelancerId(String freelancerId);
+
+    List<Booking> findByFreelancerName(String freelancerName);
 }

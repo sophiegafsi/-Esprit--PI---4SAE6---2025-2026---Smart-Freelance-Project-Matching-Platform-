@@ -42,6 +42,10 @@ public class BookingService {
         return bookingRepository.findByFreelancerName(freelancerName);
     }
 
+    public List<Booking> findByFreelancerId(String freelancerId) {
+        return bookingRepository.findByFreelancerId(freelancerId);
+    }
+
     public List<Booking> findByAvailabilityId(Long availabilityId) {
         return bookingRepository.findByAvailabilityId(availabilityId);
     }

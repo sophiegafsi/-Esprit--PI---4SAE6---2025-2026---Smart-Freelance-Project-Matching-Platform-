@@ -43,8 +43,8 @@ public class BookingController {
 
     @GetMapping("/freelancer")
     public ResponseEntity<List<Booking>> getMyRequests(@AuthenticationPrincipal Jwt jwt) {
-        String name = jwt.getClaimAsString("preferred_username");
-        return ResponseEntity.ok(bookingService.findByFreelancer(name));
+        String freelancerId = jwt.getSubject(); // This is the Keycloak sub (ID)
+        return ResponseEntity.ok(bookingService.findByFreelancerId(freelancerId));
     }
 
     @GetMapping("/availability/{availabilityId}")
