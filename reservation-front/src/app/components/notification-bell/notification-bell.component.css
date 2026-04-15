@@ -1,0 +1,149 @@
+.bell-container {
+  position: relative;
+  display: inline-block;
+  margin-right: 1.5rem;
+  cursor: pointer;
+}
+
+.bell-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.bell-icon-wrapper:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.bell-icon {
+  font-size: 1.25rem;
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #ff3b30;
+  color: white;
+  border-radius: 50%;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.7rem;
+  font-weight: bold;
+  transform: translate(25%, -25%);
+  border: 2px solid var(--navbar-bg, #1e1e2d);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 120%;
+  right: -10px;
+  width: 350px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideIn 0.2s ease forwards;
+  color: #333;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+  padding: 1rem;
+  border-bottom: 1px solid #eaeaea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.dropdown-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #1a1a1a;
+}
+
+.notification-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 1rem;
+  border-bottom: 1px solid #eaeaea;
+  display: flex;
+  gap: 1rem;
+  transition: background 0.2s ease;
+  position: relative;
+}
+
+.notification-item:hover {
+  background: #f8f9fa;
+}
+
+.notification-item.unread {
+  background: #f0f7ff;
+  border-left: 4px solid #0056b3;
+}
+
+.notif-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.NEW_BOOKING { background: #e6fced; color: #00b341; }
+.REMINDER_1H { background: #fff0f0; color: #ff3b30; }
+.REMINDER_24H { background: #fff8e6; color: #f5a623; }
+.RESCHEDULE_SUGGESTION { background: #f0f0ff; color: #6a00ff; }
+
+.notif-content {
+  flex-grow: 1;
+}
+
+.notif-message {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.notif-time {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.mark-read-btn {
+  background: none;
+  border: none;
+  color: #0056b3;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.mark-read-btn:hover {
+  background: rgba(0, 86, 179, 0.1);
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: #6c757d;
+}

@@ -1,0 +1,111 @@
+<div class="page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <span class="icon">💻</span>
+        <div>
+          <h1>Freelancers' Disponibilities</h1>
+          <p>Browse and connect with available freelancers</p>
+        </div>
+      </div>
+      <a routerLink="/availabilities/new" class="btn-primary">
+        <span>+</span> Share Disponibility
+      </a>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card">
+    <div class="filters-row">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="filterAvailabilities()"
+          placeholder="Search by freelancer, service description, location..."
+          class="search-input"
+        />
+      </div>
+      <div class="date-filter">
+        <input
+          type="date"
+          [(ngModel)]="filterDate"
+          (ngModelChange)="filterAvailabilities()"
+          class="date-input"
+        />
+      </div>
+      <button class="btn-clear" (click)="clearFilters()">Clear</button>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-banner" *ngIf="error">
+    <span>⚠️</span> {{ error }}
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading availabilities...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && filteredAvailabilities.length === 0 && !error">
+    <div class="empty-icon">📭</div>
+    <h3>No disponibilities found</h3>
+    <p>Try adjusting your search filters or be the first to share one!</p>
+    <a routerLink="/availabilities/new" class="btn-primary">Share Disponibility</a>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="cards-grid" *ngIf="!loading && filteredAvailabilities.length > 0">
+    <div class="availability-card" *ngFor="let a of filteredAvailabilities">
+      <div class="card-header">
+        <div class="resource-badge">👩‍💻 {{ a.resourceName }}</div>
+        <span class="slot-badge" [ngClass]="getStatusClass(a.id)">
+          {{ getStatusLabel(a.id, a.maxSlots) }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <h3 class="card-title">{{ a.description }}</h3>
+        <div class="card-meta">
+          <div class="meta-item">
+            <span class="meta-icon">📅</span>
+            <span>{{ a.date }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">🕐</span>
+            <span>{{ a.startTime }} – {{ a.endTime }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">📍</span>
+            <span>{{ a.location }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">👥</span>
+            <span>Max {{ a.maxSlots }} slots</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <a *ngIf="a.resourceName !== simulatedUserId" [routerLink]="['/bookings/new']" [queryParams]="{ availabilityId: a.id }"
+           class="btn-book" [class.disabled]="getAvailableSlots(a.id) === 0">
+           {{ getAvailableSlots(a.id) === 0 ? 'Full' : 'Book Freelancer' }}
+        </a>
+        <div class="card-actions" *ngIf="a.resourceName === simulatedUserId && simulatedRole === 'FREELANCER'">
+          <a [routerLink]="['/availabilities/edit', a.id]" class="btn-icon" title="Edit">✏️</a>
+          <button class="btn-icon btn-danger" (click)="deleteAvailability(a.id)" title="Delete">🗑️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-bar" *ngIf="!loading && filteredAvailabilities.length > 0">
+    Showing {{ filteredAvailabilities.length }} of {{ availabilities.length }} availabilities
+  </div>
+</div>

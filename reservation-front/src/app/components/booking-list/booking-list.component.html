@@ -1,0 +1,99 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <span class="icon">📋</span>
+        <div>
+          <h1>Bookings</h1>
+          <p>Manage all reservation bookings</p>
+        </div>
+      </div>
+      <a routerLink="/bookings/new" class="btn-primary">+ New Booking</a>
+    </div>
+  </div>
+
+  <!-- Status Filters -->
+  <div class="filter-tabs">
+    <button class="tab" [class.active]="activeFilter === 'ALL'" (click)="setFilter('ALL')">
+      All <span class="count">{{ getCount('ALL') }}</span>
+    </button>
+    <button class="tab" [class.active]="activeFilter === 'CONFIRMED'" (click)="setFilter('CONFIRMED')">
+      Confirmed <span class="count confirmed">{{ getCount('CONFIRMED') }}</span>
+    </button>
+    <button class="tab" [class.active]="activeFilter === 'PENDING'" (click)="setFilter('PENDING')">
+      Pending <span class="count pending">{{ getCount('PENDING') }}</span>
+    </button>
+    <button class="tab" [class.active]="activeFilter === 'CANCELLED'" (click)="setFilter('CANCELLED')">
+      Cancelled <span class="count cancelled">{{ getCount('CANCELLED') }}</span>
+    </button>
+  </div>
+
+  <!-- Error -->
+  <div class="error-banner" *ngIf="error">⚠️ {{ error }}</div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div><p>Loading bookings...</p>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!loading && filteredBookings.length === 0 && !error">
+    <div class="empty-icon">📭</div>
+    <h3>No bookings found</h3>
+    <p>No bookings match the current filter.</p>
+    <a routerLink="/bookings/new" class="btn-primary">Create a Booking</a>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card" *ngIf="!loading && filteredBookings.length > 0">
+    <table class="bookings-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Email</th>
+          <th>Availability ID</th>
+          <th>Status</th>
+          <th>Notes</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of filteredBookings" class="table-row">
+          <td class="id-cell">{{ b.id }}</td>
+          <td>
+            <div class="user-cell">
+              <div class="avatar">{{ b.userName ? b.userName.charAt(0).toUpperCase() : '?' }}</div>
+              <span>{{ b.userName }}</span>
+            </div>
+          </td>
+          <td class="text-muted">{{ b.userEmail }}</td>
+          <td>
+            <span class="avail-badge">Slot #{{ b.availabilityId }}</span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="'status-' + (b.status ? b.status.toLowerCase() : '')">
+              {{ b.status }}
+            </span>
+          </td>
+          <td class="text-muted notes-col">{{ b.notes || '-' }}</td>
+          <td class="text-muted">{{ formatDate(b.createdAt) }}</td>
+          <td>
+            <div class="action-buttons">
+              <!-- Freelancer can Confirm -->
+              <button *ngIf="b.status === 'PENDING' && simulatedRole === 'FREELANCER'" class="btn-confirm" (click)="confirmBooking(b.id)" title="Confirm">✓ Confirm</button>
+              
+              <!-- Anyone can Cancel, but label as Deny if Freelancer pending -->
+              <button *ngIf="b.status !== 'CANCELLED'" class="btn-cancel" (click)="cancelBooking(b.id)" title="Cancel/Deny">
+                {{ b.status === 'PENDING' && simulatedRole === 'FREELANCER' ? '✕ Deny' : '✕ Cancel' }}
+              </button>
+
+              <button class="btn-delete" (click)="deleteBooking(b.id)" title="Delete">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

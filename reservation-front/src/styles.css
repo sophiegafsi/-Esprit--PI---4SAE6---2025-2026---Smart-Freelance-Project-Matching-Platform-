@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --bg: #0b2440;
+    --nav: #0b2238;
+    --primary: #2f80ed;
+    --orange: #f2994a;
+    --white: #fff;
+    --soft: rgba(255, 255, 255, .84);
+    --muted: rgba(255, 255, 255, .70);
+    --card-bg: linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .04));
+    --card-border: rgba(255, 255, 255, .18);
+    --radius: 22px;
+    --shadow: 0 18px 42px rgba(0, 0, 0, .28);
+    --max: 1100px;
+    
+    /* Legacy variables for the existing reservations cards */
+    --surface: var(--nav);
+    --border: var(--card-border);
+    --text: var(--white);
+    --text-muted: var(--muted);
+    --accent: var(--primary);
+    --accent-blue: var(--primary);
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0; 
+    padding: 0;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+/* Selection */
+::selection { background: rgba(47, 128, 237, 0.4); color: white; }
+
+/* Date inputs (dark theme fix) */
+input[type="date"], input[type="time"] {
+  color-scheme: dark;
+}
+
+/* BUTTONS */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 14px;
+    border: 1px solid transparent;
+    transition: .15s transform;
+    white-space: nowrap;
+    cursor: pointer;
+    background: transparent;
+    color: var(--white);
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn.primary, .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    text-decoration: none;
+}
+
+.btn.orange {
+    background: var(--orange);
+    color: #fff;
+}
+
+.btn.ghost, .btn-secondary {
+    background: transparent;
+    border-color: rgba(255, 255, 255, .22);
+    color: #fff;
+    text-decoration: none;
+}
+
+.btn.ghost-dark {
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+}
+
+.btn.ghost-dark:hover {
+    background: rgba(255, 255, 255, .2);
+}
+
+.btn.full {
+    width: 100%;
+}
+
+.btn.small {
+    padding: 8px 14px;
+    font-size: 13px;
+}
+
+/* UTILS */
+.container {
+    width: min(var(--max), calc(100% - 32px));
+    margin-inline: auto;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-container {
+  animation: fadeInUp 0.4s ease both;
+  width: min(var(--max), calc(100% - 32px));
+  margin-inline: auto;
+  padding: 2rem 0;
+}

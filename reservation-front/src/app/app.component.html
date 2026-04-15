@@ -1,0 +1,34 @@
+<header class="navbar">
+    <div class="container nav-inner">
+        <a class="brand" routerLink="/">
+            <span class="logo"></span>
+            <span>FreeLink</span>
+        </a>
+
+        <nav class="nav-links">
+            <a routerLink="/availabilities" routerLinkActive="active">Browse Freelancers</a>
+            <a *ngIf="currentUserRole === 'FREELANCER'" routerLink="/my-availabilities" routerLinkActive="active">My Availabilities</a>
+            <a routerLink="/bookings" routerLinkActive="active">My Bookings</a>
+        </nav>
+
+        <div class="nav-actions" style="display: flex; align-items: center; gap: 1rem;">
+            <!-- Simulation Dropdown to show professor -->
+            <select (change)="onUserSimulateChange($event)" [value]="simulatedUser" style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc;">
+                <option value="DaliClient">View as: Client (DALI)</option>
+                <option value="John Doe">View as: Freelancer (JOHN DOE)</option>
+                <option value="Jane Smith">View as: Freelancer (JANE SMITH)</option>
+            </select>
+
+            <app-notification-bell></app-notification-bell>
+
+            <!-- Client action -->
+            <a class="btn ghost" routerLink="/availabilities">Hire Freelancer</a>
+            <!-- Freelancer action -->
+            <a class="btn primary" routerLink="/availabilities/new">Share Disponibility</a>
+        </div>
+    </div>
+</header>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>

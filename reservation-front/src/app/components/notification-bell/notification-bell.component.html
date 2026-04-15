@@ -1,0 +1,40 @@
+<div class="bell-container" (click)="toggleDropdown()">
+    <div class="bell-icon-wrapper">
+      <span class="bell-icon">🔔</span>
+      <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+    </div>
+  
+    <div class="dropdown-menu" *ngIf="dropdownOpen" (click)="$event.stopPropagation()">
+      <div class="dropdown-header">
+        <h4>Notifications</h4>
+        <span *ngIf="unreadCount > 0">{{ unreadCount }} unread</span>
+      </div>
+  
+      <div class="notification-list" *ngIf="notifications.length > 0">
+        <div class="notification-item" *ngFor="let notif of notifications" [class.unread]="!notif.isRead">
+          
+          <div class="notif-icon" [ngClass]="notif.type">
+            <span *ngIf="notif.type === 'NEW_BOOKING'">✨</span>
+            <span *ngIf="notif.type === 'REMINDER_1H'">⏰</span>
+            <span *ngIf="notif.type === 'REMINDER_24H'">📅</span>
+            <span *ngIf="notif.type === 'RESCHEDULE_SUGGESTION'">🔄</span>
+            <span *ngIf="notif.type === 'BOOKING_CONFIRMED'">✅</span>
+            <span *ngIf="notif.type === 'BOOKING_CANCELLED'">❌</span>
+          </div>
+  
+          <div class="notif-content">
+            <p class="notif-message">{{ notif.message }}</p>
+            <p class="notif-time">{{ formatDate(notif.createdAt) }}</p>
+          </div>
+  
+          <button *ngIf="!notif.isRead" class="mark-read-btn" (click)="markAsRead(notif, $event)">
+            Mark Read
+          </button>
+        </div>
+      </div>
+  
+      <div class="empty-state" *ngIf="notifications.length === 0">
+        <p>No new notifications🎉</p>
+      </div>
+    </div>
+</div>

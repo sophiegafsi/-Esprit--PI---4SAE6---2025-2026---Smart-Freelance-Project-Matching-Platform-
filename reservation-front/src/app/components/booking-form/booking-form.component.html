@@ -1,0 +1,125 @@
+<div class="page-container">
+  <div class="page-header">
+    <a routerLink="/bookings" class="back-link">← Back to Bookings</a>
+    <h1>🎟️ New Booking</h1>
+    <p>Book this freelancer for your project</p>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div><p>Loading...</p>
+  </div>
+
+  <div class="form-layout" *ngIf="!loading">
+    <!-- Form -->
+    <div class="form-card">
+      <div class="alert alert-success" *ngIf="success">{{ success }}</div>
+      <div class="alert alert-error" *ngIf="error">⚠️ {{ error }}</div>
+
+      <form (ngSubmit)="onSubmit()" #f="ngForm">
+
+        <div class="form-section">
+          <h3 class="section-title">1. Select Freelancer Disponibility</h3>
+          <div class="form-group">
+            <label for="availabilityId">Choose Disponibility *</label>
+            <select id="availabilityId" [(ngModel)]="booking.availabilityId"
+              name="availabilityId" required (change)="onAvailabilityChange()" class="form-control">
+              <option value="0" disabled>-- Select a disponibility --</option>
+              <option *ngFor="let a of availabilities" [value]="a.id">
+                {{ a.resourceName }} - {{ a.date }} ({{ a.startTime }} to {{ a.endTime }}) at {{ a.location }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">2. Your Details</h3>
+          <div class="form-group">
+            <label for="userName">Full Name *</label>
+            <input id="userName" type="text" [(ngModel)]="booking.userName"
+              name="userName" required placeholder="Enter your full name" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="userEmail">Email *</label>
+            <input id="userEmail" type="email" [(ngModel)]="booking.userEmail"
+              name="userEmail" required placeholder="your@email.com" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="userId">Simulated User ID *</label>
+            <input id="userId" type="text" [(ngModel)]="booking.userId"
+              name="userId" required readonly class="form-control" style="background-color: #f0f0f0; cursor: not-allowed; color: #666;" />
+            <small><em>Bound to your current role in the top navigation.</em></small>
+          </div>
+          <div class="form-group">
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" [(ngModel)]="booking.notes"
+              name="notes" placeholder="Any additional information..." class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/bookings" class="btn-secondary">Cancel</a>
+          <button type="submit" class="btn-primary" [disabled]="saving || f.invalid || booking.availabilityId == 0 || availableSlots === 0">
+            <span *ngIf="!saving">Confirm Booking</span>
+            <span *ngIf="saving">Booking...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Slot Info Panel -->
+    <div class="slot-panel" *ngIf="selectedAvailability">
+      <div class="slot-card">
+        <div class="slot-header">
+          <span class="slot-icon">💻</span>
+          <h3>Disponibility Details</h3>
+        </div>
+        <div class="slot-info">
+          <div class="info-row">
+            <span class="label">Freelancer</span>
+            <span class="value">{{ selectedAvailability.resourceName }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Description</span>
+            <span class="value">{{ selectedAvailability.description }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Date</span>
+            <span class="value">{{ selectedAvailability.date }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Time</span>
+            <span class="value">{{ selectedAvailability.startTime }} – {{ selectedAvailability.endTime }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Location</span>
+            <span class="value">{{ selectedAvailability.location }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Max Slots</span>
+            <span class="value">{{ selectedAvailability.maxSlots }}</span>
+          </div>
+        </div>
+
+        <div class="slots-meter">
+          <div class="slots-label">
+            <span>Available Slots</span>
+            <span class="slots-count" [class.full]="availableSlots === 0">
+              {{ availableSlots }} / {{ selectedAvailability.maxSlots }}
+            </span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill"
+              [style.width.%]="(availableSlots / selectedAvailability.maxSlots) * 100"
+              [class.low]="availableSlots <= 2"
+              [class.full-bar]="availableSlots === 0">
+            </div>
+          </div>
+        </div>
+
+        <div class="full-alert" *ngIf="availableSlots === 0">
+          ⚠️ This disponibility is fully booked
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

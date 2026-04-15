@@ -1,0 +1,83 @@
+<div class="page-container">
+  <div class="page-header">
+    <a routerLink="/availabilities" class="back-link">← Back to Freelancers</a>
+    <h1>{{ isEditMode ? '✏️ Edit Disponibility' : '💻 Share Disponibility' }}</h1>
+    <p>{{ isEditMode ? 'Update your availability details' : 'Share your freelancer availability' }}</p>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div><p>Loading...</p>
+  </div>
+
+  <div class="form-card" *ngIf="!loading">
+    <div class="alert alert-success" *ngIf="success">✅ {{ success }}</div>
+    <div class="alert alert-error" *ngIf="error">⚠️ {{ error }}</div>
+
+    <form (ngSubmit)="onSubmit()" #f="ngForm">
+      <div class="form-grid">
+
+          <div class="form-group full-width">
+            <label for="resourceName">Freelancer Name *</label>
+            <input id="resourceName" type="text" [(ngModel)]="availability.resourceName"
+              name="resourceName" required readonly
+              class="form-control" style="background-color: #f0f0f0; cursor: not-allowed; color: #666;" />
+            <small><em>Bound to your current role in the top navigation.</em></small>
+          </div>
+
+        <div class="form-group full-width">
+          <label for="description">Service Description *</label>
+          <textarea id="description" [(ngModel)]="availability.description"
+            name="description" required placeholder="Describe the service or skills offered for this timeslot..."
+            class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="date">Date *</label>
+          <input id="date" type="date" [(ngModel)]="availability.date"
+            name="date" required class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label for="location">Working Mode/Location *</label>
+          <input id="location" type="text" [(ngModel)]="availability.location"
+            name="location" required placeholder="e.g., Remote, Zoom, Client Office"
+            class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label for="startTime">Start Time *</label>
+          <input id="startTime" type="time" [(ngModel)]="availability.startTime"
+            name="startTime" required class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label for="endTime">End Time *</label>
+          <input id="endTime" type="time" [(ngModel)]="availability.endTime"
+            name="endTime" required class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label for="maxSlots">Max Slots *</label>
+          <input id="maxSlots" type="number" [(ngModel)]="availability.maxSlots"
+            name="maxSlots" required min="1" max="100" class="form-control" />
+        </div>
+
+        <div class="form-group toggle-group">
+          <label>Active</label>
+          <label class="toggle">
+            <input type="checkbox" [(ngModel)]="availability.isActive" name="isActive" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/availabilities" class="btn-secondary">Cancel</a>
+        <button type="submit" class="btn-primary" [disabled]="saving || f.invalid">
+          <span *ngIf="!saving">{{ isEditMode ? 'Update' : 'Share' }} Disponibility</span>
+          <span *ngIf="saving">Saving...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
