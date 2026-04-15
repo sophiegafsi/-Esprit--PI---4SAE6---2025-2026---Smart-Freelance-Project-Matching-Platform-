@@ -1,0 +1,100 @@
+<section class="page">
+  <section class="page-header">
+    <div>
+      <div class="eyebrow">Evaluation</div>
+      <h1>Evaluation List</h1>
+      <p class="muted">Full CRUD view of evaluations with filters.</p>
+    </div>
+    <div class="toolbar">
+      <a class="primary" href="#evaluations">New Evaluation</a>
+      <button class="ghost" type="button" (click)="refresh()">Refresh</button>
+    </div>
+  </section>
+
+  <section class="grid three" style="margin-bottom: 18px">
+    <article class="metric-card teal">
+      <div class="label">Total evaluations</div>
+      <div class="value">{{ evaluations.length }}</div>
+      <div class="detail">Evaluation microservice data</div>
+    </article>
+    <article class="metric-card gold">
+      <div class="label">Average score</div>
+      <div class="value">{{ averageScore }}</div>
+      <div class="detail">Across all records</div>
+    </article>
+    <article class="metric-card ink">
+      <div class="label">Filtered results</div>
+      <div class="value">{{ filteredEvaluations.length }}</div>
+      <div class="detail">Active search</div>
+    </article>
+  </section>
+
+  <section class="panel" style="margin-bottom: 18px">
+    <div class="form-grid">
+      <div class="field">
+        <label for="searchEval">Search</label>
+        <input
+          id="searchEval"
+          placeholder="Project, client email, freelancer..."
+          [(ngModel)]="searchTerm" />
+      </div>
+      <div class="field">
+        <label for="minScore">Minimum score</label>
+        <input id="minScore" type="number" min="0" max="5" step="1" [(ngModel)]="minScore" />
+      </div>
+    </div>
+  </section>
+
+  <section class="table-wrap" *ngIf="filteredEvaluations.length; else emptyState">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Project</th>
+          <th>Freelancer</th>
+          <th>Client</th>
+          <th>Score</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filteredEvaluations">
+          <td>#{{ item.id }}</td>
+          <td>{{ item.projectName || '-' }}</td>
+          <td>
+            <strong>{{ item.evaluatedUserName || '-' }}</strong>
+            <div class="muted">{{ item.evaluatedUserEmail || '-' }}</div>
+          </td>
+          <td>
+            <strong>{{ item.evaluatorName || '-' }}</strong>
+            <div class="muted">{{ item.userEmail || '-' }}</div>
+          </td>
+          <td>{{ item.score || 0 }}/5</td>
+          <td>{{ item.updatedAt || item.date || '-' }}</td>
+          <td>
+            <div class="inline-actions">
+              <a class="ghost" [href]="'#/evaluation/edit-evaluation/' + item.id">Edit</a>
+              <button class="danger" type="button" (click)="deleteEvaluation(item)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <ng-template #emptyState>
+    <section class="empty-state">
+      No evaluations found.
+    </section>
+  </ng-template>
+
+  <section *ngIf="feedbackType === 'success'" class="alert" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+  <section *ngIf="feedbackType === 'error'" class="alert error" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+
+  <section *ngIf="isLoading" class="loader" style="min-height: 120px">Loading...</section>
+</section>

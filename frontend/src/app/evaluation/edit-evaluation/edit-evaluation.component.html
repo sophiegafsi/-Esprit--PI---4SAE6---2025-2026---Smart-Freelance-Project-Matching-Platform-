@@ -1,0 +1,101 @@
+<section class="page">
+  <section class="page-header">
+    <div>
+      <div class="eyebrow">Evaluation</div>
+      <h1>Edit Evaluation</h1>
+      <p class="muted">CRUD update/delete + automatic badge/reward recalculation.</p>
+    </div>
+    <div class="toolbar">
+      <a class="ghost" href="#evaluations">Back to evaluations</a>
+      <button class="ghost" type="button" (click)="load()">Refresh</button>
+    </div>
+  </section>
+
+  <section class="form-card">
+    <div class="form-grid">
+      <div class="field full">
+        <label for="evaluationSelect">Evaluation</label>
+        <select
+          id="evaluationSelect"
+          [(ngModel)]="selectedId"
+          [disabled]="!evaluations.length || isLoading"
+          (ngModelChange)="select($event)">
+          <option [ngValue]="0">-- Select --</option>
+          <option *ngFor="let item of evaluations" [ngValue]="item.id">
+            #{{ item.id }} - {{ item.projectName }} - {{ item.evaluatedUserEmail }}
+          </option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="projectName">Project</label>
+        <input id="projectName" [(ngModel)]="model.projectName" [disabled]="!selectedId" />
+      </div>
+
+      <div class="field">
+        <label for="typeEvaluation">Type</label>
+        <select id="typeEvaluation" [(ngModel)]="model.typeEvaluation" [disabled]="!selectedId">
+          <option value="TECHNIQUE">TECHNIQUE</option>
+          <option value="SOFT_SKILLS">SOFT_SKILLS</option>
+          <option value="AUTRE">OTHER</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="score">Score</label>
+        <input id="score" type="number" min="0" max="5" [(ngModel)]="model.score" [disabled]="!selectedId" />
+      </div>
+
+      <div class="field">
+        <label for="evaluatorName">Client name</label>
+        <input id="evaluatorName" [(ngModel)]="model.evaluatorName" [disabled]="!selectedId" />
+      </div>
+
+      <div class="field">
+        <label for="userEmail">Client email</label>
+        <input id="userEmail" type="email" [(ngModel)]="model.userEmail" [disabled]="!selectedId" />
+      </div>
+
+      <div class="field">
+        <label for="evaluatedUserName">Freelancer name</label>
+        <input id="evaluatedUserName" [(ngModel)]="model.evaluatedUserName" [disabled]="!selectedId" />
+      </div>
+
+      <div class="field">
+        <label for="evaluatedUserEmail">Freelancer email</label>
+        <input id="evaluatedUserEmail" type="email" [(ngModel)]="model.evaluatedUserEmail" [disabled]="!selectedId" />
+      </div>
+
+      <div class="field full">
+        <label for="comment">Comment</label>
+        <textarea id="comment" [(ngModel)]="model.comment" [disabled]="!selectedId"></textarea>
+      </div>
+
+      <label class="toggle-field">
+        <input type="checkbox" [(ngModel)]="model.anonymous" [disabled]="!selectedId" />
+        <span>Anonymous evaluation</span>
+      </label>
+
+      <label class="toggle-field full">
+        <input type="checkbox" [(ngModel)]="forceRewardSync" [disabled]="!selectedId" />
+        <span>Force reward sync after update (test mode)</span>
+      </label>
+
+      <div class="form-actions full">
+        <button class="primary" type="button" (click)="save()" [disabled]="!selectedId || isSaving">
+          {{ isSaving ? 'Saving...' : 'Update' }}
+        </button>
+        <button class="danger" type="button" (click)="deleteSelected()" [disabled]="!selectedId || isSaving">
+          Delete
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="feedbackType === 'success'" class="alert" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+  <section *ngIf="feedbackType === 'error'" class="alert error" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+</section>

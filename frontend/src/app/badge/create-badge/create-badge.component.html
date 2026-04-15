@@ -1,0 +1,114 @@
+<section class="page" style="max-width: 980px">
+  <section class="page-header">
+    <div>
+      <div class="eyebrow">Badge</div>
+      <h1>Create Badge</h1>
+      <p class="muted">Angular form integrated from your patch.</p>
+    </div>
+    <div class="toolbar">
+      <a class="ghost" href="/">Back to Dashboard</a>
+    </div>
+  </section>
+
+  <section class="form-card">
+    <form #badgeForm="ngForm" (ngSubmit)="saveBadge(badgeForm)" class="form-grid">
+      <div class="field">
+        <label for="name">Name</label>
+        <input id="name" name="name" [(ngModel)]="badge.name" required />
+      </div>
+
+      <div class="field">
+        <label for="icon">Icon</label>
+        <div class="toolbar">
+          <input id="icon" name="icon" [(ngModel)]="badge.icon" />
+          <button class="ghost" type="button" (click)="showIconPicker = !showIconPicker">Pick</button>
+        </div>
+      </div>
+
+      <div class="field full" *ngIf="showIconPicker">
+        <div class="icon-grid">
+          <button
+            class="chip-button"
+            type="button"
+            *ngFor="let icon of icons"
+            (click)="selectIcon(icon)">
+            {{ icon }}
+          </button>
+        </div>
+      </div>
+
+      <div class="field full">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" [(ngModel)]="badge.description"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="category">Category</label>
+        <select id="category" name="category" [(ngModel)]="badge.category" (change)="onCategoryChange()">
+          <option value="SCORE">Score</option>
+          <option value="POINTS">Points</option>
+          <option value="LEVEL">Level</option>
+          <option value="CUSTOM">Custom</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="conditionType">Condition Type</label>
+        <select
+          id="conditionType"
+          name="conditionType"
+          [(ngModel)]="badge.conditionType"
+          [disabled]="!badge.autoAssignable">
+          <option value="AVERAGE_SCORE">Average Score</option>
+          <option value="POINTS">Points</option>
+          <option value="LEVEL">Level</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="conditionValue">Condition Value</label>
+        <input
+          id="conditionValue"
+          name="conditionValue"
+          type="number"
+          min="0"
+          step="0.1"
+          [(ngModel)]="badge.conditionValue"
+          [disabled]="!badge.autoAssignable" />
+      </div>
+
+      <div class="field">
+        <label for="pointsReward">Points Reward</label>
+        <input id="pointsReward" name="pointsReward" type="number" min="0" [(ngModel)]="badge.pointsReward" />
+      </div>
+
+      <label class="toggle-field">
+        <input type="checkbox" name="autoAssignable" [(ngModel)]="badge.autoAssignable" (change)="onAutoAssignableChange()" />
+        <span>Auto assignable</span>
+      </label>
+
+      <label class="toggle-field">
+        <input type="checkbox" name="certificateEligible" [(ngModel)]="badge.certificateEligible" />
+        <span>Certificate enabled</span>
+      </label>
+
+      <label class="toggle-field">
+        <input type="checkbox" name="isActive" [(ngModel)]="badge.isActive" />
+        <span>Active</span>
+      </label>
+
+      <div class="form-actions full">
+        <button class="primary" type="submit" [disabled]="isSaving">{{ isSaving ? 'Saving...' : 'Save Badge' }}</button>
+        <button class="ghost" type="button" (click)="resetForm(badgeForm)" [disabled]="isSaving">Reset</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="alert success" *ngIf="feedbackType === 'success'">
+    {{ feedbackMessage }}
+  </section>
+
+  <section class="alert error" *ngIf="feedbackType === 'error'">
+    {{ feedbackMessage }}
+  </section>
+</section>

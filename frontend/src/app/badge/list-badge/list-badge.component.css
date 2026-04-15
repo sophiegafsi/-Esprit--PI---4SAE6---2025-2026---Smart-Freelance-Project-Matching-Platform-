@@ -1,0 +1,10 @@
+.page {
+  max-width: 1280px;
+}
+
+.inline-actions .ghost,
+.inline-actions .secondary,
+.inline-actions .danger {
+  min-height: 34px;
+}
+

@@ -1,0 +1,56 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: evaluation-service
+    spring:
+      rabbitmq:
+        host: localhost
+        port: 5672
+        username: guest
+        password: guest
+
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/evaluationdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # Configuration Spring AI pour Google Gemini
+  ai:
+    google:
+      genai:
+        api-key: ${GOOGLE_GENAI_API_KEY}
+        chat:
+          options:
+            model: gemini-1.5-flash  # ← Changé de 2.0-flash à 1.5-flash
+            temperature: 0.3
+            max-output-tokens: 10
+
+# Configuration de l'analyse de sentiment
+sentiment:
+  cache:
+    enabled: true
+    ttl: 3600
+  mode: auto
+  fallback: local
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+  instance:
+    prefer-ip-address: true

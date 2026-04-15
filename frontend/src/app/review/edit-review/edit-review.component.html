@@ -1,0 +1,78 @@
+<section class="page">
+  <section class="page-header">
+    <div>
+      <div class="eyebrow">Review</div>
+      <h1>Edit Review</h1>
+      <p class="muted">Review CRUD: select, update, and delete.</p>
+    </div>
+    <div class="toolbar">
+      <a class="ghost" href="#review/list">Back to list</a>
+      <button class="ghost" type="button" (click)="load()">Refresh</button>
+    </div>
+  </section>
+
+  <section class="form-card">
+    <div class="form-grid">
+      <div class="field full">
+        <label for="reviewSelect">Review</label>
+        <select
+          id="reviewSelect"
+          [(ngModel)]="selectedId"
+          [disabled]="!reviews.length || isLoading"
+          (ngModelChange)="select($event)">
+          <option [ngValue]="0">-- Select --</option>
+          <option *ngFor="let item of reviews" [ngValue]="item.id">
+            #{{ item.id }} - {{ item.userEmail }} - {{ item.sentiment || 'N/A' }}
+          </option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="score">Score</label>
+        <input id="score" type="number" min="1" max="5" [(ngModel)]="model.score" [disabled]="!selectedId" />
+      </div>
+
+      <div class="field">
+        <label for="evaluatorName">Author</label>
+        <input id="evaluatorName" [(ngModel)]="model.evaluatorName" [disabled]="!selectedId" />
+      </div>
+
+      <div class="field">
+        <label for="userEmail">Author email</label>
+        <input id="userEmail" type="email" [(ngModel)]="model.userEmail" [disabled]="!selectedId" />
+      </div>
+
+      <div class="field">
+        <label for="evaluationId">Evaluation ID</label>
+        <input
+          id="evaluationId"
+          type="number"
+          min="1"
+          [ngModel]="model.evaluation?.id || null"
+          (ngModelChange)="model.evaluation = $event ? { id: +$event } : undefined"
+          [disabled]="!selectedId" />
+      </div>
+
+      <div class="field full">
+        <label for="comment">Comment</label>
+        <textarea id="comment" [(ngModel)]="model.comment" [disabled]="!selectedId"></textarea>
+      </div>
+
+      <div class="form-actions full">
+        <button class="primary" type="button" (click)="save()" [disabled]="!selectedId || isSaving">
+          {{ isSaving ? 'Saving...' : 'Update review' }}
+        </button>
+        <button class="danger" type="button" (click)="deleteSelected()" [disabled]="!selectedId || isSaving">
+          Delete review
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="feedbackType === 'success'" class="alert" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+  <section *ngIf="feedbackType === 'error'" class="alert error" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+</section>

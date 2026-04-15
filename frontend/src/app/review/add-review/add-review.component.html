@@ -1,0 +1,60 @@
+<section class="page">
+  <section class="page-header">
+    <div>
+      <div class="eyebrow">Review</div>
+      <h1>Add Review</h1>
+      <p class="muted">Review CRUD + sentiment analysis.</p>
+    </div>
+    <div class="toolbar">
+      <a class="ghost" href="#evaluations">Back</a>
+    </div>
+  </section>
+
+  <section class="form-card">
+    <div class="form-grid">
+      <div class="field">
+        <label for="evaluationId">Evaluation ID (optional)</label>
+        <input id="evaluationId" type="number" min="1" [(ngModel)]="evaluationId" />
+      </div>
+
+      <div class="field">
+        <label for="score">Review score</label>
+        <input id="score" type="number" min="1" max="5" [(ngModel)]="model.score" />
+      </div>
+
+      <div class="field">
+        <label for="evaluatorName">Reviewer name</label>
+        <input id="evaluatorName" [(ngModel)]="model.evaluatorName" />
+      </div>
+
+      <div class="field">
+        <label for="userEmail">Reviewer email</label>
+        <input id="userEmail" type="email" [(ngModel)]="model.userEmail" />
+      </div>
+
+      <div class="field full">
+        <label for="comment">Comment</label>
+        <textarea id="comment" [(ngModel)]="model.comment" (blur)="analyzeSentiment()"></textarea>
+      </div>
+
+      <section *ngIf="predictedSentiment" class="result-box visible">
+        Predicted sentiment: <strong>{{ predictedSentiment }}</strong>
+      </section>
+
+      <div class="form-actions full">
+        <button class="secondary" type="button" (click)="analyzeSentiment()">Analyze sentiment</button>
+        <button class="primary" type="button" (click)="submit()" [disabled]="isSaving">
+          {{ isSaving ? 'Saving...' : 'Create review' }}
+        </button>
+        <button class="ghost" type="button" (click)="reset()" [disabled]="isSaving">Reset</button>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="feedbackType === 'success'" class="alert" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+  <section *ngIf="feedbackType === 'error'" class="alert error" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+</section>

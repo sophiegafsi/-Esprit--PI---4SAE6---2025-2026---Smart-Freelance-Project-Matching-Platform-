@@ -1,9 +1,4 @@
 spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8080/realms/freelink-realm}
   mail:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:1025}

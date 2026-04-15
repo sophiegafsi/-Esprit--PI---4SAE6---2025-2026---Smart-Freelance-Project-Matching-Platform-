@@ -1,0 +1,55 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+      routes:
+        - id: evaluation-direct
+          uri: lb://evaluation-service
+          predicates:
+            - Path=/evaluations/**,/review/**,/historique/**
+        - id: recompense-direct
+          uri: lb://recompense-service
+          predicates:
+            - Path=/api/badges/**,/api/recompenses/**,/api/rewards/**,/api/user-badges/**,/api/points/**,/api/notifications/**
+        - id: evaluation-prefixed
+          uri: lb://evaluation-service
+          predicates:
+            - Path=/evaluation/**
+          filters:
+            - StripPrefix=1
+        - id: recompense-prefixed
+          uri: lb://recompense-service
+          predicates:
+            - Path=/reward/**
+          filters:
+            - StripPrefix=1
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true

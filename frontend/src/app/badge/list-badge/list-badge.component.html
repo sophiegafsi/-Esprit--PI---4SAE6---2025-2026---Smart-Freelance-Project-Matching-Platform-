@@ -1,0 +1,108 @@
+<section class="page">
+  <section class="page-header">
+    <div>
+      <div class="eyebrow">Badge</div>
+      <h1>Badge List</h1>
+      <p class="muted">CRUD management + advanced business commands for the reward microservice.</p>
+    </div>
+    <div class="toolbar">
+      <a class="primary" href="#badges">New badge</a>
+      <button class="secondary" type="button" (click)="assignEligibleRewards()">Assign eligible</button>
+      <button class="ghost" type="button" (click)="recalculateLevels()">Recalculate levels</button>
+      <button class="ghost" type="button" (click)="refresh()">Refresh</button>
+    </div>
+  </section>
+
+  <section class="grid three" style="margin-bottom: 18px">
+    <article class="metric-card teal">
+      <div class="label">Total badges</div>
+      <div class="value">{{ badges.length }}</div>
+      <div class="detail">Full catalog</div>
+    </article>
+    <article class="metric-card gold">
+      <div class="label">Auto-assignable</div>
+      <div class="value">{{ autoAssignableCount }}</div>
+      <div class="detail">Automatic assignment enabled</div>
+    </article>
+    <article class="metric-card rose">
+      <div class="label">PDF certificates</div>
+      <div class="value">{{ certificateCount }}</div>
+      <div class="detail">Certified events</div>
+    </article>
+  </section>
+
+  <section class="panel" style="margin-bottom: 18px">
+    <div class="toolbar" style="justify-content: space-between">
+      <h2 style="margin: 0">Filters</h2>
+      <label class="toggle-field" style="max-width: 230px">
+        <input type="checkbox" [(ngModel)]="onlyActive" />
+        <span>Show active only</span>
+      </label>
+    </div>
+    <div class="field" style="margin-top: 12px">
+      <label for="searchBadge">Search</label>
+      <input
+        id="searchBadge"
+        placeholder="Name, description, condition..."
+        [(ngModel)]="searchTerm" />
+    </div>
+  </section>
+
+  <section class="table-wrap" *ngIf="filteredBadges.length; else emptyState">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Condition</th>
+          <th>Bonus</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let badge of filteredBadges">
+          <td>#{{ badge.id }}</td>
+          <td>
+            <strong>{{ badge.name }}</strong>
+            <div class="muted">{{ badge.description || '-' }}</div>
+          </td>
+          <td>
+            <span class="badge-pill score">{{ badge.conditionType || 'AVERAGE_SCORE' }}</span>
+            <div class="muted">Threshold: {{ badge.conditionValue ?? 0 }}</div>
+          </td>
+          <td>{{ badge.pointsReward ?? 0 }} pts</td>
+          <td>
+            <span class="status-pill" [class.active]="badge.isActive" [class.inactive]="!badge.isActive">
+              {{ badge.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            <div class="inline-actions">
+              <a class="ghost" [href]="'#/badge/edit-badge/' + badge.id">Edit</a>
+              <button class="secondary" type="button" (click)="toggleActive(badge)">
+                {{ badge.isActive ? 'Disable' : 'Enable' }}
+              </button>
+              <button class="danger" type="button" (click)="deleteBadge(badge)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <ng-template #emptyState>
+    <section class="empty-state">
+      No badge found with current filters.
+    </section>
+  </ng-template>
+
+  <section *ngIf="feedbackType === 'success'" class="alert" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+  <section *ngIf="feedbackType === 'error'" class="alert error" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+
+  <section *ngIf="isLoading" class="loader" style="min-height: 120px">Loading...</section>
+</section>

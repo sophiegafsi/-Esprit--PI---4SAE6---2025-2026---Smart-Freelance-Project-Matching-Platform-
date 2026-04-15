@@ -1,62 +1,81 @@
 ﻿// @ts-nocheck
 import { AfterViewInit, Component } from '@angular/core';
+import { NgIf } from '@angular/common';
+import { CreateBadgeComponent } from './badge/create-badge/create-badge.component';
+import { createEvaluationApi } from './evaluation/evaluation.api';
+import { createBadgeApi } from './badge/badge.api';
+import { confirmDialog, promptDialog } from './shared/dialog.util';
 
 @Component({
   selector: 'app-root',
   standalone: true,
+  imports: [NgIf, CreateBadgeComponent],
   template: `
-    <div class="app-shell">
+    <app-create-badge *ngIf="showCreateBadge"></app-create-badge>
+
+    <div class="app-shell" [hidden]="showCreateBadge">
       <header class="topbar">
-        <a class="brand" href="#dashboard" aria-label="Evaluation et recompense">
+        <a class="brand" href="#dashboard" aria-label="Evaluation and rewards">
           <img src="public/reward-mark.svg" alt="" />
           <span>
             <strong>Freelink Rewards</strong>
-            <small>Evaluation et recompense</small>
+            <small>Evaluation and rewards</small>
           </span>
         </a>
 
-        <nav class="main-nav" aria-label="Navigation principale">
-          <button type="button" data-page="dashboard">Tableau</button>
+        <nav class="main-nav" aria-label="Main navigation">
+          <button type="button" data-page="dashboard">Dashboard</button>
           <button type="button" data-page="evaluations">Evaluations</button>
           <button type="button" data-page="badges">Badges</button>
-          <button type="button" data-page="recompenses">Recompenses</button>
+          <button type="button" data-page="recompenses">Rewards</button>
           <button type="button" data-page="freelancers">Freelancers</button>
-          <button type="button" data-page="history">Historique</button>
-          <button type="button" data-page="space">Mon espace</button>
+          <button type="button" data-page="history">History</button>
+          <button type="button" data-page="space">My space</button>
         </nav>
 
-        <button class="icon-button settings-button" type="button" data-page="settings" title="Reglages" aria-label="Reglages">⚙</button>
+        <div class="topbar-actions">
+          <button class="primary quick-create-button" type="button" data-page-link="evaluations">+ Create evaluation</button>
+          <button class="icon-button settings-button" type="button" data-page="settings" title="Settings" aria-label="Settings">⚙</button>
+        </div>
       </header>
 
       <main id="app" class="page" tabindex="-1"></main>
     </div>
 
-    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true" [hidden]="showCreateBadge"></div>
   `
 })
 export class AppComponent implements AfterViewInit {
+  readonly showCreateBadge = this.isCreateBadgePath();
+
   ngAfterViewInit(): void {
-    startFreelinkRewardsFront();
+    if (!this.showCreateBadge) {
+      startFreelinkRewardsFront();
+    }
+  }
+
+  private isCreateBadgePath(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    return window.location.pathname.replace(/\/+$/, '') === '/create-badge';
   }
 }
 
 function startFreelinkRewardsFront(): void {const DEFAULT_CONFIG = {
-  evaluationBaseUrl: 'http://localhost:8085',
-  rewardBaseUrl: 'http://localhost:8094'
+  evaluationBaseUrl: 'http://localhost:8088',
+  rewardBaseUrl: 'http://localhost:8088'
 };
 
 const STORAGE_KEYS = {
   config: 'freelink-front-config',
-  role: 'freelink-front-role',
   userEmail: 'freelink-front-user-email'
 };
-
-const ROLE_OPTIONS = ['admin', 'client', 'freelancer'];
 
 const state = {
   page: 'dashboard',
   config: loadConfig(),
-  role: normalizeRole(localStorage.getItem(STORAGE_KEYS.role) || 'admin'),
   userEmail: localStorage.getItem(STORAGE_KEYS.userEmail) || '',
   editingBadge: null,
   editingReward: null,
@@ -79,9 +98,6 @@ const pages = {
   settings: renderSettings
 };
 
-const ADMIN_PAGES = new Set(['dashboard', 'badges', 'recompenses', 'freelancers', 'history', 'settings']);
-const USER_PAGES = new Set(['evaluations', 'space', 'settings']);
-
 init();
 
 function init() {
@@ -101,11 +117,11 @@ function init() {
 
 function getPageFromHash() {
   const page = window.location.hash.replace('#', '');
-  return normalizePageForRole(pages[page] ? page : defaultPageForRole());
+  return pages[page] ? page : 'dashboard';
 }
 
 async function navigate(page, updateHash = true) {
-  state.page = normalizePageForRole(pages[page] ? page : defaultPageForRole());
+  state.page = pages[page] ? page : 'dashboard';
   state.editingBadge = state.page === 'badges' ? state.editingBadge : null;
   state.editingReward = state.page === 'recompenses' ? state.editingReward : null;
 
@@ -115,8 +131,7 @@ async function navigate(page, updateHash = true) {
   }
 
   navButtons.forEach((button) => {
-    const visible = isPageVisibleForRole(button.dataset.page);
-    button.hidden = !visible;
+    button.hidden = false;
     button.classList.toggle('active', button.dataset.page === state.page);
   });
 
@@ -126,44 +141,12 @@ async function navigate(page, updateHash = true) {
   try {
     await pages[state.page]();
     navButtons.forEach((button) => {
-      const visible = isPageVisibleForRole(button.dataset.page);
-      button.hidden = !visible;
+      button.hidden = false;
       button.classList.toggle('active', button.dataset.page === state.page);
     });
   } catch (error) {
     renderFatalError(error);
   }
-}
-
-function isAdminRole() {
-  return state.role === 'admin';
-}
-
-function isFreelancerRole() {
-  return state.role === 'freelancer';
-}
-
-function normalizeRole(role) {
-  const value = String(role || '').trim().toLowerCase();
-  if (value === 'client-freelancer') return 'client';
-  return ROLE_OPTIONS.includes(value) ? value : 'admin';
-}
-
-function defaultPageForRole() {
-  if (isAdminRole()) return 'dashboard';
-  return isFreelancerRole() ? 'space' : 'evaluations';
-}
-
-function normalizePageForRole(page) {
-  if (isAdminRole()) {
-    return ADMIN_PAGES.has(page) ? page : 'dashboard';
-  }
-
-  return USER_PAGES.has(page) ? page : 'evaluations';
-}
-
-function isPageVisibleForRole(page) {
-  return isAdminRole() ? ADMIN_PAGES.has(page) : USER_PAGES.has(page);
 }
 
 function loadConfig() {
@@ -218,6 +201,9 @@ async function request(service, path, options = {}) {
   return text ? JSON.parse(text) : null;
 }
 
+const evaluationApi = createEvaluationApi(request);
+const recompenseApi = createBadgeApi(request);
+
 async function settleObject(entries) {
   const pairs = await Promise.all(Object.entries(entries).map(async ([key, promise]) => {
     try {
@@ -236,11 +222,6 @@ function pageHeader(eyebrow, title, actions = '') {
       <div>
         <div class="eyebrow">${escapeHtml(eyebrow)}</div>
         <h1>${escapeHtml(title)}</h1>
-        <div class="stat-line">
-          <span class="role-pill">${escapeHtml(state.role)}</span>
-          <span>${escapeHtml(state.config.evaluationBaseUrl)}</span>
-          <span>${escapeHtml(state.config.rewardBaseUrl)}</span>
-        </div>
       </div>
       <div class="toolbar">${actions}</div>
     </section>
@@ -249,11 +230,11 @@ function pageHeader(eyebrow, title, actions = '') {
 
 async function renderDashboard() {
   const settled = await settleObject({
-    dashboard: request('reward', '/api/rewards/dashboard'),
-    profiles: request('reward', '/api/rewards/profiles'),
-    badges: request('reward', '/api/badges'),
-    rewards: request('reward', '/api/recompenses'),
-    evaluations: request('evaluation', '/evaluations/all')
+    dashboard: recompenseApi.dashboard(),
+    profiles: recompenseApi.profiles.list(),
+    badges: recompenseApi.badges.list(),
+    rewards: recompenseApi.rewards.list(),
+    evaluations: evaluationApi.evaluations.list()
   });
 
   const dashboard = settled.dashboard.ok ? settled.dashboard.data : null;
@@ -264,15 +245,15 @@ async function renderDashboard() {
   const rewardError = firstError(settled.dashboard, settled.profiles, settled.badges, settled.rewards);
 
   app.innerHTML = `
-    ${pageHeader('Pilotage', 'Evaluation & Recompense', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
+    ${pageHeader('Operations', 'Evaluation & Rewards', `
+      <button class="ghost" type="button" data-action="refresh" title="Refresh">Refresh</button>
     `)}
-    ${rewardError ? alertMarkup(`API recompense: ${rewardError.message}`, 'error') : ''}
+    ${rewardError ? alertMarkup(`Reward API: ${rewardError.message}`, 'error') : ''}
     <section class="grid four">
-      ${metricCard('Badges attribues', dashboard?.totalBadgesAssigned ?? 0, 'Historique AWARDED', 'teal')}
-      ${metricCard('Badges actifs', dashboard?.activeBadges ?? 0, 'Affectations actives', 'gold')}
-      ${metricCard('Freelancers sans reward', dashboard?.freelancersWithoutRewardCount ?? 0, 'A traiter', 'rose')}
-      ${metricCard('Evaluations', evaluations.length, 'Microservice evaluation', 'ink')}
+      ${metricCard('Assigned badges', dashboard?.totalBadgesAssigned ?? 0, 'AWARDED history', 'teal')}
+      ${metricCard('Active badges', dashboard?.activeBadges ?? 0, 'Active assignments', 'gold')}
+      ${metricCard('Freelancers without reward', dashboard?.freelancersWithoutRewardCount ?? 0, 'Needs review', 'rose')}
+      ${metricCard('Evaluations', evaluations.length, 'Evaluation microservice', 'ink')}
     </section>
 
     <section class="split" style="margin-top:18px">
@@ -281,24 +262,24 @@ async function renderDashboard() {
         ${topFreelancersMarkup(dashboard?.topFreelancers || profiles.slice(0, 10))}
       </div>
       <div class="panel">
-        <h2>Progression mensuelle</h2>
+        <h2>Monthly progress</h2>
         ${monthlyProgressMarkup(dashboard?.monthlyProgress || [])}
       </div>
     </section>
 
     <section class="grid three" style="margin-top:18px">
-      ${metricCard('Badge frequent', dashboard?.mostFrequentBadge || 'Aucun', 'Catalogue recompense', 'teal')}
-      ${metricCard('Badges catalogue', badges.length, `${badges.filter((badge) => truthy(badge.isActive)).length} actifs`, 'gold')}
-      ${metricCard('Recompenses', rewards.length, `${rewards.filter((reward) => truthy(reward.isActive)).length} actives`, 'rose')}
+      ${metricCard('Most frequent badge', dashboard?.mostFrequentBadge || 'None', 'Reward catalog', 'teal')}
+      ${metricCard('Catalog badges', badges.length, `${badges.filter((badge) => truthy(badge.isActive)).length} active`, 'gold')}
+      ${metricCard('Rewards', rewards.length, `${rewards.filter((reward) => truthy(reward.isActive)).length} active`, 'rose')}
     </section>
 
     <section class="grid two" style="margin-top:18px">
       <div class="panel">
-        <h2>Sans recompense</h2>
-        ${simpleListMarkup(dashboard?.freelancersWithoutReward || [], 'Tous les freelancers ont une recompense.')}
+        <h2>Without reward</h2>
+        ${simpleListMarkup(dashboard?.freelancersWithoutReward || [], 'All freelancers already have a reward.')}
       </div>
       <div class="panel">
-        <h2>Dernieres evaluations</h2>
+        <h2>Latest evaluations</h2>
         ${evaluationsTableMarkup(evaluations.slice(-6).reverse(), true)}
       </div>
     </section>
@@ -310,78 +291,78 @@ async function renderDashboard() {
 
 async function renderEvaluations() {
   const settled = await settleObject({
-    evaluations: request('evaluation', '/evaluations/all'),
-    sentiment: request('evaluation', '/review/sentiment-stats')
+    evaluations: evaluationApi.evaluations.list(),
+    sentiment: evaluationApi.sentiment.stats()
   });
 
   const evaluations = settled.evaluations.ok ? settled.evaluations.data : [];
   const sentiment = settled.sentiment.ok ? settled.sentiment.data : null;
 
   app.innerHTML = `
-    ${pageHeader('Client / Freelancer', 'Creer une evaluation', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
+    ${pageHeader('Client / Freelancer', 'Create evaluation', `
+      <button class="ghost" type="button" data-action="refresh" title="Refresh">Refresh</button>
     `)}
-    ${!settled.evaluations.ok ? alertMarkup(`API evaluation: ${settled.evaluations.error.message}`, 'error') : ''}
+    ${!settled.evaluations.ok ? alertMarkup(`Evaluation API: ${settled.evaluations.error.message}`, 'error') : ''}
 
     <section class="split">
       <form id="evaluation-form" class="form-card">
-        <h2>Evaluation freelancer</h2>
+        <h2>Freelancer evaluation</h2>
         <div class="form-grid">
-          ${inputField('projectName', 'Projet', 'Marketplace redesign', true)}
+          ${inputField('projectName', 'Project', 'Marketplace redesign', true)}
           ${selectField('typeEvaluation', 'Type', ['SOFT_SKILLS', 'TECHNIQUE', 'AUTRE'], 'TECHNIQUE')}
-          ${inputField('evaluatorName', 'Evaluateur', 'Client Demo', true)}
-          ${inputField('userEmail', 'Email client', state.userEmail || 'client@freelink.local', true, 'email')}
+          ${inputField('evaluatorName', 'Evaluator', 'Client Demo', true)}
+          ${inputField('userEmail', 'Client email', state.userEmail || 'client@freelink.local', true, 'email')}
           ${inputField('evaluatedUserName', 'Freelancer', 'Amina Trabelsi', true)}
-          ${inputField('evaluatedUserEmail', 'Email freelancer', 'amina.freelancer@freelink.local', true, 'email')}
-          ${textareaField('comment', 'Commentaire', 'Livraison claire, communication fluide et respect du delai.')}
-          ${toggleField('anonymous', 'Evaluation anonyme', false)}
+          ${inputField('evaluatedUserEmail', 'Freelancer email', 'amina.freelancer@freelink.local', true, 'email')}
+          ${textareaField('comment', 'Comment', 'Clear delivery, smooth communication, and on-time completion.')}
+          ${toggleField('anonymous', 'Anonymous evaluation', false)}
           <div class="criteria-grid">
-            ${criterionField('quality', 'Qualite', 5)}
+            ${criterionField('quality', 'Quality', 5)}
             ${criterionField('communication', 'Communication', 4)}
-            ${criterionField('deadline', 'Delai', 5)}
+            ${criterionField('deadline', 'Deadline', 5)}
             ${criterionField('expertise', 'Expertise', 4)}
           </div>
           <div class="result-box visible">
-            Score calcule: <strong id="score-preview">4.50</strong> / 5
+            Calculated score: <strong id="score-preview">4.50</strong> / 5
           </div>
           <div class="form-actions">
-            <button class="primary" type="submit">+ Enregistrer</button>
-            <button class="ghost" type="reset">â†» Reinitialiser</button>
+            <button class="primary" type="submit">+ Save</button>
+            <button class="ghost" type="reset">Reset</button>
           </div>
         </div>
       </form>
 
       <form id="sync-form" class="form-card" hidden>
-        <h2>Attribution automatique</h2>
+        <h2>Automatic assignment</h2>
         <div class="form-grid">
-          ${inputField('freelancerEmail', 'Email freelancer', 'amina.freelancer@freelink.local', true, 'email')}
-          ${inputField('freelancerName', 'Nom freelancer', 'Amina Trabelsi', true)}
-          ${numberField('currentScore', 'Score courant', 5, 0, 5, 1)}
-          ${numberField('averageScore', 'Moyenne', 4.6, 0, 5, 0.1)}
+          ${inputField('freelancerEmail', 'Freelancer email', 'amina.freelancer@freelink.local', true, 'email')}
+          ${inputField('freelancerName', 'Freelancer name', 'Amina Trabelsi', true)}
+          ${numberField('currentScore', 'Current score', 5, 0, 5, 1)}
+          ${numberField('averageScore', 'Average score', 4.6, 0, 5, 0.1)}
           ${numberField('totalEvaluations', 'Evaluations', 9, 0, 500, 1)}
-          ${numberField('positiveEvaluations', 'Positives', 8, 0, 500, 1)}
-          ${numberField('completedProjects', 'Projets termines', 10, 0, 500, 1)}
+          ${numberField('positiveEvaluations', 'Positive evaluations', 8, 0, 500, 1)}
+          ${numberField('completedProjects', 'Completed projects', 10, 0, 500, 1)}
           ${numberField('totalPoints', 'Points', 560, 0, 100000, 10)}
-          ${inputField('projectName', 'Projet', 'Marketplace redesign', false)}
+          ${inputField('projectName', 'Project', 'Marketplace redesign', false)}
           ${inputField('evaluatedAt', 'Date', localDateTimeValue(), false, 'datetime-local')}
           <div id="sync-result" class="result-box ${state.lastSyncResponse ? 'visible' : ''}">
             ${state.lastSyncResponse ? rewardResponseMarkup(state.lastSyncResponse) : ''}
           </div>
           <div class="form-actions">
-            <button class="secondary" type="submit">âœ“ Tester</button>
+            <button class="secondary" type="submit">Run test</button>
           </div>
         </div>
       </form>
     </section>
 
     <section class="grid three" style="margin-top:18px">
-      ${metricCard('Evaluations', evaluations.length, 'Total en base', 'teal')}
-      ${metricCard('Score moyen', averageEvaluationScore(evaluations), 'Toutes evaluations', 'gold')}
-      ${metricCard('Sentiments', sentiment ? Object.values(sentiment).reduce((sum, value) => sum + Number(value || 0), 0) : 'N/A', 'Reviews analysees', 'rose')}
+      ${metricCard('Evaluations', evaluations.length, 'Total records', 'teal')}
+      ${metricCard('Average score', averageEvaluationScore(evaluations), 'All evaluations', 'gold')}
+      ${metricCard('Sentiments', sentiment ? Object.values(sentiment).reduce((sum, value) => sum + Number(value || 0), 0) : 'N/A', 'Analyzed reviews', 'rose')}
     </section>
 
     <section class="panel" style="margin-top:18px">
-      <h2>Evaluations recentes</h2>
+      <h2>Recent evaluations</h2>
       ${evaluationsTableMarkup([...evaluations].reverse())}
     </section>
   `;
@@ -397,7 +378,7 @@ async function renderBadges() {
   let badges = [];
   let error = null;
   try {
-    badges = await request('reward', '/api/badges');
+    badges = await recompenseApi.badges.list();
   } catch (caught) {
     error = caught;
   }
@@ -405,42 +386,42 @@ async function renderBadges() {
   const editing = state.editingBadge;
 
   app.innerHTML = `
-    ${pageHeader('Admin', 'Badges', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
+    ${pageHeader('Rewards', 'Badges', `
+      <button class="ghost" type="button" data-action="refresh" title="Refresh">Refresh</button>
     `)}
     ${error ? alertMarkup(`API badges: ${error.message}`, 'error') : ''}
 
     <section class="split">
       <form id="badge-form" class="form-card">
-        <h2>${editing ? 'Modifier badge' : 'Creer badge'}</h2>
+        <h2>${editing ? 'Edit badge' : 'Create badge'}</h2>
         <div class="form-grid">
-          ${inputField('name', 'Nom', editing?.name || 'Expert', true)}
-          ${inputField('icon', 'Icone', editing?.icon || '*', false)}
+          ${inputField('name', 'Name', editing?.name || 'Expert', true)}
+          ${inputField('icon', 'Icon', editing?.icon || '*', false)}
           ${selectField('conditionType', 'Condition', ['AVERAGE_SCORE', 'POINTS'], editing?.conditionType || 'AVERAGE_SCORE')}
-          ${numberField('conditionValue', 'Seuil', editing?.conditionValue ?? 4.5, 0, 100000, 0.1)}
-          ${numberField('pointsReward', 'Points bonus', editing?.pointsReward ?? 0, 0, 100000, 1)}
-          ${textareaField('description', 'Description', editing?.description || 'Badge attribue automatiquement selon le score moyen.')}
-          ${toggleField('certificateEligible', 'Certificat', editing ? truthy(editing.certificateEligible) : false)}
-          ${toggleField('isActive', 'Actif', editing ? truthy(editing.isActive) : true)}
+          ${numberField('conditionValue', 'Threshold', editing?.conditionValue ?? 4.5, 0, 100000, 0.1)}
+          ${numberField('pointsReward', 'Bonus points', editing?.pointsReward ?? 0, 0, 100000, 1)}
+          ${textareaField('description', 'Description', editing?.description || 'Badge automatically assigned based on average score.')}
+          ${toggleField('certificateEligible', 'Certificate', editing ? truthy(editing.certificateEligible) : false)}
+          ${toggleField('isActive', 'Active', editing ? truthy(editing.isActive) : true)}
           <div class="form-actions">
-            <button class="primary" type="submit">${editing ? 'âœ“ Mettre a jour' : '+ Creer'}</button>
-            ${editing ? '<button class="ghost" type="button" data-action="cancel-edit">x Annuler</button>' : ''}
+            <button class="primary" type="submit">${editing ? 'Update' : '+ Create'}</button>
+            ${editing ? '<button class="ghost" type="button" data-action="cancel-edit">Cancel</button>' : ''}
           </div>
         </div>
       </form>
 
       <div class="panel">
-        <h2>Attribution automatique</h2>
+        <h2>Automatic assignment</h2>
         <div class="grid two">
-          ${metricCard('Score moyen', 'AVERAGE_SCORE', 'Badge selon la moyenne apres evaluation', 'teal')}
-          ${metricCard('Points', 'POINTS', 'Badge selon les points cumules', 'gold')}
+          ${metricCard('Average score', 'AVERAGE_SCORE', 'Assign badge after each evaluation average', 'teal')}
+          ${metricCard('Points', 'POINTS', 'Assign badge from cumulative points', 'gold')}
         </div>
       </div>
     </section>
 
     <section style="margin-top:18px">
       <div class="list-grid">
-        ${badges.length ? badges.map(badgeCardMarkup).join('') : emptyMarkup('Aucun badge trouve.')}
+        ${badges.length ? badges.map(badgeCardMarkup).join('') : emptyMarkup('No badges found.')}
       </div>
     </section>
   `;
@@ -459,7 +440,7 @@ async function renderRecompenses() {
   let rewards = [];
   let error = null;
   try {
-    rewards = await request('reward', '/api/recompenses');
+    rewards = await recompenseApi.rewards.list();
   } catch (caught) {
     error = caught;
   }
@@ -467,40 +448,40 @@ async function renderRecompenses() {
   const editing = state.editingReward;
 
   app.innerHTML = `
-    ${pageHeader('Admin', 'Recompenses', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
+    ${pageHeader('Rewards', 'Rewards', `
+      <button class="ghost" type="button" data-action="refresh" title="Refresh">Refresh</button>
     `)}
-    ${error ? alertMarkup(`API recompenses: ${error.message}`, 'error') : ''}
+    ${error ? alertMarkup(`Rewards API: ${error.message}`, 'error') : ''}
 
     <section class="split">
       <form id="reward-form" class="form-card">
-        <h2>${editing ? 'Modifier recompense' : 'Creer recompense'}</h2>
+        <h2>${editing ? 'Edit reward' : 'Create reward'}</h2>
         <div class="form-grid">
-          ${inputField('title', 'Titre', editing?.title || 'Bon premium', true)}
-          ${numberField('pointsRequired', 'Points requis', editing?.pointsRequired ?? 500, 0, 100000, 10)}
+          ${inputField('title', 'Title', editing?.title || 'Premium voucher', true)}
+          ${numberField('pointsRequired', 'Required points', editing?.pointsRequired ?? 500, 0, 100000, 10)}
           ${numberField('stock', 'Stock', editing?.stock ?? -1, -1, 100000, 1)}
           ${inputField('imageUrl', 'Image URL', editing?.imageUrl || '', false, 'url')}
-          ${textareaField('description', 'Description', editing?.description || 'Recompense reservee aux meilleurs freelancers.')}
+          ${textareaField('description', 'Description', editing?.description || 'Reward reserved for top freelancers.')}
           ${toggleField('isActive', 'Active', editing ? truthy(editing.isActive) : true)}
           <div class="form-actions">
-            <button class="primary" type="submit">${editing ? 'âœ“ Mettre a jour' : '+ Creer'}</button>
-            ${editing ? '<button class="ghost" type="button" data-action="cancel-reward-edit">x Annuler</button>' : ''}
+            <button class="primary" type="submit">${editing ? 'Update' : '+ Create'}</button>
+            ${editing ? '<button class="ghost" type="button" data-action="cancel-reward-edit">Cancel</button>' : ''}
           </div>
         </div>
       </form>
 
       <div class="panel">
-        <h2>Catalogue actif</h2>
+        <h2>Active catalog</h2>
         <div class="grid two">
-          ${metricCard('Recompenses', rewards.length, 'Toutes entrees', 'teal')}
-          ${metricCard('Actives', rewards.filter((reward) => truthy(reward.isActive)).length, 'Disponibles', 'gold')}
+          ${metricCard('Rewards', rewards.length, 'All entries', 'teal')}
+          ${metricCard('Active', rewards.filter((reward) => truthy(reward.isActive)).length, 'Available', 'gold')}
         </div>
       </div>
     </section>
 
     <section style="margin-top:18px">
       <div class="list-grid">
-        ${rewards.length ? rewards.map(rewardCardMarkup).join('') : emptyMarkup('Aucune recompense trouvee.')}
+        ${rewards.length ? rewards.map(rewardCardMarkup).join('') : emptyMarkup('No rewards found.')}
       </div>
     </section>
   `;
@@ -519,8 +500,8 @@ async function renderFreelancers() {
   let profiles = [];
   let insights = [];
   const settled = await settleObject({
-    profiles: request('reward', '/api/rewards/profiles'),
-    insights: request('reward', '/api/rewards/insights')
+    profiles: recompenseApi.profiles.list(),
+    insights: recompenseApi.insights.list()
   });
   profiles = settled.profiles.ok ? settled.profiles.data : [];
   insights = settled.insights.ok ? settled.insights.data : [];
@@ -528,27 +509,27 @@ async function renderFreelancers() {
   const insightsByEmail = Object.fromEntries(insights.map((insight) => [insight.userEmail, insight]));
 
   app.innerHTML = `
-    ${pageHeader('Admin', 'Freelancers', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
-      <button class="secondary" type="button" data-action="recalculate">âœ“ Recalculer niveaux</button>
+    ${pageHeader('Rewards', 'Freelancers', `
+      <button class="ghost" type="button" data-action="refresh" title="Refresh">Refresh</button>
+      <button class="secondary" type="button" data-action="recalculate">Recalculate levels</button>
     `)}
-    ${error ? alertMarkup(`API profils: ${error.message}`, 'error') : ''}
+    ${error ? alertMarkup(`Profiles API: ${error.message}`, 'error') : ''}
 
     <section class="toolbar" style="justify-content:flex-end;margin-bottom:18px">
-      <button class="primary" type="button" data-action="assign-pending-rewards">Attribuer eligibles</button>
+      <button class="primary" type="button" data-action="assign-pending-rewards">Assign eligible rewards</button>
     </section>
 
     <section class="grid four">
-      ${metricCard('Profils', profiles.length, 'Freelancers synchronises', 'teal')}
-      ${metricCard('Points cumules', sumBy(profiles, 'totalPoints'), 'Tous profils', 'gold')}
-      ${metricCard('Eligibles', sumBy(insights, 'eligibleRecompensesCount'), 'Recompenses a debloquer', 'rose')}
-      ${metricCard('A suivre', insights.filter((insight) => insight.performanceStatus === 'NEEDS_ATTENTION').length, 'Score a surveiller', 'ink')}
+      ${metricCard('Profiles', profiles.length, 'Synced freelancers', 'teal')}
+      ${metricCard('Total points', sumBy(profiles, 'totalPoints'), 'All profiles', 'gold')}
+      ${metricCard('Eligible', sumBy(insights, 'eligibleRecompensesCount'), 'Rewards to unlock', 'rose')}
+      ${metricCard('Watch list', insights.filter((insight) => insight.performanceStatus === 'NEEDS_ATTENTION').length, 'Score to monitor', 'ink')}
     </section>
 
     <section class="panel" style="margin-top:18px">
       <div class="toolbar" style="justify-content:space-between;margin-bottom:14px">
-        <h2 style="margin:0">Profils recompense</h2>
-        <input id="profile-filter" type="search" placeholder="Filtrer par email, nom, badge" style="max-width:360px" />
+        <h2 style="margin:0">Reward profiles</h2>
+        <input id="profile-filter" type="search" placeholder="Filter by email, name, or badge" style="max-width:360px" />
       </div>
       ${profilesTableMarkup(profiles, insightsByEmail)}
     </section>
@@ -558,15 +539,15 @@ async function renderFreelancers() {
   qs('[data-action="refresh"]')?.addEventListener('click', () => navigate('freelancers'));
   qs('[data-action="recalculate"]')?.addEventListener('click', async () => {
     await guardedAction(async () => {
-      const response = await request('reward', '/api/rewards/recalculate-levels', { method: 'POST' });
-      toast(response?.message || 'Niveaux recalcules.', 'success');
+      const response = await recompenseApi.advanced.recalculateLevels();
+      toast(response?.message || 'Levels recalculated.', 'success');
       await navigate('freelancers');
     });
   });
   qs('[data-action="assign-pending-rewards"]')?.addEventListener('click', async () => {
     await guardedAction(async () => {
-      const response = await request('reward', '/api/rewards/assign-pending-rewards', { method: 'POST' });
-      toast(`${response?.assignedRewards ?? 0} recompense(s) attribuee(s).`, 'success');
+      const response = await recompenseApi.advanced.assignEligibleRewards();
+      toast(`${response?.assignedRewards ?? 0} reward(s) assigned.`, 'success');
       await navigate('freelancers');
     });
   });
@@ -588,24 +569,24 @@ async function renderHistory() {
   let history = [];
   let error = null;
   try {
-    history = await request('reward', `/api/rewards/history${query}`);
+    history = await recompenseApi.history.list(state.historyEmail.trim());
   } catch (caught) {
     error = caught;
   }
 
   app.innerHTML = `
-    ${pageHeader('Admin', 'Historique recompense', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
+    ${pageHeader('Rewards', 'Reward history', `
+      <button class="ghost" type="button" data-action="refresh" title="Refresh">Refresh</button>
     `)}
-    ${error ? alertMarkup(`API historique: ${error.message}`, 'error') : ''}
+    ${error ? alertMarkup(`History API: ${error.message}`, 'error') : ''}
 
     <section class="panel">
       <form id="history-filter-form" class="toolbar" style="justify-content:space-between;margin-bottom:14px">
-        <h2 style="margin:0">Evenements</h2>
+        <h2 style="margin:0">Events</h2>
         <div class="toolbar">
           <input name="email" type="email" placeholder="freelancer@email.com" value="${attr(state.historyEmail)}" style="min-width:260px" />
-          <button class="primary" type="submit">âœ“ Filtrer</button>
-          <button class="ghost" type="button" data-action="clear-history-filter">x Effacer</button>
+          <button class="primary" type="submit">Filter</button>
+          <button class="ghost" type="button" data-action="clear-history-filter">Clear</button>
         </div>
       </form>
       ${historyTableMarkup(history)}
@@ -631,14 +612,14 @@ async function renderSpace() {
 
   if (!email) {
     app.innerHTML = `
-      ${pageHeader('Client / Freelancer', 'Mon espace', `
-        <button class="primary" type="button" data-page-link="evaluations">Creer evaluation</button>
+      ${pageHeader('Client / Freelancer', 'My space', `
+        <button class="primary" type="button" data-page-link="evaluations">Create evaluation</button>
       `)}
       <section class="form-card">
         <form id="space-email-form" class="form-grid">
-          ${inputField('email', 'Email utilisateur', 'amina.freelancer@freelink.local', true, 'email')}
+          ${inputField('email', 'User email', 'amina.freelancer@freelink.local', true, 'email')}
           <div class="form-actions">
-            <button class="primary" type="submit">âœ“ Ouvrir</button>
+            <button class="primary" type="submit">Open</button>
           </div>
         </form>
       </section>
@@ -648,16 +629,15 @@ async function renderSpace() {
     return;
   }
 
-  const encoded = encodeURIComponent(email);
   const settled = await settleObject({
-    evaluations: request('evaluation', '/evaluations/all'),
-    profile: request('reward', `/api/rewards/profiles/${encoded}`),
-    insight: request('reward', `/api/rewards/insights/${encoded}`),
-    points: request('reward', `/api/points/points/${encoded}`),
-    progress: request('reward', `/api/points/points/progress/${encoded}`),
-    badges: request('reward', `/api/user-badges/active/${encoded}`),
-    history: request('reward', `/api/rewards/history?email=${encoded}`),
-    notifications: request('reward', `/api/notifications/${encoded}`)
+    evaluations: evaluationApi.evaluations.list(),
+    profile: recompenseApi.profiles.getByEmail(email),
+    insight: recompenseApi.insights.byEmail(email),
+    points: recompenseApi.points.byUser(email),
+    progress: recompenseApi.points.progress(email),
+    badges: recompenseApi.badges.activeForUser(email),
+    history: recompenseApi.history.list(email),
+    notifications: recompenseApi.notifications.byUser(email)
   });
 
   const evaluations = settled.evaluations.ok ? settled.evaluations.data : [];
@@ -673,17 +653,17 @@ async function renderSpace() {
 
   app.innerHTML = `
     ${pageHeader('Client / Freelancer', profile?.userName || email, `
-      <button class="primary" type="button" data-page-link="evaluations">Creer evaluation</button>
-      <button class="ghost" type="button" data-action="change-space-email">âœŽ Changer</button>
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
+      <button class="primary" type="button" data-page-link="evaluations">Create evaluation</button>
+      <button class="ghost" type="button" data-action="change-space-email">Change</button>
+      <button class="ghost" type="button" data-action="refresh" title="Refresh">Refresh</button>
     `)}
-    ${error ? alertMarkup(`API espace: ${error.message}`, 'error') : ''}
+    ${error ? alertMarkup(`Workspace API: ${error.message}`, 'error') : ''}
 
     <section class="grid four">
-      ${metricCard('Score moyen', profile?.averageScore ?? 0, `${profile?.totalEvaluations ?? 0} evaluations`, 'teal')}
-      ${metricCard('Points', points, `${progress}% vers le prochain palier`, 'gold')}
-      ${metricCard('Niveau', profile?.currentLevel || 'N/A', 'Profil recompense', 'rose')}
-      ${metricCard('Badges', badges.length, 'Badges actifs', 'ink')}
+      ${metricCard('Average score', profile?.averageScore ?? 0, `${profile?.totalEvaluations ?? 0} evaluations`, 'teal')}
+      ${metricCard('Points', points, `${progress}% to next milestone`, 'gold')}
+      ${metricCard('Level', profile?.currentLevel || 'N/A', 'Reward profile', 'rose')}
+      ${metricCard('Badges', badges.length, 'Active badges', 'ink')}
     </section>
 
     <section class="panel" style="margin-top:18px">
@@ -692,15 +672,15 @@ async function renderSpace() {
     </section>
 
     <section class="panel" style="margin-top:18px">
-      <h2>Objectifs metier</h2>
+      <h2>Business goals</h2>
       ${rewardInsightMarkup(insight)}
     </section>
 
     <section class="grid two" style="margin-top:18px">
       <div class="panel">
-        <h2>Badges actifs</h2>
+        <h2>Active badges</h2>
         <div class="list-grid" style="grid-template-columns:1fr">
-          ${badges.length ? badges.map(userBadgeCardMarkup).join('') : emptyMarkup('Aucun badge actif.')}
+          ${badges.length ? badges.map(userBadgeCardMarkup).join('') : emptyMarkup('No active badge.')}
         </div>
       </div>
       <div class="panel">
@@ -710,17 +690,17 @@ async function renderSpace() {
     </section>
 
     <section class="panel" style="margin-top:18px">
-      <h2>Badges PDF</h2>
+      <h2>Badge PDFs</h2>
       ${certificateDownloadsMarkup(history)}
     </section>
 
     <section class="panel" style="margin-top:18px">
-      <h2>Historique evaluations</h2>
+      <h2>Evaluation history</h2>
       ${evaluationsTableMarkup(relatedEvaluations, true)}
     </section>
 
     <section class="panel" style="margin-top:18px">
-      <h2>Historique badges et recompenses</h2>
+      <h2>Badge and reward history</h2>
       ${historyTableMarkup(history, true)}
     </section>
   `;
@@ -737,30 +717,29 @@ async function renderSpace() {
 
 async function renderSettings() {
   app.innerHTML = `
-    ${pageHeader('Configuration', 'Reglages')}
+    ${pageHeader('Configuration', 'Settings')}
     <section class="split">
       <form id="settings-form" class="form-card">
         <h2>Services</h2>
         <div class="form-grid">
           ${inputField('evaluationBaseUrl', 'Evaluation API', state.config.evaluationBaseUrl, true, 'url')}
-          ${inputField('rewardBaseUrl', 'Recompense API', state.config.rewardBaseUrl, true, 'url')}
-          ${selectField('role', 'Mode interface', ROLE_OPTIONS, state.role)}
-          ${inputField('userEmail', 'Email utilisateur', state.userEmail || '', false, 'email')}
+          ${inputField('rewardBaseUrl', 'Reward API', state.config.rewardBaseUrl, true, 'url')}
+          ${inputField('userEmail', 'User email', state.userEmail || '', false, 'email')}
           <div class="form-actions">
-            <button class="primary" type="submit">âœ“ Sauvegarder</button>
+            <button class="primary" type="submit">Save</button>
           </div>
         </div>
       </form>
 
       <div class="panel">
-        <h2>Etat</h2>
+        <h2>Status</h2>
         <div class="grid two">
-          ${metricCard('Port front', window.location.port || '4200', window.location.origin, 'teal')}
-          ${metricCard('Securite locale', 'Ouverte', 'Acces libre pour les tests', 'gold')}
+          ${metricCard('Frontend port', window.location.port || '4200', window.location.origin, 'teal')}
+          ${metricCard('Local security', 'Open', 'Free access for local tests', 'gold')}
         </div>
         <div class="toolbar" style="margin-top:16px">
-          <button class="secondary" type="button" data-action="test-evaluation">âœ“ Tester evaluation</button>
-          <button class="secondary" type="button" data-action="test-reward">âœ“ Tester recompense</button>
+          <button class="secondary" type="button" data-action="test-evaluation">Test evaluation</button>
+          <button class="secondary" type="button" data-action="test-reward">Test reward</button>
         </div>
         <div id="settings-result" class="result-box" style="margin-top:16px"></div>
       </div>
@@ -774,11 +753,9 @@ async function renderSettings() {
       evaluationBaseUrl: trimSlash(form.get('evaluationBaseUrl')),
       rewardBaseUrl: trimSlash(form.get('rewardBaseUrl'))
     });
-    state.role = normalizeRole(form.get('role') || 'admin');
     state.userEmail = String(form.get('userEmail') || '').trim();
-    localStorage.setItem(STORAGE_KEYS.role, state.role);
     localStorage.setItem(STORAGE_KEYS.userEmail, state.userEmail);
-    toast('Reglages sauvegardes.', 'success');
+    toast('Settings saved.', 'success');
     navigate('settings');
   });
 
@@ -828,12 +805,9 @@ function wireEvaluationForm() {
         typeEvaluation: String(formData.get('typeEvaluation') || 'TECHNIQUE')
       };
 
-      const saved = await request('evaluation', '/evaluations/add', {
-        method: 'POST',
-        body: payload
-      });
+      const saved = await evaluationApi.evaluations.create(payload);
 
-      toast(`Evaluation #${saved?.id ?? ''} enregistree.`, 'success');
+      toast(`Evaluation #${saved?.id ?? ''} saved.`, 'success');
       state.userEmail = payload.userEmail || payload.evaluatedUserEmail;
       localStorage.setItem(STORAGE_KEYS.userEmail, state.userEmail);
       await navigate('evaluations');
@@ -863,16 +837,13 @@ function wireSyncForm() {
         evaluatedAt: evaluatedAt ? normalizeLocalDateTime(evaluatedAt) : normalizeLocalDateTime(localDateTimeValue())
       };
 
-      const response = await request('reward', '/api/rewards/process-evaluation', {
-        method: 'POST',
-        body: payload
-      });
+      const response = await recompenseApi.advanced.processEvaluation(payload);
 
       state.lastSyncResponse = response;
       const result = qs('#sync-result');
       result.classList.add('visible');
       result.innerHTML = rewardResponseMarkup(response);
-      toast('Moteur recompense execute.', 'success');
+      toast('Reward engine executed.', 'success');
     });
   });
 }
@@ -880,12 +851,11 @@ function wireSyncForm() {
 function wireEvaluationDelete() {
   qsa('[data-delete-evaluation]').forEach((button) => {
     button.addEventListener('click', async () => {
-      if (!window.confirm('Supprimer cette evaluation ?')) return;
+      const confirmed = await confirmDialog('Delete this evaluation?', 'Confirm deletion');
+      if (!confirmed) return;
       await guardedAction(async () => {
-        await request('evaluation', `/evaluations/delete/${button.dataset.deleteEvaluation}`, {
-          method: 'DELETE'
-        });
-        toast('Evaluation supprimee.', 'success');
+        await evaluationApi.evaluations.deleteById(button.dataset.deleteEvaluation);
+        toast('Evaluation deleted.', 'success');
         await navigate('evaluations');
       });
     });
@@ -915,13 +885,14 @@ function wireBadgeForm() {
       };
 
       const editingId = state.editingBadge?.id;
-      await request('reward', editingId ? `/api/badges/${editingId}` : '/api/badges', {
-        method: editingId ? 'PUT' : 'POST',
-        body: payload
-      });
+      if (editingId) {
+        await recompenseApi.badges.update(editingId, payload);
+      } else {
+        await recompenseApi.badges.create(payload);
+      }
 
       state.editingBadge = null;
-      toast(editingId ? 'Badge mis a jour.' : 'Badge cree.', 'success');
+      toast(editingId ? 'Badge updated.' : 'Badge created.', 'success');
       await navigate('badges');
     });
   });
@@ -937,10 +908,11 @@ function wireBadgeCards(badges) {
 
   qsa('[data-delete-badge]').forEach((button) => {
     button.addEventListener('click', async () => {
-      if (!window.confirm('Supprimer ce badge ?')) return;
+      const confirmed = await confirmDialog('Delete this badge?', 'Confirm deletion');
+      if (!confirmed) return;
       await guardedAction(async () => {
-        await request('reward', `/api/badges/${button.dataset.deleteBadge}`, { method: 'DELETE' });
-        toast('Badge supprime.', 'success');
+        await recompenseApi.badges.deleteById(button.dataset.deleteBadge);
+        toast('Badge deleted.', 'success');
         await navigate('badges');
       });
     });
@@ -965,13 +937,14 @@ function wireRewardForm() {
       };
 
       const editingId = state.editingReward?.id;
-      await request('reward', editingId ? `/api/recompenses/${editingId}` : '/api/recompenses', {
-        method: editingId ? 'PUT' : 'POST',
-        body: payload
-      });
+      if (editingId) {
+        await recompenseApi.rewards.update(editingId, payload);
+      } else {
+        await recompenseApi.rewards.create(payload);
+      }
 
       state.editingReward = null;
-      toast(editingId ? 'Recompense mise a jour.' : 'Recompense creee.', 'success');
+      toast(editingId ? 'Reward updated.' : 'Reward created.', 'success');
       await navigate('recompenses');
     });
   });
@@ -987,10 +960,11 @@ function wireRewardCards(rewards) {
 
   qsa('[data-delete-reward]').forEach((button) => {
     button.addEventListener('click', async () => {
-      if (!window.confirm('Supprimer cette recompense ?')) return;
+      const confirmed = await confirmDialog('Delete this reward?', 'Confirm deletion');
+      if (!confirmed) return;
       await guardedAction(async () => {
-        await request('reward', `/api/recompenses/${button.dataset.deleteReward}`, { method: 'DELETE' });
-        toast('Recompense supprimee.', 'success');
+        await recompenseApi.rewards.deleteById(button.dataset.deleteReward);
+        toast('Reward deleted.', 'success');
         await navigate('recompenses');
       });
     });
@@ -1002,27 +976,29 @@ function wireHistoryActions() {
     button.addEventListener('click', async () => {
       await guardedAction(async () => {
         const historyId = button.dataset.downloadCertificate;
-        const blob = await request('reward', `/api/rewards/certificates/${historyId}`, {
-          responseType: 'blob'
-        });
+        const blob = await recompenseApi.history.downloadCertificate(historyId);
         downloadBlob(blob, `reward-certificate-${historyId}.pdf`);
-        toast('Certificat telecharge.', 'success');
+        toast('Certificate downloaded.', 'success');
       });
     });
   });
 
   qsa('[data-resend-certificate]').forEach((button) => {
     button.addEventListener('click', async () => {
-      const recipient = window.prompt('Email destinataire', button.dataset.userEmail || '');
+      const recipient = await promptDialog({
+        title: 'Resend certificate',
+        message: 'Recipient email',
+        initialValue: button.dataset.userEmail || '',
+        confirmLabel: 'Send'
+      });
       if (recipient === null) return;
 
       await guardedAction(async () => {
-        const query = recipient.trim() ? `?recipientEmail=${encodeURIComponent(recipient.trim())}` : '';
-        await request('reward', `/api/rewards/certificates/${button.dataset.resendCertificate}/resend-email${query}`, {
-          method: 'POST',
-          responseType: 'text'
-        });
-        toast('Email renvoye.', 'success');
+        await recompenseApi.history.resendCertificateEmail(
+          button.dataset.resendCertificate,
+          recipient.trim()
+        );
+        toast('Email sent.', 'success');
       });
     });
   });
@@ -1049,12 +1025,12 @@ async function guardedAction(action) {
 async function testEndpoint(service) {
   const result = qs('#settings-result');
   result.classList.add('visible');
-  result.textContent = 'Test en cours...';
+  result.textContent = 'Testing...';
 
   try {
     const data = service === 'evaluation'
-      ? await request('evaluation', '/evaluations/all')
-      : await request('reward', '/api/rewards/dashboard');
+      ? await evaluationApi.evaluations.list()
+      : await recompenseApi.dashboard();
 
     result.innerHTML = `<div class="code-box">${escapeHtml(JSON.stringify(data, null, 2))}</div>`;
   } catch (error) {
@@ -1105,11 +1081,15 @@ function selectField(name, label, options, selected) {
       <label for="${attr(name)}">${escapeHtml(label)}</label>
       <select id="${attr(name)}" name="${attr(name)}">
         ${options.map((option) => `
-          <option value="${attr(option)}" ${option === selected ? 'selected' : ''}>${escapeHtml(option)}</option>
+          <option value="${attr(option)}" ${option === selected ? 'selected' : ''}>${escapeHtml(optionLabel(option))}</option>
         `).join('')}
       </select>
     </div>
   `;
+}
+
+function optionLabel(option) {
+  return option === 'AUTRE' ? 'OTHER' : option;
 }
 
 function toggleField(name, label, checked) {
@@ -1138,19 +1118,19 @@ function badgeCardMarkup(badge) {
         <div class="medal ${badgeTone(badge)}">${escapeHtml(displayIcon(badge.icon, badge.name))}</div>
         <div>
           <p class="card-title">${escapeHtml(badge.name)}</p>
-          <p class="card-meta">${escapeHtml(badge.description || 'Sans description')}</p>
+          <p class="card-meta">${escapeHtml(badge.description || 'No description')}</p>
         </div>
         ${statusPill(truthy(badge.isActive))}
       </div>
       <div class="stat-line">
         ${badgePill(badge.conditionType || badge.category)}
-        <span>Seuil ${escapeHtml(badge.conditionValue ?? 0)}</span>
-        <span>Automatique</span>
-        <span>${truthy(badge.certificateEligible) ? 'Certificat' : 'Sans certificat'}</span>
+        <span>Threshold ${escapeHtml(badge.conditionValue ?? 0)}</span>
+        <span>Automatic</span>
+        <span>${truthy(badge.certificateEligible) ? 'Certificate' : 'No certificate'}</span>
       </div>
       <div class="row-actions">
-        <button class="ghost icon-only" type="button" data-edit-badge="${attr(badge.id)}" title="Modifier" aria-label="Modifier">âœŽ</button>
-        <button class="danger icon-only" type="button" data-delete-badge="${attr(badge.id)}" title="Supprimer" aria-label="Supprimer">x</button>
+        <button class="ghost icon-only" type="button" data-edit-badge="${attr(badge.id)}" title="Edit" aria-label="Edit">e</button>
+        <button class="danger icon-only" type="button" data-delete-badge="${attr(badge.id)}" title="Delete" aria-label="Delete">x</button>
       </div>
     </article>
   `;
@@ -1167,7 +1147,7 @@ function rewardCardMarkup(reward) {
         ${image}
         <div>
           <p class="card-title">${escapeHtml(reward.title)}</p>
-          <p class="card-meta">${escapeHtml(reward.description || 'Sans description')}</p>
+          <p class="card-meta">${escapeHtml(reward.description || 'No description')}</p>
         </div>
         ${statusPill(truthy(reward.isActive))}
       </div>
@@ -1177,8 +1157,8 @@ function rewardCardMarkup(reward) {
         <span>${formatDate(reward.createdAt)}</span>
       </div>
       <div class="row-actions">
-        <button class="ghost icon-only" type="button" data-edit-reward="${attr(reward.id)}" title="Modifier" aria-label="Modifier">âœŽ</button>
-        <button class="danger icon-only" type="button" data-delete-reward="${attr(reward.id)}" title="Supprimer" aria-label="Supprimer">x</button>
+        <button class="ghost icon-only" type="button" data-edit-reward="${attr(reward.id)}" title="Edit" aria-label="Edit">e</button>
+        <button class="danger icon-only" type="button" data-delete-reward="${attr(reward.id)}" title="Delete" aria-label="Delete">x</button>
       </div>
     </article>
   `;
@@ -1197,7 +1177,7 @@ function userBadgeCardMarkup(badge) {
       </div>
       <div class="stat-line">
         ${badgePill(badge.conditionType)}
-        <span>Seuil ${escapeHtml(badge.conditionValue ?? 0)}</span>
+        <span>Threshold ${escapeHtml(badge.conditionValue ?? 0)}</span>
         <span>${formatDate(badge.dateAssigned)}</span>
       </div>
     </article>
@@ -1206,7 +1186,7 @@ function userBadgeCardMarkup(badge) {
 
 function evaluationsTableMarkup(evaluations, compact = false) {
   if (!evaluations.length) {
-    return emptyMarkup('Aucune evaluation trouvee.');
+    return emptyMarkup('No evaluations found.');
   }
 
   return `
@@ -1215,7 +1195,7 @@ function evaluationsTableMarkup(evaluations, compact = false) {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Projet</th>
+            <th>Project</th>
             <th>Freelancer</th>
             <th>Client</th>
             <th>Score</th>
@@ -1232,12 +1212,12 @@ function evaluationsTableMarkup(evaluations, compact = false) {
                 <strong>${escapeHtml(evaluation.evaluatedUserName || '')}</strong><br />
                 <span class="muted">${escapeHtml(evaluation.evaluatedUserEmail || '')}</span>
               </td>
-              <td>${escapeHtml(evaluation.anonymous ? 'Anonyme' : evaluation.evaluatorName || evaluation.userEmail || '')}</td>
+              <td>${escapeHtml(evaluation.anonymous ? 'Anonymous' : evaluation.evaluatorName || evaluation.userEmail || '')}</td>
               <td>${starsMarkup(evaluation.score)}</td>
               <td>${formatDate(evaluation.updatedAt || evaluation.date)}</td>
               ${compact ? '' : `
                 <td>
-                  <button class="danger icon-only" type="button" data-delete-evaluation="${attr(evaluation.id)}" title="Supprimer" aria-label="Supprimer">x</button>
+                  <button class="danger icon-only" type="button" data-delete-evaluation="${attr(evaluation.id)}" title="Delete" aria-label="Delete">x</button>
                 </td>
               `}
             </tr>
@@ -1250,7 +1230,7 @@ function evaluationsTableMarkup(evaluations, compact = false) {
 
 function profilesTableMarkup(profiles, insightsByEmail = {}) {
   if (!profiles.length) {
-    return emptyMarkup('Aucun profil trouve.');
+    return emptyMarkup('No profile found.');
   }
 
   return `
@@ -1261,10 +1241,10 @@ function profilesTableMarkup(profiles, insightsByEmail = {}) {
             <th>Freelancer</th>
             <th>Score</th>
             <th>Points</th>
-            <th>Niveau</th>
+            <th>Level</th>
             <th>Badges</th>
-            <th>Analyse</th>
-            <th>Maj</th>
+            <th>Analysis</th>
+            <th>Updated</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -1287,14 +1267,14 @@ function profilesTableMarkup(profiles, insightsByEmail = {}) {
               </td>
               <td>${starsMarkup(profile.averageScore)}</td>
               <td>${escapeHtml(profile.totalPoints ?? 0)}</td>
-              <td>${badgePill(profile.currentLevel || 'Niveau 1')}</td>
+              <td>${badgePill(profile.currentLevel || 'Level 1')}</td>
               <td>
                 ${profile.currentScoreBadge ? badgePill(profile.currentScoreBadge) : ''}
                 ${profile.currentPointsBadge ? badgePill(profile.currentPointsBadge) : ''}
               </td>
               <td>${profileInsightSummaryMarkup(insight)}</td>
               <td>${formatDate(profile.updatedAt)}</td>
-              <td><button class="ghost" type="button" data-profile-email="${attr(profile.userEmail)}">Profil</button></td>
+              <td><button class="ghost" type="button" data-profile-email="${attr(profile.userEmail)}">Profile</button></td>
             </tr>
           `;
           }).join('')}
@@ -1306,7 +1286,7 @@ function profilesTableMarkup(profiles, insightsByEmail = {}) {
 
 function profileInsightSummaryMarkup(insight) {
   if (!insight || !insight.userEmail) {
-    return '<span class="muted">Non calcule</span>';
+    return '<span class="muted">Not calculated</span>';
   }
 
   const nextGoal = insight.nextRecompense
@@ -1315,7 +1295,7 @@ function profileInsightSummaryMarkup(insight) {
       ? `${insight.nextPointsBadge} (${insight.pointsToNextBadge ?? 0} pts)`
       : insight.nextScoreBadge
         ? `${insight.nextScoreBadge} (+${insight.scoreToNextBadge ?? 0})`
-        : 'Objectifs atteints';
+        : 'Goals reached';
 
   return `
     <div>
@@ -1327,7 +1307,7 @@ function profileInsightSummaryMarkup(insight) {
 
 function rewardInsightMarkup(insight) {
   if (!insight) {
-    return emptyMarkup('Analyse metier non disponible pour ce freelancer.');
+    return emptyMarkup('Business insight is not available for this freelancer.');
   }
 
   const recommendations = Array.isArray(insight.recommendations) ? insight.recommendations : [];
@@ -1335,15 +1315,15 @@ function rewardInsightMarkup(insight) {
 
   return `
     <div class="grid four">
-      ${metricCard('Statut', statusLabel(insight.performanceStatus), insight.currentLevel || 'Niveau actuel', 'teal')}
-      ${metricCard('Badge score', insight.nextScoreBadge || 'Complet', insight.nextScoreBadge ? `+${insight.scoreToNextBadge ?? 0} moyenne` : 'Aucun seuil restant', 'gold')}
-      ${metricCard('Badge points', insight.nextPointsBadge || 'Complet', insight.nextPointsBadge ? `${insight.pointsToNextBadge ?? 0} pts restants` : 'Aucun seuil restant', 'rose')}
-      ${metricCard('Recompense', insight.nextRecompense || 'Complet', insight.nextRecompense ? `${insight.pointsToNextRecompense ?? 0} pts restants` : `${insight.eligibleRecompensesCount ?? 0} eligible`, 'ink')}
+      ${metricCard('Status', statusLabel(insight.performanceStatus), insight.currentLevel || 'Current level', 'teal')}
+      ${metricCard('Score badge', insight.nextScoreBadge || 'Complete', insight.nextScoreBadge ? `+${insight.scoreToNextBadge ?? 0} average` : 'No remaining threshold', 'gold')}
+      ${metricCard('Points badge', insight.nextPointsBadge || 'Complete', insight.nextPointsBadge ? `${insight.pointsToNextBadge ?? 0} pts left` : 'No remaining threshold', 'rose')}
+      ${metricCard('Reward', insight.nextRecompense || 'Complete', insight.nextRecompense ? `${insight.pointsToNextRecompense ?? 0} pts left` : `${insight.eligibleRecompensesCount ?? 0} eligible`, 'ink')}
     </div>
 
     <div class="grid two" style="margin-top:16px">
       <div>
-        <h3>Recommandations</h3>
+        <h3>Recommendations</h3>
         ${recommendations.length ? `
           <div class="grid">
             ${recommendations.map((recommendation) => `
@@ -1352,15 +1332,15 @@ function rewardInsightMarkup(insight) {
               </article>
             `).join('')}
           </div>
-        ` : emptyMarkup('Aucune recommandation.')}
+        ` : emptyMarkup('No recommendation.')}
       </div>
       <div>
-        <h3>Opportunites recompense</h3>
+        <h3>Reward opportunities</h3>
         ${opportunities.length ? `
           <div class="grid">
             ${opportunities.map(opportunityCardMarkup).join('')}
           </div>
-        ` : emptyMarkup('Aucune recompense active.')}
+        ` : emptyMarkup('No active reward.')}
       </div>
     </div>
   `;
@@ -1368,16 +1348,16 @@ function rewardInsightMarkup(insight) {
 
 function opportunityCardMarkup(opportunity) {
   const stateText = opportunity.alreadyAwarded
-    ? 'Deja attribuee'
+    ? 'Already assigned'
     : opportunity.eligible
-      ? 'Eligible maintenant'
+      ? 'Eligible now'
       : opportunity.available
-        ? `${opportunity.remainingValue ?? 0} pts restants`
-        : 'Stock indisponible';
+        ? `${opportunity.remainingValue ?? 0} pts left`
+        : 'Out of stock';
 
   return `
     <article class="list-card" style="min-height:auto">
-      <p class="card-title">${escapeHtml(opportunity.title || 'Recompense')}</p>
+      <p class="card-title">${escapeHtml(opportunity.title || 'Reward')}</p>
       <p class="card-meta">${escapeHtml(stateText)}</p>
     </article>
   `;
@@ -1386,7 +1366,7 @@ function opportunityCardMarkup(opportunity) {
 function certificateDownloadsMarkup(history) {
   const certificates = history.filter((item) => item.certificateGenerated);
   if (!certificates.length) {
-    return emptyMarkup('Aucun certificat PDF disponible.');
+    return emptyMarkup('No PDF certificate available.');
   }
 
   return `
@@ -1394,10 +1374,10 @@ function certificateDownloadsMarkup(history) {
       ${certificates.map((item) => `
         <article class="list-card" style="min-height:auto">
           <div>
-            <p class="card-title">${escapeHtml(item.rewardName || 'Certificat')}</p>
+            <p class="card-title">${escapeHtml(item.rewardName || 'Certificate')}</p>
             <p class="card-meta">${escapeHtml(formatDate(item.eventDate))}</p>
           </div>
-          <button class="ghost" type="button" data-download-certificate="${attr(item.id)}">Telecharger PDF</button>
+          <button class="ghost" type="button" data-download-certificate="${attr(item.id)}">Download PDF</button>
         </article>
       `).join('')}
     </div>
@@ -1406,7 +1386,7 @@ function certificateDownloadsMarkup(history) {
 
 function historyTableMarkup(history, compact = false) {
   if (!history.length) {
-    return emptyMarkup('Aucun evenement trouve.');
+    return emptyMarkup('No event found.');
   }
 
   return `
@@ -1442,8 +1422,8 @@ function historyTableMarkup(history, compact = false) {
               </td>
               <td>
                 <div class="inline-actions">
-                  ${compact && item.certificateGenerated ? `<button class="ghost icon-only" type="button" data-download-certificate="${attr(item.id)}" title="Certificat PDF" aria-label="Certificat PDF">â†“</button>` : ''}
-                  ${compact ? '' : `<button class="ghost icon-only" type="button" data-resend-certificate="${attr(item.id)}" data-user-email="${attr(item.userEmail)}" title="Renvoyer email" aria-label="Renvoyer email">@</button>`}
+                  ${compact && item.certificateGenerated ? `<button class="ghost icon-only" type="button" data-download-certificate="${attr(item.id)}" title="PDF certificate" aria-label="PDF certificate">v</button>` : ''}
+                  ${compact ? '' : `<button class="ghost icon-only" type="button" data-resend-certificate="${attr(item.id)}" data-user-email="${attr(item.userEmail)}" title="Resend email" aria-label="Resend email">@</button>`}
                 </div>
               </td>
             </tr>
@@ -1456,7 +1436,7 @@ function historyTableMarkup(history, compact = false) {
 
 function topFreelancersMarkup(freelancers) {
   if (!freelancers.length) {
-    return emptyMarkup('Aucun freelancer synchronise.');
+    return emptyMarkup('No synced freelancer.');
   }
 
   return `
@@ -1467,7 +1447,7 @@ function topFreelancersMarkup(freelancers) {
             <th>Freelancer</th>
             <th>Score</th>
             <th>Points</th>
-            <th>Niveau</th>
+            <th>Level</th>
           </tr>
         </thead>
         <tbody>
@@ -1479,7 +1459,7 @@ function topFreelancersMarkup(freelancers) {
               </td>
               <td>${starsMarkup(freelancer.averageScore)}</td>
               <td>${escapeHtml(freelancer.totalPoints ?? 0)}</td>
-              <td>${badgePill(freelancer.currentLevel || 'Niveau 1')}</td>
+              <td>${badgePill(freelancer.currentLevel || 'Level 1')}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -1490,7 +1470,7 @@ function topFreelancersMarkup(freelancers) {
 
 function monthlyProgressMarkup(rows) {
   if (!rows.length) {
-    return emptyMarkup('Aucune progression mensuelle.');
+    return emptyMarkup('No monthly progress yet.');
   }
 
   const max = Math.max(...rows.map((row) => Number(row.awardedCount || 0) + Number(row.revokedCount || 0)), 1);
@@ -1514,7 +1494,7 @@ function monthlyProgressMarkup(rows) {
 
 function notificationsListMarkup(notifications) {
   if (!notifications.length) {
-    return emptyMarkup('Aucune notification.');
+    return emptyMarkup('No notification.');
   }
 
   return `
@@ -1548,9 +1528,9 @@ function simpleListMarkup(items, emptyText) {
 function rewardResponseMarkup(response) {
   return `
     <div class="grid two">
-      ${metricCard('Badge score', response.currentScoreBadge || 'Aucun', `${response.averageScore ?? 0} / 5`, 'teal')}
-      ${metricCard('Badge points', response.currentPointsBadge || 'Aucun', `${response.totalPoints ?? 0} pts`, 'gold')}
-      ${metricCard('Niveau', response.currentLevel || 'N/A', response.freelancerEmail || '', 'rose')}
+      ${metricCard('Score badge', response.currentScoreBadge || 'None', `${response.averageScore ?? 0} / 5`, 'teal')}
+      ${metricCard('Points badge', response.currentPointsBadge || 'None', `${response.totalPoints ?? 0} pts`, 'gold')}
+      ${metricCard('Level', response.currentLevel || 'N/A', response.freelancerEmail || '', 'rose')}
       ${metricCard('Message', response.message || 'OK', response.freelancerName || '', 'ink')}
     </div>
   `;
@@ -1565,7 +1545,7 @@ function emptyMarkup(message) {
 }
 
 function statusPill(active) {
-  return `<span class="status-pill ${active ? 'active' : 'inactive'}">${active ? 'Actif' : 'Inactif'}</span>`;
+  return `<span class="status-pill ${active ? 'active' : 'inactive'}">${active ? 'Active' : 'Inactive'}</span>`;
 }
 
 function badgePill(value) {
@@ -1579,12 +1559,12 @@ function badgePill(value) {
 
 function statusLabel(status) {
   return ({
-    WAITING_FOR_EVALUATIONS: 'En attente',
+    WAITING_FOR_EVALUATIONS: 'Waiting',
     ELITE_READY: 'Elite',
     PREMIUM_PROGRESS: 'Premium',
-    NEEDS_ATTENTION: 'A suivre',
-    PROGRESSING: 'En progression'
-  })[status] || 'En progression';
+    NEEDS_ATTENTION: 'Needs attention',
+    PROGRESSING: 'In progress'
+  })[status] || 'In progress';
 }
 
 function starsMarkup(score) {
@@ -1594,12 +1574,12 @@ function starsMarkup(score) {
 }
 
 function loadingMarkup() {
-  return '<div class="loader">Chargement...</div>';
+  return '<div class="loader">Loading...</div>';
 }
 
 function renderFatalError(error) {
   app.innerHTML = `
-    ${pageHeader('Erreur', 'Impossible de charger')}
+    ${pageHeader('Error', 'Unable to load')}
     ${alertMarkup(error.message, 'error')}
   `;
 }
@@ -1672,7 +1652,7 @@ function formatDate(value) {
   if (!value) return 'N/A';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
-  return new Intl.DateTimeFormat('fr-FR', {
+  return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

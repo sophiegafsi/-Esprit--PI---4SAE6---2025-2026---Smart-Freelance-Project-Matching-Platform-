@@ -1,0 +1,111 @@
+<section class="page">
+  <section class="page-header">
+    <div>
+      <div class="eyebrow">Evaluation</div>
+      <h1>Create Evaluation</h1>
+      <p class="muted">Evaluation CRUD + automatic badge/reward business trigger.</p>
+    </div>
+    <div class="toolbar">
+      <a class="ghost" href="#evaluations">Back to evaluations</a>
+    </div>
+  </section>
+
+  <section class="form-card">
+    <div class="form-grid">
+      <div class="field">
+        <label for="projectName">Project</label>
+        <input id="projectName" [(ngModel)]="formModel.projectName" />
+      </div>
+
+      <div class="field">
+        <label for="typeEvaluation">Type</label>
+        <select id="typeEvaluation" [(ngModel)]="formModel.typeEvaluation">
+          <option value="TECHNIQUE">TECHNIQUE</option>
+          <option value="SOFT_SKILLS">SOFT_SKILLS</option>
+          <option value="AUTRE">OTHER</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="evaluatorName">Client name</label>
+        <input id="evaluatorName" [(ngModel)]="formModel.evaluatorName" />
+      </div>
+
+      <div class="field">
+        <label for="userEmail">Client email</label>
+        <input id="userEmail" type="email" [(ngModel)]="formModel.userEmail" />
+      </div>
+
+      <div class="field">
+        <label for="evaluatedUserName">Freelancer name</label>
+        <input id="evaluatedUserName" [(ngModel)]="formModel.evaluatedUserName" />
+      </div>
+
+      <div class="field">
+        <label for="evaluatedUserEmail">Freelancer email</label>
+        <input id="evaluatedUserEmail" type="email" [(ngModel)]="formModel.evaluatedUserEmail" />
+      </div>
+
+      <div class="field full">
+        <label for="comment">Comment</label>
+        <textarea id="comment" [(ngModel)]="formModel.comment"></textarea>
+      </div>
+
+      <div class="criteria-grid">
+        <article class="criterion">
+          <span class="field-label">Quality</span>
+          <input type="range" min="1" max="5" [(ngModel)]="criteria.quality" />
+          <output>{{ criteria.quality }}/5</output>
+        </article>
+        <article class="criterion">
+          <span class="field-label">Communication</span>
+          <input type="range" min="1" max="5" [(ngModel)]="criteria.communication" />
+          <output>{{ criteria.communication }}/5</output>
+        </article>
+        <article class="criterion">
+          <span class="field-label">Deadline</span>
+          <input type="range" min="1" max="5" [(ngModel)]="criteria.deadline" />
+          <output>{{ criteria.deadline }}/5</output>
+        </article>
+        <article class="criterion">
+          <span class="field-label">Expertise</span>
+          <input type="range" min="1" max="5" [(ngModel)]="criteria.expertise" />
+          <output>{{ criteria.expertise }}/5</output>
+        </article>
+      </div>
+
+      <div class="result-box visible">
+        Calculated score: <strong>{{ computedScore }}</strong> / 5
+      </div>
+
+      <label class="toggle-field full">
+        <input type="checkbox" [(ngModel)]="forceRewardSync" />
+        <span>Also force a direct reward-engine call (test mode)</span>
+      </label>
+
+      <label class="toggle-field">
+        <input type="checkbox" [(ngModel)]="formModel.anonymous" />
+        <span>Anonymous evaluation</span>
+      </label>
+
+      <div class="form-actions full">
+        <button class="primary" type="button" (click)="submit()" [disabled]="isSaving">
+          {{ isSaving ? 'Saving...' : 'Create evaluation' }}
+        </button>
+        <button class="ghost" type="button" (click)="reset()" [disabled]="isSaving">
+          Reset
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="feedbackType === 'success'" class="alert" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+  <section *ngIf="feedbackType === 'error'" class="alert error" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+  <section *ngIf="rewardMessage" class="panel" style="margin-top: 16px">
+    <strong>Automatic assignment:</strong> {{ rewardMessage }}
+  </section>
+</section>
