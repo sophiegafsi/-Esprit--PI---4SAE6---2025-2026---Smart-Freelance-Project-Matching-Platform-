@@ -22,7 +22,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @Service
 public class AiTextAssistantService {
@@ -31,11 +30,10 @@ public class AiTextAssistantService {
             .connectTimeout(Duration.ofSeconds(3))
             .build();
 
-    private static final List<String> BLOCKED_WORDS = List.of("shit", "fuck", "damn", "idiot", "merde");
-
     private static final Map<String, String> ENGLISH_GLOSSARY = createEnglishGlossary();
 
     private final ObjectMapper objectMapper;
+    private final ProfanityFilterService profanityFilterService;
 
     @Value("${portfolio.ai.translation.enabled:true}")
     private boolean translationEnabled;
@@ -55,8 +53,9 @@ public class AiTextAssistantService {
     @Value("${portfolio.ai.rewrite.correction.timeout-ms:5000}")
     private int rewriteCorrectionTimeoutMs;
 
-    public AiTextAssistantService(ObjectMapper objectMapper) {
+    public AiTextAssistantService(ObjectMapper objectMapper, ProfanityFilterService profanityFilterService) {
         this.objectMapper = objectMapper;
+        this.profanityFilterService = profanityFilterService;
     }
 
     public TextAssistantResponse rewriteText(TextAssistantRequest request) {
@@ -101,12 +100,7 @@ public class AiTextAssistantService {
     }
 
     public String maskBlockedWords(String text) {
-        String masked = normalizeWhitespace(text);
-        for (String word : BLOCKED_WORDS) {
-            Pattern pattern = Pattern.compile("(?i)\\b" + Pattern.quote(word) + "\\b");
-            masked = pattern.matcher(masked).replaceAll(match -> "*".repeat(match.group().length()));
-        }
-        return masked;
+        return profanityFilterService.mask(text);
     }
 
     private String professionalizeTextPreserveLanguage(String text) {

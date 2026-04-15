@@ -12,15 +12,16 @@ import java.util.List;
 public class AchievementServiceImpl implements IAchievementService {
 
     private final AchievementRepository achievementRepository;
+    private final ProfanityFilterService profanityFilterService;
 
     @Override
     public Achievement addAchievement(Achievement achievement) {
-        return achievementRepository.save(achievement);
+        return achievementRepository.save(sanitizeAchievement(achievement));
     }
 
     @Override
     public Achievement updateAchievement(Achievement achievement) {
-        return achievementRepository.save(achievement);
+        return achievementRepository.save(sanitizeAchievement(achievement));
     }
 
     @Override
@@ -41,5 +42,15 @@ public class AchievementServiceImpl implements IAchievementService {
     @Override
     public List<Achievement> getAchievementsByFreelancerId(Long freelancerId) {
         return achievementRepository.findByFreelancerId(freelancerId);
+    }
+
+    private Achievement sanitizeAchievement(Achievement achievement) {
+        if (achievement == null) {
+            return null;
+        }
+
+        achievement.setTitle(profanityFilterService.mask(achievement.getTitle()));
+        achievement.setDescription(profanityFilterService.mask(achievement.getDescription()));
+        return achievement;
     }
 }
