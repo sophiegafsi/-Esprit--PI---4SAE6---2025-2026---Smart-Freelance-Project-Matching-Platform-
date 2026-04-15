@@ -22,8 +22,17 @@ export class MyBookingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
+      console.log('MyBookings received user:', user);
       if (user) {
-        this.role = user.roles.includes('FREELANCER') ? 'FREELANCER' : 'CLIENT';
+        // Robust role check: handles 'role' string, 'roles' array, or neither
+        const roleData = user.role || user.roles || '';
+        const rolesArray = Array.isArray(roleData) 
+          ? roleData 
+          : typeof roleData === 'string' 
+            ? roleData.split(',').map(r => r.trim().toUpperCase())
+            : [];
+            
+        this.role = rolesArray.includes('FREELANCER') ? 'FREELANCER' : 'CLIENT';
         this.loadBookings(user.id);
       }
     });
