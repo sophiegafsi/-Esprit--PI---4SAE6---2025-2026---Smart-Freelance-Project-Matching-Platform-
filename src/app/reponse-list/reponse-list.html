@@ -1,0 +1,50 @@
+<div class="chat-card">
+  <div class="chat-header">
+    <div>
+      <h3>Conversation</h3>
+      <p class="chat-subtitle">History of responses related to this complaint</p>
+    </div>
+
+    <span class="chat-count" *ngIf="!isLoading">
+      {{ reponses.length }} message{{ reponses.length > 1 ? 's' : '' }}
+    </span>
+  </div>
+
+  <div *ngIf="isLoading" class="empty-chat loading-state">
+    Loading conversation...
+  </div>
+
+  <div *ngIf="!isLoading && errorMessage" class="state-message error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage && reponses.length === 0" class="empty-chat">
+    No responses for this complaint.
+  </div>
+
+  <div class="chat-list" *ngIf="!isLoading && reponses.length > 0">
+    <div
+      class="chat-row"
+      *ngFor="let rep of reponses; trackBy: trackByReponse"
+      [ngClass]="{
+        'admin-row': rep.utilisateur === 'Admin',
+        'freelance-row': rep.utilisateur !== 'Admin'
+      }"
+    >
+      <div class="chat-bubble">
+        <div class="chat-meta">
+          <span class="chat-author">{{ getUserLabel(rep.utilisateur) }}</span>
+          <span class="chat-date">{{ rep.dateReponse | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+
+        <p class="chat-message">{{ rep.message }}</p>
+
+        <div class="chat-actions">
+          <button class="delete-btn" (click)="deleteReponse(rep.idReponse!)">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

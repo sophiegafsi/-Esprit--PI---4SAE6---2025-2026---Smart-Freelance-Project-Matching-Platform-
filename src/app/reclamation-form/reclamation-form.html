@@ -1,0 +1,115 @@
+<div class="project-card">
+  <div class="head">
+    <h1>{{ isEditMode ? 'Edit Complaint' : 'Add Complaint' }}</h1>
+    <p>
+      {{ isEditMode ? 'Update the complaint information' : 'Create a new complaint' }}
+    </p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+    <div class="field">
+      <label>
+        Subject <span class="required">*</span>
+      </label>
+      <input
+        formControlName="sujet"
+        placeholder="Ex: Payment issue"
+        (input)="clearDuplicates()"
+      />
+      <small class="hint"></small>
+      <div class="error-hint" *ngIf="f['sujet'].touched && f['sujet'].invalid">
+        Subject is required and must contain at least 4 characters.
+      </div>
+    </div>
+
+    <div class="field">
+      <label>
+        Description <span class="required">*</span>
+      </label>
+      <textarea
+        rows="5"
+        formControlName="description"
+        placeholder="Describe your issue..."
+        (input)="clearDuplicates()"
+      ></textarea>
+      <div class="char-counter">
+        {{ form.get('description')?.value?.length || 0 }}/1000
+      </div>
+      <div class="error-hint" *ngIf="f['description'].touched && f['description'].invalid">
+        Description is required and must contain at least 10 characters.
+      </div>
+    </div>
+
+    <div class="actions duplicate-actions" *ngIf="!isEditMode">
+      <button type="button" class="btn ghost" (click)="checkDuplicatesBeforeSubmit()">
+        Check duplicates
+      </button>
+    </div>
+
+    <div *ngIf="checkingDuplicates" class="info-box">
+      Checking similar complaints...
+    </div>
+
+    <div *ngIf="showDuplicateWarning" class="duplicate-warning-box">
+      <h4>⚠ Similar complaints found</h4>
+      <p>
+        The system found complaints that look similar to the one you are about to create.
+      </p>
+
+      <div *ngFor="let dup of possibleDuplicates" class="duplicate-item">
+        <p><strong>Subject:</strong> {{ dup.sujet }}</p>
+        <p><strong>Description:</strong> {{ dup.description }}</p>
+        <p>
+          <strong>Similarity score:</strong>
+          {{ dup.similarityScore | number:'1.2-2' }}
+          ({{ getSimilarityLabel(dup.similarityScore) }})
+        </p>
+        <hr />
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="field">
+        <label>
+          Priority <span class="required">*</span>
+        </label>
+        <select formControlName="priorite">
+          <option value="">Select a priority</option>
+          <option *ngFor="let p of priorites" [value]="p.value">{{ p.label }}</option>
+        </select>
+        <div class="error-hint" *ngIf="f['priorite'].touched && f['priorite'].invalid">
+          Priority is required.
+        </div>
+      </div>
+
+      <div class="field">
+        <label>
+          Type <span class="required">*</span>
+        </label>
+        <select formControlName="type">
+          <option value="">Select a type</option>
+          <option *ngFor="let t of types" [value]="t.value">{{ t.label }}</option>
+        </select>
+        <div class="error-hint" *ngIf="f['type'].touched && f['type'].invalid">
+          Type is required.
+        </div>
+      </div>
+    </div>
+
+    <div class="field" *ngIf="isEditMode">
+      <label>
+        Status <span class="required">*</span>
+      </label>
+      <select formControlName="statut">
+        <option *ngFor="let s of statuts" [value]="s.value">{{ s.label }}</option>
+      </select>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn primary">
+        {{ isEditMode ? 'Update Complaint' : 'Create Complaint' }}
+      </button>
+    </div>
+  </form>
+</div>

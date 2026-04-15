@@ -1,0 +1,225 @@
+/* src/app/components/projet-detail/projet-detail.css */
+
+/* ✅ Loading / Error (ajout) */
+.loading-box,
+.error-box {
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  text-align: center;
+  font-weight: 800;
+}
+
+.error-box {
+  border-color: rgba(255, 107, 107, 0.35);
+  background: rgba(255, 107, 107, 0.08);
+  color: #ff6b6b;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-radius: 50%;
+  border-top-color: var(--orange, #f2994a);
+  animation: spin 1s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ✅ section devis (ajout) */
+.devis-section {
+  margin-top: 14px;
+}
+
+/* ======= TON CSS ORIGINAL (inchangé) ======= */
+.project-hero {
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.hero-left {
+  max-width: 720px;
+}
+
+.hero-top {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+}
+
+.tag.domain {
+  background: rgba(47,128,237,.18);
+  border-color: rgba(47,128,237,.35);
+}
+
+.tag.date {
+  background: rgba(242,153,74,.14);
+  border-color: rgba(242,153,74,.30);
+}
+
+.project-title {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.project-desc {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.section-head {
+  margin-top: 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.section-head h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.section-head p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tasks-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.task-card {
+  padding: 16px;
+  min-height: 160px;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 54px rgba(0,0,0,.38);
+  border-color: rgba(47,128,237,.45);
+}
+
+.task-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.task-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.deadline {
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(242,153,74,.14);
+  border: 1px solid rgba(242,153,74,.30);
+  white-space: nowrap;
+}
+
+.task-desc {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255,255,255,.78);
+  line-height: 1.55;
+}
+
+.no-tasks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-weight: 800;
+  grid-column: span 3;
+}
+
+@media (max-width: 900px) {
+  .tasks-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .project-hero {
+    flex-direction: column;
+  }
+
+  .hero-right {
+    flex-direction: row;
+    min-width: auto;
+  }
+
+  .no-tasks {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 520px) {
+  .tasks-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-right {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-right .btn {
+    width: 100%;
+  }
+
+  .no-tasks {
+    grid-column: span 1;
+  }
+}
