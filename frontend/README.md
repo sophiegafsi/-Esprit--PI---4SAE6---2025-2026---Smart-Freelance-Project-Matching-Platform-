@@ -1,10 +1,16 @@
-# Front evaluation/recompense
+# Front Angular evaluation/recompense
 
-Front autonome pour tester et presenter les microservices:
+Application Angular pour tester et presenter les microservices:
 
 - evaluation-service: `http://localhost:8085`
 - recompense-service: `http://localhost:8094`
-- front: `http://localhost:4200`
+- front Angular: `http://localhost:4200`
+
+## Installation
+
+```bash
+npm install
+```
 
 ## Lancer
 
@@ -12,17 +18,21 @@ Front autonome pour tester et presenter les microservices:
 npm run dev
 ```
 
-Le serveur utilise uniquement Node.js, donc aucune installation de dependances n'est necessaire.
+## Build / verification
+
+```bash
+npm run check
+```
 
 ## Ecrans
 
 - Tableau: dashboard recompense, top freelancers, progression mensuelle.
-- Evaluations: creation d'une evaluation client et test direct du moteur d'attribution automatique.
+- Evaluations: creation d'une evaluation client/freelancer.
 - Badges: creation, modification et suppression de badges automatiques.
 - Recompenses: CRUD du catalogue admin.
-- Freelancers: profils recompense calcules par le backend.
-- Historique: mouvements de badges/niveaux et certificats PDF.
-- Mon espace: vue freelancer par email.
+- Freelancers: profils recompense, analyse metier et attribution des recompenses eligibles.
+- Historique: mouvements de badges, niveaux et recompenses.
+- Mon espace: historique evaluations, objectifs metier et badges PDF.
 - Reglages: URLs backend et mode interface.
 
 La securite d'acces du microservice recompense est ouverte pour faciliter les tests locaux.

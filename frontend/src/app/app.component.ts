@@ -1,4 +1,46 @@
-const DEFAULT_CONFIG = {
+﻿// @ts-nocheck
+import { AfterViewInit, Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  template: `
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#dashboard" aria-label="Evaluation et recompense">
+          <img src="public/reward-mark.svg" alt="" />
+          <span>
+            <strong>Freelink Rewards</strong>
+            <small>Evaluation et recompense</small>
+          </span>
+        </a>
+
+        <nav class="main-nav" aria-label="Navigation principale">
+          <button type="button" data-page="dashboard">Tableau</button>
+          <button type="button" data-page="evaluations">Evaluations</button>
+          <button type="button" data-page="badges">Badges</button>
+          <button type="button" data-page="recompenses">Recompenses</button>
+          <button type="button" data-page="freelancers">Freelancers</button>
+          <button type="button" data-page="history">Historique</button>
+          <button type="button" data-page="space">Mon espace</button>
+        </nav>
+
+        <button class="icon-button settings-button" type="button" data-page="settings" title="Reglages" aria-label="Reglages">⚙</button>
+      </header>
+
+      <main id="app" class="page" tabindex="-1"></main>
+    </div>
+
+    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  `
+})
+export class AppComponent implements AfterViewInit {
+  ngAfterViewInit(): void {
+    startFreelinkRewardsFront();
+  }
+}
+
+function startFreelinkRewardsFront(): void {const DEFAULT_CONFIG = {
   evaluationBaseUrl: 'http://localhost:8085',
   rewardBaseUrl: 'http://localhost:8094'
 };
@@ -223,7 +265,7 @@ async function renderDashboard() {
 
   app.innerHTML = `
     ${pageHeader('Pilotage', 'Evaluation & Recompense', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">↻ Actualiser</button>
+      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
     `)}
     ${rewardError ? alertMarkup(`API recompense: ${rewardError.message}`, 'error') : ''}
     <section class="grid four">
@@ -277,7 +319,7 @@ async function renderEvaluations() {
 
   app.innerHTML = `
     ${pageHeader('Client / Freelancer', 'Creer une evaluation', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">↻ Actualiser</button>
+      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
     `)}
     ${!settled.evaluations.ok ? alertMarkup(`API evaluation: ${settled.evaluations.error.message}`, 'error') : ''}
 
@@ -304,7 +346,7 @@ async function renderEvaluations() {
           </div>
           <div class="form-actions">
             <button class="primary" type="submit">+ Enregistrer</button>
-            <button class="ghost" type="reset">↻ Reinitialiser</button>
+            <button class="ghost" type="reset">â†» Reinitialiser</button>
           </div>
         </div>
       </form>
@@ -326,7 +368,7 @@ async function renderEvaluations() {
             ${state.lastSyncResponse ? rewardResponseMarkup(state.lastSyncResponse) : ''}
           </div>
           <div class="form-actions">
-            <button class="secondary" type="submit">✓ Tester</button>
+            <button class="secondary" type="submit">âœ“ Tester</button>
           </div>
         </div>
       </form>
@@ -364,7 +406,7 @@ async function renderBadges() {
 
   app.innerHTML = `
     ${pageHeader('Admin', 'Badges', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">↻ Actualiser</button>
+      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
     `)}
     ${error ? alertMarkup(`API badges: ${error.message}`, 'error') : ''}
 
@@ -381,7 +423,7 @@ async function renderBadges() {
           ${toggleField('certificateEligible', 'Certificat', editing ? truthy(editing.certificateEligible) : false)}
           ${toggleField('isActive', 'Actif', editing ? truthy(editing.isActive) : true)}
           <div class="form-actions">
-            <button class="primary" type="submit">${editing ? '✓ Mettre a jour' : '+ Creer'}</button>
+            <button class="primary" type="submit">${editing ? 'âœ“ Mettre a jour' : '+ Creer'}</button>
             ${editing ? '<button class="ghost" type="button" data-action="cancel-edit">x Annuler</button>' : ''}
           </div>
         </div>
@@ -426,7 +468,7 @@ async function renderRecompenses() {
 
   app.innerHTML = `
     ${pageHeader('Admin', 'Recompenses', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">↻ Actualiser</button>
+      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
     `)}
     ${error ? alertMarkup(`API recompenses: ${error.message}`, 'error') : ''}
 
@@ -441,7 +483,7 @@ async function renderRecompenses() {
           ${textareaField('description', 'Description', editing?.description || 'Recompense reservee aux meilleurs freelancers.')}
           ${toggleField('isActive', 'Active', editing ? truthy(editing.isActive) : true)}
           <div class="form-actions">
-            <button class="primary" type="submit">${editing ? '✓ Mettre a jour' : '+ Creer'}</button>
+            <button class="primary" type="submit">${editing ? 'âœ“ Mettre a jour' : '+ Creer'}</button>
             ${editing ? '<button class="ghost" type="button" data-action="cancel-reward-edit">x Annuler</button>' : ''}
           </div>
         </div>
@@ -487,8 +529,8 @@ async function renderFreelancers() {
 
   app.innerHTML = `
     ${pageHeader('Admin', 'Freelancers', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">↻ Actualiser</button>
-      <button class="secondary" type="button" data-action="recalculate">✓ Recalculer niveaux</button>
+      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
+      <button class="secondary" type="button" data-action="recalculate">âœ“ Recalculer niveaux</button>
     `)}
     ${error ? alertMarkup(`API profils: ${error.message}`, 'error') : ''}
 
@@ -553,7 +595,7 @@ async function renderHistory() {
 
   app.innerHTML = `
     ${pageHeader('Admin', 'Historique recompense', `
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">↻ Actualiser</button>
+      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
     `)}
     ${error ? alertMarkup(`API historique: ${error.message}`, 'error') : ''}
 
@@ -562,7 +604,7 @@ async function renderHistory() {
         <h2 style="margin:0">Evenements</h2>
         <div class="toolbar">
           <input name="email" type="email" placeholder="freelancer@email.com" value="${attr(state.historyEmail)}" style="min-width:260px" />
-          <button class="primary" type="submit">✓ Filtrer</button>
+          <button class="primary" type="submit">âœ“ Filtrer</button>
           <button class="ghost" type="button" data-action="clear-history-filter">x Effacer</button>
         </div>
       </form>
@@ -596,7 +638,7 @@ async function renderSpace() {
         <form id="space-email-form" class="form-grid">
           ${inputField('email', 'Email utilisateur', 'amina.freelancer@freelink.local', true, 'email')}
           <div class="form-actions">
-            <button class="primary" type="submit">✓ Ouvrir</button>
+            <button class="primary" type="submit">âœ“ Ouvrir</button>
           </div>
         </form>
       </section>
@@ -632,8 +674,8 @@ async function renderSpace() {
   app.innerHTML = `
     ${pageHeader('Client / Freelancer', profile?.userName || email, `
       <button class="primary" type="button" data-page-link="evaluations">Creer evaluation</button>
-      <button class="ghost" type="button" data-action="change-space-email">✎ Changer</button>
-      <button class="ghost" type="button" data-action="refresh" title="Actualiser">↻ Actualiser</button>
+      <button class="ghost" type="button" data-action="change-space-email">âœŽ Changer</button>
+      <button class="ghost" type="button" data-action="refresh" title="Actualiser">â†» Actualiser</button>
     `)}
     ${error ? alertMarkup(`API espace: ${error.message}`, 'error') : ''}
 
@@ -705,7 +747,7 @@ async function renderSettings() {
           ${selectField('role', 'Mode interface', ROLE_OPTIONS, state.role)}
           ${inputField('userEmail', 'Email utilisateur', state.userEmail || '', false, 'email')}
           <div class="form-actions">
-            <button class="primary" type="submit">✓ Sauvegarder</button>
+            <button class="primary" type="submit">âœ“ Sauvegarder</button>
           </div>
         </div>
       </form>
@@ -717,8 +759,8 @@ async function renderSettings() {
           ${metricCard('Securite locale', 'Ouverte', 'Acces libre pour les tests', 'gold')}
         </div>
         <div class="toolbar" style="margin-top:16px">
-          <button class="secondary" type="button" data-action="test-evaluation">✓ Tester evaluation</button>
-          <button class="secondary" type="button" data-action="test-reward">✓ Tester recompense</button>
+          <button class="secondary" type="button" data-action="test-evaluation">âœ“ Tester evaluation</button>
+          <button class="secondary" type="button" data-action="test-reward">âœ“ Tester recompense</button>
         </div>
         <div id="settings-result" class="result-box" style="margin-top:16px"></div>
       </div>
@@ -1107,7 +1149,7 @@ function badgeCardMarkup(badge) {
         <span>${truthy(badge.certificateEligible) ? 'Certificat' : 'Sans certificat'}</span>
       </div>
       <div class="row-actions">
-        <button class="ghost icon-only" type="button" data-edit-badge="${attr(badge.id)}" title="Modifier" aria-label="Modifier">✎</button>
+        <button class="ghost icon-only" type="button" data-edit-badge="${attr(badge.id)}" title="Modifier" aria-label="Modifier">âœŽ</button>
         <button class="danger icon-only" type="button" data-delete-badge="${attr(badge.id)}" title="Supprimer" aria-label="Supprimer">x</button>
       </div>
     </article>
@@ -1135,7 +1177,7 @@ function rewardCardMarkup(reward) {
         <span>${formatDate(reward.createdAt)}</span>
       </div>
       <div class="row-actions">
-        <button class="ghost icon-only" type="button" data-edit-reward="${attr(reward.id)}" title="Modifier" aria-label="Modifier">✎</button>
+        <button class="ghost icon-only" type="button" data-edit-reward="${attr(reward.id)}" title="Modifier" aria-label="Modifier">âœŽ</button>
         <button class="danger icon-only" type="button" data-delete-reward="${attr(reward.id)}" title="Supprimer" aria-label="Supprimer">x</button>
       </div>
     </article>
@@ -1400,7 +1442,7 @@ function historyTableMarkup(history, compact = false) {
               </td>
               <td>
                 <div class="inline-actions">
-                  ${compact && item.certificateGenerated ? `<button class="ghost icon-only" type="button" data-download-certificate="${attr(item.id)}" title="Certificat PDF" aria-label="Certificat PDF">↓</button>` : ''}
+                  ${compact && item.certificateGenerated ? `<button class="ghost icon-only" type="button" data-download-certificate="${attr(item.id)}" title="Certificat PDF" aria-label="Certificat PDF">â†“</button>` : ''}
                   ${compact ? '' : `<button class="ghost icon-only" type="button" data-resend-certificate="${attr(item.id)}" data-user-email="${attr(item.userEmail)}" title="Renvoyer email" aria-label="Renvoyer email">@</button>`}
                 </div>
               </td>
@@ -1718,3 +1760,6 @@ function qs(selector, root = document) {
 function qsa(selector, root = document) {
   return Array.from(root.querySelectorAll(selector));
 }
+
+}
+

@@ -4,40 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Evaluation & Recompense</title>
-    <link rel="icon" href="./public/reward-mark.svg" />
-    <link rel="stylesheet" href="./src/styles.css" />
+    <base href="/" />
+    <link rel="icon" href="public/reward-mark.svg" />
   </head>
   <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <a class="brand" href="#dashboard" aria-label="Evaluation et recompense">
-          <img src="./public/reward-mark.svg" alt="" />
-          <span>
-            <strong>Freelink Rewards</strong>
-            <small>Evaluation et recompense</small>
-          </span>
-        </a>
-
-        <nav class="main-nav" aria-label="Navigation principale">
-          <button type="button" data-page="dashboard">Tableau</button>
-          <button type="button" data-page="evaluations">Evaluations</button>
-          <button type="button" data-page="badges">Badges</button>
-          <button type="button" data-page="recompenses">Recompenses</button>
-          <button type="button" data-page="freelancers">Freelancers</button>
-          <button type="button" data-page="history">Historique</button>
-          <button type="button" data-page="space">Mon espace</button>
-        </nav>
-
-        <button class="icon-button settings-button" type="button" data-page="settings" title="Reglages" aria-label="Reglages">
-          ⚙
-        </button>
-      </header>
-
-      <main id="app" class="page" tabindex="-1"></main>
-    </div>
-
-    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
-
-    <script type="module" src="./src/main.js"></script>
+    <app-root></app-root>
   </body>
 </html>
