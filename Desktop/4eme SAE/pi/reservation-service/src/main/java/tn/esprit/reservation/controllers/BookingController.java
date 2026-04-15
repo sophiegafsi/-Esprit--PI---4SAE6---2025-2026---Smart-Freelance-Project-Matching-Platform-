@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import tn.esprit.reservation.entities.Booking;
 import tn.esprit.reservation.services.BookingService;
 
@@ -37,6 +39,12 @@ public class BookingController {
     @GetMapping("/freelancer/{freelancerName}")
     public ResponseEntity<List<Booking>> getByFreelancer(@PathVariable String freelancerName) {
         return ResponseEntity.ok(bookingService.findByFreelancer(freelancerName));
+    }
+
+    @GetMapping("/freelancer")
+    public ResponseEntity<List<Booking>> getMyRequests(@AuthenticationPrincipal Jwt jwt) {
+        String name = jwt.getClaimAsString("preferred_username");
+        return ResponseEntity.ok(bookingService.findByFreelancer(name));
     }
 
     @GetMapping("/availability/{availabilityId}")
