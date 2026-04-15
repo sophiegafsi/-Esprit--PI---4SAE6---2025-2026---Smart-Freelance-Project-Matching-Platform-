@@ -23,14 +23,13 @@
         </p>
       </div>
 
-      <form (ngSubmit)="updatePlanning()">
+      <form (ngSubmit)="updatePlanning()" novalidate>
         <div class="form-group">
           <label>📝 Title</label>
           <input
             type="text"
             name="title"
             [(ngModel)]="planning.title"
-            required
             placeholder="Enter planning title"
           />
         </div>
@@ -41,7 +40,6 @@
             name="description"
             [(ngModel)]="planning.description"
             rows="5"
-            required
             placeholder="Enter planning description"
           ></textarea>
         </div>
@@ -53,7 +51,6 @@
               type="date"
               name="startDate"
               [(ngModel)]="planning.startDate"
-              required
             />
           </div>
 
@@ -63,14 +60,13 @@
               type="date"
               name="endDate"
               [(ngModel)]="planning.endDate"
-              required
             />
           </div>
         </div>
 
         <div class="form-group">
           <label>🚦 Status</label>
-          <select name="status" [(ngModel)]="planning.status" required>
+          <select name="status" [(ngModel)]="planning.status">
             <option value="ACTIVE">ACTIVE</option>
             <option value="COMPLETED">COMPLETED</option>
             <option value="CANCELLED">CANCELLED</option>

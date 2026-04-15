@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Planning } from '../../models/planning.model';
 import { PlanningService } from '../../services/planning';
+import { PopupService } from '../../services/popup.service';
 
 @Component({
   selector: 'app-add-planning',
@@ -13,7 +14,6 @@ import { PlanningService } from '../../services/planning';
   styleUrl: './add-planning.css'
 })
 export class AddPlanning {
-
   planning: Planning = {
     title: '',
     description: '',
@@ -24,51 +24,57 @@ export class AddPlanning {
 
   constructor(
     private planningService: PlanningService,
-    private router: Router
+    private router: Router,
+    private popupService: PopupService
   ) {}
 
- savePlanning(): void {
-  if (!this.planning.title.trim()) {
-    alert('Title is required');
-    return;
-  }
+  private formatBackendError(err: any): string {
+    console.log('BACK ERROR = ', err);
 
-  if (!this.planning.description.trim()) {
-    alert('Description is required');
-    return;
-  }
-
-  if (!this.planning.startDate) {
-    alert('Start date is required');
-    return;
-  }
-
-  if (!this.planning.endDate) {
-    alert('End date is required');
-    return;
-  }
-
-  if (this.planning.endDate < this.planning.startDate) {
-    alert('End date must be after start date');
-    return;
-  }
-
-  this.planningService.addPlanning(this.planning).subscribe({
-    next: () => {
-      alert('Planning added successfully');
-      this.router.navigate(['/plannings']);
-    },
-    error: (err: any) => {
-      console.error('Error adding planning', err);
-
-      if (err?.error?.message) {
-        alert(err.error.message);
-      } else if (err?.error?.messages) {
-        alert(JSON.stringify(err.error.messages, null, 2));
-      } else {
-        alert('Error while adding planning');
-      }
+    if (err?.error?.messages && typeof err.error.messages === 'object') {
+      return Object.values(err.error.messages).join('<br>');
     }
-  });
-}
+
+    if (err?.error?.message && typeof err.error.message === 'string') {
+      return err.error.message;
+    }
+
+    if (err?.error?.error && typeof err.error.error === 'string') {
+      return err.error.error;
+    }
+
+    if (typeof err?.error === 'string') {
+      return err.error;
+    }
+
+    if (err?.message && typeof err.message === 'string') {
+      return err.message;
+    }
+
+    return 'Something went wrong.';
+  }
+
+  savePlanning(): void {
+    this.popupService.close();
+
+    this.planningService.addPlanning(this.planning).subscribe({
+      next: () => {
+        this.popupService.show(
+          'success',
+          'Success',
+          'Planning added successfully.',
+          {
+            confirmText: 'OK',
+            onConfirm: () => {
+              this.router.navigate(['/plannings']);
+            }
+          }
+        );
+      },
+      error: (err: any) => {
+        console.error('Error adding planning', err);
+        this.popupService.error('Validation Error', this.formatBackendError(err));
+      }
+    });
+  }
 }

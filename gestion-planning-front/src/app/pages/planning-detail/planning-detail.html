@@ -49,12 +49,89 @@
           </div>
         </div>
       </div>
+
+      <div class="progress-card" *ngIf="progressData">
+        <div class="section-head">
+          <h2>Simple Progress</h2>
+          <span class="task-count">{{ progressData.progress }}%</span>
+        </div>
+
+        <p>Total Tasks: {{ progressData.totalTasks }}</p>
+        <p>Done: {{ progressData.doneTasks }}</p>
+        <p>In Progress: {{ progressData.inProgressTasks }}</p>
+        <p>Todo: {{ progressData.todoTasks }}</p>
+
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progressData.progress"></div>
+        </div>
+
+        <p class="progress-text">{{ progressData.progress }}% completed</p>
+      </div>
+
+      <div class="progress-card" *ngIf="weightedProgressData">
+        <div class="section-head">
+          <h2>Weighted Progress</h2>
+          <span class="task-count">{{ weightedProgressData.weightedProgress }}%</span>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="weightedProgressData.weightedProgress"></div>
+        </div>
+
+        <p class="progress-text">
+          Weighted progress based on task duration and priority
+        </p>
+      </div>
+
+      <div class="progress-card" *ngIf="efficiencyData">
+        <div class="section-head">
+          <h2>Efficiency Score</h2>
+          <span class="task-count">{{ efficiencyData.efficiencyScore }}%</span>
+        </div>
+
+        <div class="progress-bar">
+          <div class="efficiency-fill" [style.width.%]="efficiencyData.efficiencyScore"></div>
+        </div>
+
+        <p class="progress-text">Level: {{ efficiencyData.efficiencyLevel }}</p>
+        <p>Wasted Minutes: {{ efficiencyData.wastedMinutes }} min</p>
+        <p>Average Task Duration: {{ efficiencyData.averageTaskDuration }} min</p>
+        <p>Task Density: {{ efficiencyData.taskDensity }}</p>
+      </div>
+
+      <div class="progress-card">
+        <div class="section-head">
+          <h2>📊 Daily Workload</h2>
+        </div>
+
+        <div *ngIf="dailyLoadData.length === 0" class="empty-small">
+          No data available
+        </div>
+
+        <div class="daily-load-list" *ngIf="dailyLoadData.length > 0">
+          <div class="daily-load-item" *ngFor="let day of dailyLoadData">
+            <div class="daily-load-top">
+              <strong>{{ day.date }}</strong>
+              <span>{{ day.totalHours }} h</span>
+            </div>
+
+            <p>{{ day.taskCount }} task(s) • {{ day.totalMinutes }} min</p>
+
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="day.totalHours * 10 > 100 ? 100 : day.totalHours * 10">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="glass-card task-form-card">
       <h2>Add Task</h2>
 
-      <form (ngSubmit)="addTask()">
+      <form (ngSubmit)="addTask()" novalidate>
         <div class="form-group">
           <label>📝 Task Title</label>
           <input
@@ -62,7 +139,6 @@
             name="title"
             [(ngModel)]="newTask.title"
             placeholder="Task title"
-            required
           />
         </div>
 
@@ -72,7 +148,6 @@
             name="description"
             [(ngModel)]="newTask.description"
             placeholder="Task description"
-            required
           ></textarea>
         </div>
 
@@ -82,7 +157,6 @@
             type="date"
             name="taskDate"
             [(ngModel)]="newTask.taskDate"
-            required
           />
         </div>
 
@@ -93,7 +167,6 @@
               type="time"
               name="startTime"
               [(ngModel)]="newTask.startTime"
-              required
             />
           </div>
 
@@ -103,7 +176,6 @@
               type="time"
               name="endTime"
               [(ngModel)]="newTask.endTime"
-              required
             />
           </div>
         </div>
@@ -111,7 +183,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>⚡ Priority</label>
-            <select name="priority" [(ngModel)]="newTask.priority" required>
+            <select name="priority" [(ngModel)]="newTask.priority">
               <option value="LOW">LOW</option>
               <option value="MEDIUM">MEDIUM</option>
               <option value="HIGH">HIGH</option>
@@ -120,7 +192,7 @@
 
           <div class="form-group">
             <label>🚦 Status</label>
-            <select name="status" [(ngModel)]="newTask.status" required>
+            <select name="status" [(ngModel)]="newTask.status">
               <option value="TODO">TODO</option>
               <option value="IN_PROGRESS">IN_PROGRESS</option>
               <option value="DONE">DONE</option>
@@ -137,6 +209,27 @@
     <div class="section-head">
       <h2>Tasks</h2>
       <span class="task-count">{{ tasks.length }} Task(s)</span>
+    </div>
+
+    <div class="search-wrapper">
+      <div class="search-bar">
+        <span class="search-icon">⌕</span>
+
+        <input
+          type="text"
+          [(ngModel)]="taskSearchKeyword"
+          (input)="onTaskSearchChange()"
+          placeholder="Search tasks by title, description, status or priority..."
+        />
+
+        <button
+          *ngIf="taskSearchKeyword"
+          type="button"
+          class="clear-btn"
+          (click)="clearTaskSearch()">
+          ✕
+        </button>
+      </div>
     </div>
 
     <div class="task-grid" *ngIf="tasks.length > 0; else noTasks">
@@ -173,7 +266,7 @@
   <section class="glass-card task-form-card" *ngIf="editingTaskId">
     <h2>Edit Task</h2>
 
-    <form (ngSubmit)="updateTask()">
+    <form (ngSubmit)="updateTask()" novalidate>
       <div class="form-group">
         <label>📝 Task Title</label>
         <input
@@ -181,7 +274,6 @@
           name="editTitle"
           [(ngModel)]="editTaskData.title"
           placeholder="Task title"
-          required
         />
       </div>
 
@@ -191,7 +283,6 @@
           name="editDescription"
           [(ngModel)]="editTaskData.description"
           placeholder="Task description"
-          required
         ></textarea>
       </div>
 
@@ -201,7 +292,6 @@
           type="date"
           name="editTaskDate"
           [(ngModel)]="editTaskData.taskDate"
-          required
         />
       </div>
 
@@ -212,7 +302,6 @@
             type="time"
             name="editStartTime"
             [(ngModel)]="editTaskData.startTime"
-            required
           />
         </div>
 
@@ -222,7 +311,6 @@
             type="time"
             name="editEndTime"
             [(ngModel)]="editTaskData.endTime"
-            required
           />
         </div>
       </div>
@@ -230,7 +318,7 @@
       <div class="form-row">
         <div class="form-group">
           <label>⚡ Priority</label>
-          <select name="editPriority" [(ngModel)]="editTaskData.priority" required>
+          <select name="editPriority" [(ngModel)]="editTaskData.priority">
             <option value="LOW">LOW</option>
             <option value="MEDIUM">MEDIUM</option>
             <option value="HIGH">HIGH</option>
@@ -239,7 +327,7 @@
 
         <div class="form-group">
           <label>🚦 Status</label>
-          <select name="editStatus" [(ngModel)]="editTaskData.status" required>
+          <select name="editStatus" [(ngModel)]="editTaskData.status">
             <option value="TODO">TODO</option>
             <option value="IN_PROGRESS">IN_PROGRESS</option>
             <option value="DONE">DONE</option>

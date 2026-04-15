@@ -4,8 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Planning } from '../../models/planning.model';
 import { Task } from '../../models/task.model';
+import { PlanningProgress } from '../../models/planning-progress.model';
+import { PlanningWeightedProgress } from '../../models/planning-weighted-progress.model';
+import { PlanningDailyLoad } from '../../models/planning-daily-load.model';
+import { PlanningEfficiency } from '../../models/planning-efficiency.model';
 import { PlanningService } from '../../services/planning';
 import { TaskService } from '../../services/task';
+import { PopupService } from '../../services/popup.service';
 
 @Component({
   selector: 'app-planning-detail',
@@ -26,7 +31,35 @@ export class PlanningDetail implements OnInit {
     status: 'ACTIVE'
   };
 
+  progressData: PlanningProgress = {
+    planningId: 0,
+    totalTasks: 0,
+    doneTasks: 0,
+    inProgressTasks: 0,
+    todoTasks: 0,
+    progress: 0
+  };
+
+  weightedProgressData: PlanningWeightedProgress = {
+    planningId: 0,
+    totalTasks: 0,
+    weightedProgress: 0
+  };
+
+  dailyLoadData: PlanningDailyLoad[] = [];
+
+  efficiencyData: PlanningEfficiency = {
+    planningId: 0,
+    totalTasks: 0,
+    wastedMinutes: 0,
+    averageTaskDuration: 0,
+    taskDensity: 0,
+    efficiencyScore: 0,
+    efficiencyLevel: 'LOW'
+  };
+
   tasks: Task[] = [];
+  taskSearchKeyword: string = '';
 
   newTask: Task = {
     title: '',
@@ -54,13 +87,18 @@ export class PlanningDetail implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private planningService: PlanningService,
-    private taskService: TaskService
+    private taskService: TaskService,
+    private popupService: PopupService
   ) {}
 
   ngOnInit(): void {
     this.planningId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadPlanning();
     this.loadTasks();
+    this.loadProgress();
+    this.loadWeightedProgress();
+    this.loadDailyLoad();
+    this.loadEfficiency();
   }
 
   loadPlanning(): void {
@@ -70,6 +108,7 @@ export class PlanningDetail implements OnInit {
       },
       error: (err: any) => {
         console.error('Erreur chargement planning', err);
+        this.popupService.error('Error', 'Unable to load planning details.');
       }
     });
   }
@@ -81,34 +120,107 @@ export class PlanningDetail implements OnInit {
       },
       error: (err: any) => {
         console.error('Erreur chargement tasks', err);
+        this.popupService.error('Error', 'Unable to load tasks.');
       }
     });
   }
 
+  onTaskSearchChange(): void {
+    const keyword = this.taskSearchKeyword.trim();
+
+    if (!keyword) {
+      this.loadTasks();
+      return;
+    }
+
+    this.taskService.searchTasksByPlanning(this.planningId, keyword).subscribe({
+      next: (data: Task[]) => {
+        this.tasks = data;
+      },
+      error: (err: any) => {
+        console.error('Erreur recherche task', err);
+      }
+    });
+  }
+
+  clearTaskSearch(): void {
+    this.taskSearchKeyword = '';
+    this.loadTasks();
+  }
+
+  loadProgress(): void {
+    this.planningService.getPlanningProgress(this.planningId).subscribe({
+      next: (data: PlanningProgress) => {
+        this.progressData = data;
+      },
+      error: (err: any) => {
+        console.error('Erreur chargement progression', err);
+      }
+    });
+  }
+
+  loadWeightedProgress(): void {
+    this.planningService.getPlanningWeightedProgress(this.planningId).subscribe({
+      next: (data: PlanningWeightedProgress) => {
+        this.weightedProgressData = data;
+      },
+      error: (err: any) => {
+        console.error('Erreur chargement weighted progress', err);
+      }
+    });
+  }
+
+  loadDailyLoad(): void {
+    this.planningService.getPlanningDailyLoad(this.planningId).subscribe({
+      next: (data: PlanningDailyLoad[]) => {
+        this.dailyLoadData = data;
+      },
+      error: (err: any) => {
+        console.error('Erreur daily load', err);
+      }
+    });
+  }
+
+  loadEfficiency(): void {
+    this.planningService.getPlanningEfficiency(this.planningId).subscribe({
+      next: (data: PlanningEfficiency) => {
+        this.efficiencyData = data;
+      },
+      error: (err: any) => {
+        console.error('Erreur chargement efficiency', err);
+      }
+    });
+  }
+
+  private formatBackendError(err: any): string {
+    if (err?.error?.messages && typeof err.error.messages === 'object') {
+      return Object.values(err.error.messages).join('<br>');
+    }
+
+    if (err?.error?.message && typeof err.error.message === 'string') {
+      return err.error.message;
+    }
+
+    if (err?.error?.error && typeof err.error.error === 'string') {
+      return err.error.error;
+    }
+
+    if (typeof err?.error === 'string') {
+      return err.error;
+    }
+
+    if (err?.message && typeof err.message === 'string') {
+      return err.message;
+    }
+
+    return 'Something went wrong.';
+  }
+
   addTask(): void {
-    if (!this.newTask.title.trim()) {
-      alert('Task title is required');
-      return;
-    }
-
-    if (!this.newTask.description.trim()) {
-      alert('Task description is required');
-      return;
-    }
-
-    if (!this.newTask.taskDate || !this.newTask.startTime || !this.newTask.endTime) {
-      alert('Date and time are required');
-      return;
-    }
-
-    if (this.newTask.endTime <= this.newTask.startTime) {
-      alert('End time must be after start time');
-      return;
-    }
+    this.popupService.close();
 
     this.taskService.addTaskToPlanning(this.planningId, this.newTask).subscribe({
       next: () => {
-        alert('Task added successfully');
         this.newTask = {
           title: '',
           description: '',
@@ -118,16 +230,25 @@ export class PlanningDetail implements OnInit {
           priority: 'MEDIUM',
           status: 'TODO'
         };
+
         this.loadTasks();
+        this.loadProgress();
+        this.loadWeightedProgress();
+        this.loadDailyLoad();
+        this.loadEfficiency();
+
+        this.popupService.success('Success', 'Task added successfully.');
       },
       error: (err: any) => {
         console.error('Erreur ajout task', err);
-        alert(JSON.stringify(err.error));
+        this.popupService.error('Validation Error', this.formatBackendError(err));
       }
     });
   }
 
   startEditTask(task: Task): void {
+    this.popupService.close();
+
     this.editingTaskId = task.id ?? null;
     this.editTaskData = {
       id: task.id,
@@ -153,40 +274,28 @@ export class PlanningDetail implements OnInit {
       priority: 'MEDIUM',
       status: 'TODO'
     };
+    this.popupService.close();
   }
 
   updateTask(): void {
     if (!this.editingTaskId) return;
 
-    if (!this.editTaskData.title.trim()) {
-      alert('Task title is required');
-      return;
-    }
-
-    if (!this.editTaskData.description.trim()) {
-      alert('Task description is required');
-      return;
-    }
-
-    if (!this.editTaskData.taskDate || !this.editTaskData.startTime || !this.editTaskData.endTime) {
-      alert('Date and time are required');
-      return;
-    }
-
-    if (this.editTaskData.endTime <= this.editTaskData.startTime) {
-      alert('End time must be after start time');
-      return;
-    }
+    this.popupService.close();
 
     this.taskService.updateTask(this.editingTaskId, this.editTaskData).subscribe({
       next: () => {
-        alert('Task updated successfully');
         this.cancelEditTask();
         this.loadTasks();
+        this.loadProgress();
+        this.loadWeightedProgress();
+        this.loadDailyLoad();
+        this.loadEfficiency();
+
+        this.popupService.success('Success', 'Task updated successfully.');
       },
       error: (err: any) => {
         console.error('Erreur update task', err);
-        alert(JSON.stringify(err.error));
+        this.popupService.error('Validation Error', this.formatBackendError(err));
       }
     });
   }
@@ -194,18 +303,30 @@ export class PlanningDetail implements OnInit {
   deleteTask(id: number | undefined): void {
     if (!id) return;
 
-    if (confirm('Are you sure you want to delete this task?')) {
-      this.taskService.deleteTask(id).subscribe({
-        next: () => {
-          this.loadTasks();
-          if (this.editingTaskId === id) {
-            this.cancelEditTask();
+    this.popupService.confirm(
+      'Delete Task',
+      'Are you sure you want to delete this task?',
+      () => {
+        this.taskService.deleteTask(id).subscribe({
+          next: () => {
+            this.loadTasks();
+            this.loadProgress();
+            this.loadWeightedProgress();
+            this.loadDailyLoad();
+            this.loadEfficiency();
+
+            if (this.editingTaskId === id) {
+              this.cancelEditTask();
+            }
+
+            this.popupService.success('Deleted', 'Task deleted successfully.');
+          },
+          error: (err: any) => {
+            console.error('Erreur suppression task', err);
+            this.popupService.error('Error', 'Unable to delete task.');
           }
-        },
-        error: (err: any) => {
-          console.error('Erreur suppression task', err);
-        }
-      });
-    }
+        });
+      }
+    );
   }
 }
