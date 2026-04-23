@@ -1,0 +1,86 @@
+{
+  "uid": "smartfreelance-backend-overview",
+  "title": "Smart Freelance Backend Overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "tags": ["smart-freelance", "spring-boot", "prometheus"],
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Actuator Targets Up",
+      "id": 1,
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "sum(up{job=\"spring-boot-actuator\"})",
+          "legendFormat": "up"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "HTTP Availability",
+      "id": 2,
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "sum(probe_success{job=\"http-availability\"})",
+          "legendFormat": "available"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "JVM Memory Used",
+      "id": 3,
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum by (application) (jvm_memory_used_bytes{job=\"spring-boot-actuator\"})",
+          "legendFormat": "{{application}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Requests",
+      "id": 4,
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 12 },
+      "targets": [
+        {
+          "expr": "sum by (application, uri) (rate(http_server_requests_seconds_count{job=\"spring-boot-actuator\"}[1m]))",
+          "legendFormat": "{{application}} {{uri}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Average HTTP Response Time",
+      "id": 5,
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum by (application, uri) (rate(http_server_requests_seconds_sum{job=\"spring-boot-actuator\"}[1m])) / sum by (application, uri) (rate(http_server_requests_seconds_count{job=\"spring-boot-actuator\"}[1m]))",
+          "legendFormat": "{{application}} {{uri}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Process CPU Usage",
+      "id": 6,
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "process_cpu_usage{job=\"spring-boot-actuator\"}",
+          "legendFormat": "{{application}}"
+        }
+      ]
+    }
+  ]
+}
