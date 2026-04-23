@@ -44,11 +44,13 @@ Run SonarQube separately on:
 http://localhost:9000
 ```
 
-If Jenkins runs inside Docker, replace `http://localhost:9000` in the Jenkinsfiles with:
+Jenkins runs inside Docker in the classroom setup, so the Jenkinsfiles use:
 
 ```text
 http://host.docker.internal:9000
 ```
+
+This points from the Jenkins container to SonarQube exposed on the host machine port `9000`.
 
 ## Prometheus and Grafana
 
