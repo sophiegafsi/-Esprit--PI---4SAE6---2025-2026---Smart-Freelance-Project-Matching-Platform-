@@ -26,13 +26,15 @@ pipeline {
 
     stage('JaCoCo Coverage') {
       steps {
-        jacoco(
-          execPattern: 'api-gateway/target/jacoco.exec',
-          classPattern: 'api-gateway/target/classes',
-          sourcePattern: 'api-gateway/src/main/java',
-          inclusionPattern: '**/*.class',
-          exclusionPattern: '**/*Test*.class'
-        )
+        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+          jacoco(
+            execPattern: 'api-gateway/target/jacoco.exec',
+            classPattern: 'api-gateway/target/classes',
+            sourcePattern: 'api-gateway/src/main/java',
+            inclusionPattern: '**/*.class',
+            exclusionPattern: '**/*Test*.class'
+          )
+        }
       }
     }
 

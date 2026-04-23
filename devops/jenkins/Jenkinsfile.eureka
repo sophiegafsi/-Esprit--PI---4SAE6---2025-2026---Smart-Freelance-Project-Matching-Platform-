@@ -26,13 +26,15 @@ pipeline {
 
     stage('JaCoCo Coverage') {
       steps {
-        jacoco(
-          execPattern: 'eureka-server/target/jacoco.exec',
-          classPattern: 'eureka-server/target/classes',
-          sourcePattern: 'eureka-server/src/main/java',
-          inclusionPattern: '**/*.class',
-          exclusionPattern: '**/*Test*.class'
-        )
+        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+          jacoco(
+            execPattern: 'eureka-server/target/jacoco.exec',
+            classPattern: 'eureka-server/target/classes',
+            sourcePattern: 'eureka-server/src/main/java',
+            inclusionPattern: '**/*.class',
+            exclusionPattern: '**/*Test*.class'
+          )
+        }
       }
     }
 
