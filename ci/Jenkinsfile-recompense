@@ -15,12 +15,12 @@ pipeline {
         stage('Tests unitaires + couverture') {
             steps {
                 dir('recompense/recompense') {
-                    bat 'mvnw.cmd clean test'
+                    sh 'chmod +x ./mvnw && ./mvnw clean test'
                 }
             }
             post {
                 always {
-                    junit 'recompense/recompense/target/surefire-reports/*.xml'
+                    junit testResults: 'recompense/recompense/target/surefire-reports/*.xml', allowEmptyResults: true
                     archiveArtifacts artifacts: 'recompense/recompense/target/site/jacoco/jacoco.xml', allowEmptyArchive: true
                 }
             }
@@ -29,7 +29,7 @@ pipeline {
         stage('Build backend') {
             steps {
                 dir('recompense/recompense') {
-                    bat 'mvnw.cmd -DskipTests package'
+                    sh './mvnw -DskipTests package'
                 }
             }
             post {
@@ -43,7 +43,7 @@ pipeline {
             steps {
                 dir('recompense/recompense') {
                     withSonarQubeEnv('SonarQube') {
-                        bat 'mvnw.cmd sonar:sonar -Dsonar.projectKey=%SONAR_PROJECT_KEY%'
+                        sh './mvnw sonar:sonar -Dsonar.projectKey=$SONAR_PROJECT_KEY'
                     }
                 }
             }

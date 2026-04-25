@@ -15,12 +15,12 @@ pipeline {
         stage('Tests unitaires + couverture') {
             steps {
                 dir('evaluation-service/evaluation-service') {
-                    bat 'mvnw.cmd clean test'
+                    sh 'chmod +x ./mvnw && ./mvnw clean test'
                 }
             }
             post {
                 always {
-                    junit 'evaluation-service/evaluation-service/target/surefire-reports/*.xml'
+                    junit testResults: 'evaluation-service/evaluation-service/target/surefire-reports/*.xml', allowEmptyResults: true
                     archiveArtifacts artifacts: 'evaluation-service/evaluation-service/target/site/jacoco/jacoco.xml', allowEmptyArchive: true
                 }
             }
@@ -29,7 +29,7 @@ pipeline {
         stage('Build backend') {
             steps {
                 dir('evaluation-service/evaluation-service') {
-                    bat 'mvnw.cmd -DskipTests package'
+                    sh './mvnw -DskipTests package'
                 }
             }
             post {
@@ -43,7 +43,7 @@ pipeline {
             steps {
                 dir('evaluation-service/evaluation-service') {
                     withSonarQubeEnv('SonarQube') {
-                        bat 'mvnw.cmd sonar:sonar -Dsonar.projectKey=%SONAR_PROJECT_KEY%'
+                        sh './mvnw sonar:sonar -Dsonar.projectKey=$SONAR_PROJECT_KEY'
                     }
                 }
             }

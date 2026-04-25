@@ -15,7 +15,7 @@ pipeline {
         stage('Install dependencies') {
             steps {
                 dir('frontend') {
-                    bat 'npm install'
+                    sh 'npm install'
                 }
             }
         }
@@ -23,7 +23,7 @@ pipeline {
         stage('Tests unitaires + couverture') {
             steps {
                 dir('frontend') {
-                    bat 'npm run test:ci'
+                    sh 'npm run test:ci'
                 }
             }
             post {
@@ -36,7 +36,7 @@ pipeline {
         stage('Build frontend') {
             steps {
                 dir('frontend') {
-                    bat 'npm run build'
+                    sh 'npm run build'
                 }
             }
             post {
@@ -50,7 +50,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     withSonarQubeEnv('SonarQube') {
-                        bat 'npx sonar-scanner -Dsonar.projectKey=%SONAR_PROJECT_KEY%'
+                        sh 'npx sonar-scanner -Dsonar.projectKey=$SONAR_PROJECT_KEY'
                     }
                 }
             }
