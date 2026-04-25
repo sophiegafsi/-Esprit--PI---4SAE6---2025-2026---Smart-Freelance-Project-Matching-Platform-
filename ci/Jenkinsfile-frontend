@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'NodeJS-18'
+    }
+
+    environment {
+        SONAR_PROJECT_KEY = 'freelink-frontend'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install dependencies') {
+            steps {
+                dir('frontend') {
+                    bat 'npm install'
+                }
+            }
+        }
+
+        stage('Tests unitaires + couverture') {
+            steps {
+                dir('frontend') {
+                    bat 'npm run test:ci'
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'frontend/coverage/**', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Build frontend') {
+            steps {
+                dir('frontend') {
+                    bat 'npm run build'
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'frontend/dist/**', fingerprint: true
+                }
+            }
+        }
+
+        stage('SonarQube') {
+            steps {
+                dir('frontend') {
+                    withSonarQubeEnv('SonarQube') {
+                        bat 'npx sonar-scanner -Dsonar.projectKey=%SONAR_PROJECT_KEY%'
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+    }
+}

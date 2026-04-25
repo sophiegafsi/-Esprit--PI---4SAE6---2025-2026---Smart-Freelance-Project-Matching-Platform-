@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Run backend/frontend CI') {
+            parallel {
+                stage('Evaluation CI') {
+                    steps {
+                        build job: 'ci-evaluation-service', wait: true
+                    }
+                }
+
+                stage('Recompense CI') {
+                    steps {
+                        build job: 'ci-recompense-service', wait: true
+                    }
+                }
+
+                stage('Frontend CI') {
+                    steps {
+                        build job: 'ci-frontend', wait: true
+                    }
+                }
+            }
+        }
+
+        stage('Deploy global application') {
+            steps {
+                echo 'CD global: regrouper ici les artefacts/images evaluation, recompense, gateway, eureka et frontend.'
+            }
+        }
+    }
+}

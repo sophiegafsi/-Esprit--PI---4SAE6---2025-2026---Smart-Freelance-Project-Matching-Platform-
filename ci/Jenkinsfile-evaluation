@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JDK-17'
+    }
+
+    environment {
+        SONAR_PROJECT_KEY = 'evaluation-service'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Tests unitaires + couverture') {
+            steps {
+                dir('evaluation-service/evaluation-service') {
+                    bat 'mvnw.cmd clean test'
+                }
+            }
+            post {
+                always {
+                    junit 'evaluation-service/evaluation-service/target/surefire-reports/*.xml'
+                    archiveArtifacts artifacts: 'evaluation-service/evaluation-service/target/site/jacoco/jacoco.xml', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Build backend') {
+            steps {
+                dir('evaluation-service/evaluation-service') {
+                    bat 'mvnw.cmd -DskipTests package'
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'evaluation-service/evaluation-service/target/*.jar', fingerprint: true
+                }
+            }
+        }
+
+        stage('SonarQube') {
+            steps {
+                dir('evaluation-service/evaluation-service') {
+                    withSonarQubeEnv('SonarQube') {
+                        bat 'mvnw.cmd sonar:sonar -Dsonar.projectKey=%SONAR_PROJECT_KEY%'
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+    }
+}

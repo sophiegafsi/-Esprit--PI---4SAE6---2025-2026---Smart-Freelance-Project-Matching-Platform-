@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JDK-17'
+    }
+
+    environment {
+        SONAR_PROJECT_KEY = 'recompense-service'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Tests unitaires + couverture') {
+            steps {
+                dir('recompense/recompense') {
+                    bat 'mvnw.cmd clean test'
+                }
+            }
+            post {
+                always {
+                    junit 'recompense/recompense/target/surefire-reports/*.xml'
+                    archiveArtifacts artifacts: 'recompense/recompense/target/site/jacoco/jacoco.xml', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Build backend') {
+            steps {
+                dir('recompense/recompense') {
+                    bat 'mvnw.cmd -DskipTests package'
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'recompense/recompense/target/*.jar', fingerprint: true
+                }
+            }
+        }
+
+        stage('SonarQube') {
+            steps {
+                dir('recompense/recompense') {
+                    withSonarQubeEnv('SonarQube') {
+                        bat 'mvnw.cmd sonar:sonar -Dsonar.projectKey=%SONAR_PROJECT_KEY%'
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+    }
+}
