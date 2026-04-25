@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+
+    environment {
+        SONAR_PROJECT_KEY = 'eureka-server'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Tests unitaires + couverture') {
+            steps {
+                dir('eureka-server') {
+                    sh 'chmod +x ./mvnw && ./mvnw clean test'
+                }
+            }
+            post {
+                always {
+                    junit testResults: 'eureka-server/target/surefire-reports/*.xml', allowEmptyResults: true
+                    archiveArtifacts artifacts: 'eureka-server/target/site/jacoco/jacoco.xml', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Build backend') {
+            steps {
+                dir('eureka-server') {
+                    sh './mvnw -DskipTests package'
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'eureka-server/target/*.jar', fingerprint: true
+                }
+            }
+        }
+
+        stage('SonarQube') {
+            steps {
+                dir('eureka-server') {
+                    withSonarQubeEnv('SonarQube') {
+                        sh './mvnw sonar:sonar -Dsonar.projectKey=$SONAR_PROJECT_KEY'
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+    }
+}

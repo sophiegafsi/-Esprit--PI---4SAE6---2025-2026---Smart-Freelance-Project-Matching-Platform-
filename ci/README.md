@@ -1,11 +1,13 @@
 # Pipelines CI Sprint 3
 
-Ce dossier contient les trois pipelines demandes pour la phase DevOps.
+Ce dossier contient les pipelines demandes pour la phase DevOps.
 
 ## Jobs Jenkins a creer
 
 | Job Jenkins | Jenkinsfile |
 | --- | --- |
+| `ci-eureka-server` | `ci/Jenkinsfile-eureka-server` |
+| `ci-api-gateway` | `ci/Jenkinsfile-api-gateway` |
 | `ci-evaluation-service` | `ci/Jenkinsfile-evaluation` |
 | `ci-recompense-service` | `ci/Jenkinsfile-recompense` |
 | `ci-frontend` | `ci/Jenkinsfile-frontend` |
@@ -13,10 +15,10 @@ Ce dossier contient les trois pipelines demandes pour la phase DevOps.
 
 ## Configuration Jenkins requise
 
-- JDK configure avec le nom `JDK-17`.
-- NodeJS configure avec le nom `NodeJS-18`.
 - Serveur SonarQube configure dans Jenkins avec le nom `SonarQube`.
 - Plugin Jenkins SonarQube installe.
+- Java/Maven disponibles dans l'agent Jenkins pour les services backend.
+- Node.js, npm et Chromium disponibles dans l'agent Jenkins pour le frontend.
 - Scanner Sonar disponible pour le frontend via `npx sonar-scanner`.
 
 ## Ce que chaque pipeline fait
@@ -32,6 +34,8 @@ Ce dossier contient les trois pipelines demandes pour la phase DevOps.
 
 | Projet | Cle Sonar |
 | --- | --- |
+| Eureka server | `eureka-server` |
+| API Gateway | `api-gateway` |
 | Evaluation service | `evaluation-service` |
 | Recompense service | `recompense-service` |
 | Frontend Angular | `freelink-frontend` |

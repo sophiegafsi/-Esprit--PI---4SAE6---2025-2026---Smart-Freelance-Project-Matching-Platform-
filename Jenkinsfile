@@ -2,6 +2,18 @@ pipeline {
     agent any
 
     stages {
+        stage('CI Eureka Server') {
+            steps {
+                build job: 'ci-eureka-server', wait: true
+            }
+        }
+
+        stage('CI API Gateway') {
+            steps {
+                build job: 'ci-api-gateway', wait: true
+            }
+        }
+
         stage('CI Evaluation Service') {
             steps {
                 build job: 'ci-evaluation-service', wait: true
