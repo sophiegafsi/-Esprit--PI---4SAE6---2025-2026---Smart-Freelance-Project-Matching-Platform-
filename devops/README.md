@@ -1,89 +1,45 @@
-# DevOps Backend - Eureka and Gateway
+# Monitoring Prometheus Grafana
 
-This branch contains the Jenkins, SonarQube, JaCoCo, Prometheus and Grafana setup for the Eureka Server and API Gateway.
+Ce dossier lance le monitoring du projet Smart Freelance.
 
-## Jenkins
+## Services surveilles
 
-Available pipeline files:
+Prometheus collecte les metriques Spring Boot via `/actuator/prometheus`:
 
-- `Jenkinsfile.eureka`
-- `Jenkinsfile.gateway`
-- `devops/jenkins/Jenkinsfile.eureka`
-- `devops/jenkins/Jenkinsfile.gateway`
+- Eureka Server: `http://host.docker.internal:8761/actuator/prometheus`
+- API Gateway: `http://host.docker.internal:8088/actuator/prometheus`
+- Evaluation Service: `http://host.docker.internal:8085/actuator/prometheus`
+- Recompense Service: `http://host.docker.internal:8094/actuator/prometheus`
 
-Each pipeline runs:
+Le blackbox exporter verifie aussi la disponibilite HTTP de:
 
-- `Test and Package`
-- `JaCoCo Coverage`
-- `SonarQube`
+- Frontend Angular: `http://host.docker.internal:4200`
+- Jenkins: `http://host.docker.internal:8081/login`
+- SonarQube: `http://host.docker.internal:9000/api/system/status`
 
-The SonarQube stage runs automatically with `Build Now`; no `RUN_SONAR` parameter is required.
+## Lancement
 
-Required Jenkins plugins:
-
-- Pipeline
-- Git
-- JUnit
-- JaCoCo
-- SonarQube Scanner for Jenkins
-- Credentials Binding
-
-Required Jenkins credential:
-
-```text
-Kind: Secret text
-ID: sonarqube-token
-Secret: your SonarQube token
-```
-
-## SonarQube
-
-Run SonarQube separately on:
-
-```text
-http://localhost:9000
-```
-
-Jenkins runs inside Docker in the classroom setup, so the Jenkinsfiles use:
-
-```text
-http://host.docker.internal:9000
-```
-
-This points from the Jenkins container to SonarQube exposed on the host machine port `9000`.
-
-## Prometheus and Grafana
-
-Start Eureka and Gateway locally first:
+Demarrer d'abord les applications a surveiller, puis:
 
 ```powershell
-cd eureka-server
-.\mvnw.cmd spring-boot:run
-```
-
-```powershell
-cd api-gateway
-.\mvnw.cmd spring-boot:run
-```
-
-Then start monitoring:
-
-```bash
 cd devops
 docker compose -f docker-compose.monitoring.yml up -d
 ```
 
-Open:
+## Acces
+
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000`
+- Grafana login: `admin` / `admin`
+
+Dans Grafana, le datasource Prometheus et le dashboard `Smart Freelance Monitoring` sont provisionnes automatiquement.
+
+## Verification rapide
+
+Dans Prometheus, ouvrir:
 
 ```text
-Prometheus: http://localhost:9090
-Grafana: http://localhost:3000
-Grafana login: admin / admin
+Status > Targets
 ```
 
-Prometheus scrapes:
-
-```text
-http://host.docker.internal:8761/actuator/prometheus
-http://host.docker.internal:8088/actuator/prometheus
-```
+Les targets doivent etre `UP` pour les services lances.

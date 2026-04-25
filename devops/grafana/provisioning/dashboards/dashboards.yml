@@ -1,12 +1,11 @@
 apiVersion: 1
 
 providers:
-  - name: Smart Freelance dashboards
+  - name: Smart Freelance
     orgId: 1
     folder: Smart Freelance
     type: file
     disableDeletion: false
-    updateIntervalSeconds: 20
-    allowUiUpdates: true
+    updateIntervalSeconds: 30
     options:
       path: /var/lib/grafana/dashboards

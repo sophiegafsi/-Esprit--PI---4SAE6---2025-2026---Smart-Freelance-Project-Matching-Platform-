@@ -7,6 +7,8 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   blackbox-exporter:
     image: prom/blackbox-exporter:v0.25.0

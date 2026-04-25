@@ -14,6 +14,10 @@ scrape_configs:
       - targets:
           - host.docker.internal:8761
           - host.docker.internal:8088
+          - host.docker.internal:8085
+          - host.docker.internal:8094
+        labels:
+          stack: smart-freelance
 
   - job_name: http-availability
     metrics_path: /probe
@@ -24,6 +28,13 @@ scrape_configs:
       - targets:
           - http://host.docker.internal:8761/actuator/health
           - http://host.docker.internal:8088/actuator/health
+          - http://host.docker.internal:8085/actuator/health
+          - http://host.docker.internal:8094/actuator/health
+          - http://host.docker.internal:4200
+          - http://host.docker.internal:8081/login
+          - http://host.docker.internal:9000/api/system/status
+        labels:
+          stack: smart-freelance
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
