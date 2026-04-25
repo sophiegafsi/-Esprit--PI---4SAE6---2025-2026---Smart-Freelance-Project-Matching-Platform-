@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         SONAR_PROJECT_KEY = 'freelink-frontend'
+        CHROME_BIN = '/usr/bin/chromium'
     }
 
     stages {
