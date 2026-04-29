@@ -85,6 +85,24 @@ pipeline {
                 }
             }
         }
+
+        stage('Monitoring Config Check') {
+            steps {
+                sh '''
+                    echo "Checking monitoring files..."
+                    test -f monitoring/docker-compose-monitoring.yml
+                    test -f monitoring/prometheus.yml
+                    echo "✅ Monitoring files exist"
+                '''
+            }
+        }
+
+        stage('Monitoring Deploy') {
+            steps {
+                sh 'docker compose -f monitoring/docker-compose-monitoring.yml up -d'
+                echo "✅ Monitoring stack (Prometheus/Grafana) started"
+            }
+        }
     }
 
     post {
