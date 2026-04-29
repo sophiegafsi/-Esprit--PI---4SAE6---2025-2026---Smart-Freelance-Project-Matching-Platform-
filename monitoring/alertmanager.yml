@@ -1,0 +1,22 @@
+route:
+  receiver: 'email-alerts'
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+
+receivers:
+  - name: 'email-alerts'
+    email_configs:
+      - to: 'your-email@esprit.tn'
+        from: 'alertmanager@reservation-service.com'
+        smarthost: 'smtp.gmail.com:587'
+        auth_username: 'your-email@gmail.com'
+        auth_password: 'your-app-password'
+        send_resolved: true
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname']

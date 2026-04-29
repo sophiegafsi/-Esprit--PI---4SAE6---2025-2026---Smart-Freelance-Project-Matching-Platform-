@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ReservationService</a> &gt; <a href="index.source.html" class="el_package">tn.esprit.reservation.config</a> &gt; <span class="el_source">SecurityConfig.java</span></div><h1>SecurityConfig.java</h1><pre class="source lang-java linenums">package tn.esprit.reservation.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.web.SecurityFilterChain;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+
+@Configuration
+@EnableWebSecurity
+<span class="nc" id="L27">public class SecurityConfig {</span>
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+<span class="nc" id="L31">        http</span>
+<span class="nc" id="L32">            .cors(withDefaults())</span>
+<span class="nc" id="L33">            .csrf(csrf -&gt; csrf.disable())</span>
+<span class="nc" id="L34">            .sessionManagement(sm -&gt; sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))</span>
+<span class="nc" id="L35">            .authorizeHttpRequests(auth -&gt; auth</span>
+<span class="nc" id="L36">                .requestMatchers(HttpMethod.OPTIONS, &quot;/**&quot;).permitAll()</span>
+<span class="nc" id="L37">                .requestMatchers(HttpMethod.GET, &quot;/api/availabilities/**&quot;).permitAll()</span>
+<span class="nc" id="L38">                .requestMatchers(HttpMethod.GET, &quot;/api/bookings/**&quot;).authenticated()</span>
+<span class="nc" id="L39">                .requestMatchers(HttpMethod.POST, &quot;/api/availabilities&quot;).hasRole(&quot;FREELANCER&quot;)</span>
+<span class="nc" id="L40">                .requestMatchers(HttpMethod.PUT, &quot;/api/availabilities/**&quot;).hasRole(&quot;FREELANCER&quot;)</span>
+<span class="nc" id="L41">                .requestMatchers(HttpMethod.DELETE, &quot;/api/availabilities/**&quot;).hasRole(&quot;FREELANCER&quot;)</span>
+<span class="nc" id="L42">                .requestMatchers(HttpMethod.POST, &quot;/api/bookings&quot;).authenticated()</span>
+<span class="nc" id="L43">                .requestMatchers(HttpMethod.PUT, &quot;/api/bookings/**&quot;).authenticated()</span>
+<span class="nc" id="L44">                .requestMatchers(&quot;/actuator/**&quot;).permitAll()</span>
+<span class="nc" id="L45">                .anyRequest().authenticated()</span>
+            )
+<span class="nc" id="L47">            .oauth2ResourceServer(oauth2 -&gt; oauth2</span>
+<span class="nc" id="L48">                .jwt(jwt -&gt; jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))</span>
+            );
+
+<span class="nc" id="L51">        return http.build();</span>
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+<span class="nc" id="L56">        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();</span>
+<span class="nc" id="L57">        converter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());</span>
+<span class="nc" id="L58">        return converter;</span>
+    }
+
+    /**
+     * Custom converter to extract roles from Keycloak's realm_access.roles claim
+     */
+<span class="nc" id="L64">    static class KeycloakRoleConverter implements Converter&lt;Jwt, Collection&lt;GrantedAuthority&gt;&gt; {</span>
+        @Override
+        public Collection&lt;GrantedAuthority&gt; convert(Jwt jwt) {
+<span class="nc" id="L67">            Map&lt;String, Object&gt; realmAccess = jwt.getClaim(&quot;realm_access&quot;);</span>
+<span class="nc bnc" id="L68" title="All 4 branches missed.">            if (realmAccess == null || realmAccess.isEmpty()) {</span>
+<span class="nc" id="L69">                return Collections.emptyList();</span>
+            }
+
+<span class="nc" id="L72">            Collection&lt;String&gt; roles = (Collection&lt;String&gt;) realmAccess.get(&quot;roles&quot;);</span>
+<span class="nc bnc" id="L73" title="All 4 branches missed.">            if (roles == null || roles.isEmpty()) {</span>
+<span class="nc" id="L74">                return Collections.emptyList();</span>
+            }
+
+<span class="nc" id="L77">            return roles.stream()</span>
+<span class="nc" id="L78">                    .map(roleName -&gt; new SimpleGrantedAuthority(&quot;ROLE_&quot; + roleName.toUpperCase()))</span>
+<span class="nc" id="L79">                    .collect(Collectors.toList());</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

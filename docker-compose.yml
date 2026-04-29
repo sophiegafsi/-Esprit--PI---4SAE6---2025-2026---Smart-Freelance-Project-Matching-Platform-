@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+
+  mysql-reservation:
+    image: mysql:8.0
+    container_name: mysql-reservation
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: reservation_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot1234"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  reservation-app:
+    build: .
+    container_name: reservation-app
+    ports:
+      - "8088:8088"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_PASSWORD: root1234
+    depends_on:
+      mysql-reservation:
+        condition: service_healthy
+    restart: on-failure
+
+volumes:
+  mysql-data:

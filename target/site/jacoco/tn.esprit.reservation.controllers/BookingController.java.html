@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookingController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ReservationService</a> &gt; <a href="index.source.html" class="el_package">tn.esprit.reservation.controllers</a> &gt; <span class="el_source">BookingController.java</span></div><h1>BookingController.java</h1><pre class="source lang-java linenums">package tn.esprit.reservation.controllers;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import tn.esprit.reservation.entities.Booking;
+import tn.esprit.reservation.services.BookingService;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping(&quot;/api/bookings&quot;)
+<span class="nc" id="L17">@RequiredArgsConstructor</span>
+public class BookingController {
+
+    private final BookingService bookingService;
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;Booking&gt;&gt; getAll() {
+<span class="nc" id="L24">        return ResponseEntity.ok(bookingService.findAll());</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Booking&gt; getById(@PathVariable Long id) {
+<span class="nc" id="L29">        return bookingService.findById(id)</span>
+<span class="nc" id="L30">                .map(ResponseEntity::ok)</span>
+<span class="nc" id="L31">                .orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    @GetMapping(&quot;/user/{userId}&quot;)
+    public ResponseEntity&lt;List&lt;Booking&gt;&gt; getByUser(@PathVariable String userId) {
+<span class="nc" id="L36">        return ResponseEntity.ok(bookingService.findByUserId(userId));</span>
+    }
+
+    @GetMapping(&quot;/freelancer/{freelancerName}&quot;)
+    public ResponseEntity&lt;List&lt;Booking&gt;&gt; getByFreelancer(@PathVariable String freelancerName) {
+<span class="nc" id="L41">        return ResponseEntity.ok(bookingService.findByFreelancer(freelancerName));</span>
+    }
+
+    @GetMapping(&quot;/freelancer&quot;)
+    public ResponseEntity&lt;List&lt;Booking&gt;&gt; getMyRequests(@AuthenticationPrincipal Jwt jwt) {
+<span class="nc" id="L46">        String freelancerId = jwt.getSubject(); // This is the Keycloak sub (ID)</span>
+<span class="nc" id="L47">        return ResponseEntity.ok(bookingService.findByFreelancerId(freelancerId));</span>
+    }
+
+    @GetMapping(&quot;/availability/{availabilityId}&quot;)
+    public ResponseEntity&lt;List&lt;Booking&gt;&gt; getByAvailability(@PathVariable Long availabilityId) {
+<span class="nc" id="L52">        return ResponseEntity.ok(bookingService.findByAvailabilityId(availabilityId));</span>
+    }
+
+    @GetMapping(&quot;/availability/{availabilityId}/slots&quot;)
+    public ResponseEntity&lt;Map&lt;String, Long&gt;&gt; getAvailableSlots(@PathVariable Long availabilityId) {
+<span class="nc" id="L57">        long slots = bookingService.countAvailableSlots(availabilityId);</span>
+<span class="nc" id="L58">        return ResponseEntity.ok(Map.of(&quot;availableSlots&quot;, slots));</span>
+    }
+
+    @PostMapping
+    public ResponseEntity&lt;Booking&gt; create(@RequestBody Booking booking, @AuthenticationPrincipal Jwt jwt) {
+        // Automatically link the booking to the authenticated user's Keycloak ID for notifications
+<span class="nc" id="L64">        booking.setUserKeycloakId(jwt.getSubject()); </span>
+<span class="nc" id="L65">        Booking created = bookingService.create(booking);</span>
+<span class="nc" id="L66">        return ResponseEntity.status(HttpStatus.CREATED).body(created);</span>
+    }
+
+    @PutMapping(&quot;/{id}/cancel&quot;)
+    public ResponseEntity&lt;Booking&gt; cancel(@PathVariable Long id) {
+<span class="nc" id="L71">        return ResponseEntity.ok(bookingService.cancel(id));</span>
+    }
+
+    @PutMapping(&quot;/{id}/confirm&quot;)
+    public ResponseEntity&lt;Booking&gt; confirm(@PathVariable Long id) {
+<span class="nc" id="L76">        return ResponseEntity.ok(bookingService.confirm(id));</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; delete(@PathVariable Long id) {
+<span class="nc" id="L81">        bookingService.delete(id);</span>
+<span class="nc" id="L82">        return ResponseEntity.noContent().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

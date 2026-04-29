@@ -1,0 +1,62 @@
+---
+# ── MySQL StatefulSet ─────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-reservation
+  namespace: reservation-ns
+spec:
+  selector:
+    matchLabels:
+      app: mysql-reservation
+  serviceName: mysql-reservation
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql-reservation
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: reservation-secret
+                  key: DB_PASSWORD
+            - name: MYSQL_DATABASE
+              value: reservation_db
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+
+---
+# ── MySQL Service ─────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-reservation
+  namespace: reservation-ns
+spec:
+  selector:
+    app: mysql-reservation
+  ports:
+    - port: 3306
+      targetPort: 3306
+  clusterIP: None   # Headless service for StatefulSet
