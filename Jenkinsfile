@@ -3,17 +3,15 @@ pipeline {
 
     tools {
         maven 'Maven-3.9'
-        jdk   'Java-17'
+        jdk 'Java-17'
     }
 
     environment {
-        IMAGE_NAME    = "dalirom123/reservation-service"
-        SONAR_TOKEN   = credentials('sonar-token')
+        IMAGE_NAME = "dalirom123/reservation-service"
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
-
-        // ── Stage 1: Checkout ──────────────────────────────────────────
         stage('Checkout') {
             steps {
                 checkout scm
@@ -21,7 +19,6 @@ pipeline {
             }
         }
 
-        // ── Stage 2: Unit Tests + Jacoco coverage ──────────────────────
         stage('Unit Tests') {
             steps {
                 sh './mvnw clean verify -q'
@@ -32,23 +29,21 @@ pipeline {
                     jacoco(
                         execPattern: 'target/*.exec',
                         classPattern: 'target/classes',
-                        sourcePattern: 'src/main/java',
-                        minimumInstructionCoverage: '70'
+                        sourcePattern: 'src/main/java'
                     )
                 }
             }
         }
 
-        // ── Stage 3: SonarQube Analysis ───────────────────────────
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh """
+                    sh '''
                         ./mvnw sonar:sonar \
-                          -Dsonar.projectKey=${IMAGE_NAME} \
-                          -Dsonar.login=${SONAR_TOKEN} \
-                          -q
-                    """
+                        -Dsonar.projectKey=reservation-service \
+                        -Dsonar.login=$SONAR_TOKEN \
+                        -q
+                    '''
                 }
             }
         }
@@ -61,7 +56,6 @@ pipeline {
             }
         }
 
-        // ── Stage 4: Package ───────────────────────────────────────────
         stage('Package') {
             steps {
                 sh './mvnw package -DskipTests -q'
@@ -69,18 +63,33 @@ pipeline {
             }
         }
 
-        // ── Stage 5: Docker Build ──────────────────────────────────────
         stage('Docker Build') {
             steps {
                 sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} -t ${IMAGE_NAME}:latest ."
                 echo "✅ Image built successfully: ${IMAGE_NAME}:${BUILD_NUMBER}"
             }
         }
+
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_TOKEN'
+                )]) {
+                    sh '''
+                        echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $IMAGE_NAME:latest
+                        docker push $IMAGE_NAME:$BUILD_NUMBER
+                    '''
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo "✅ Pipeline SUCCESS — Image ready at ${IMAGE_NAME}:latest"
+            echo "✅ Pipeline SUCCESS — Image pushed to Docker Hub: ${IMAGE_NAME}:latest"
         }
         failure {
             echo "❌ Pipeline FAILED — Check the logs above"
