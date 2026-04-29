@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME    = "reservation-service"
+        IMAGE_NAME    = "dalirom123/reservation-service"
         SONAR_TOKEN   = credentials('sonar-token')
     }
 
