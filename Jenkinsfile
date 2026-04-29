@@ -27,7 +27,8 @@ pipeline {
                 ./mvnw sonar:sonar \
                 -Dsonar.host.url=$SONAR_HOST_URL \
                 -Dsonar.login=$SONAR_TOKEN \
-                -Dsonar.projectKey=projet-service
+                -Dsonar.projectKey=projet-service \
+                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                 '''
             }
         }
