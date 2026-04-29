@@ -8,9 +8,7 @@ pipeline {
 
     environment {
         IMAGE_NAME    = "reservation-service"
-        NAMESPACE     = "reservation-ns"
-        SONAR_TOKEN   = credentials('sonar-token')   // Jenkins secret
-        DB_PASSWORD   = credentials('db-password')   // Jenkins secret
+        SONAR_TOKEN   = credentials('sonar-token')
     }
 
     stages {
@@ -41,7 +39,7 @@ pipeline {
             }
         }
 
-        // ── Stage 3: SonarQube Quality Gate ───────────────────────────
+        // ── Stage 3: SonarQube Analysis ───────────────────────────
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -75,44 +73,17 @@ pipeline {
         stage('Docker Build') {
             steps {
                 sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} -t ${IMAGE_NAME}:latest ."
-                echo "Image built: ${IMAGE_NAME}:${BUILD_NUMBER}"
-            }
-        }
-
-        // ── Stage 6: Deploy to Kubernetes (kubeadm) ───────────────────
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh "kubectl apply -f k8s/ -n ${NAMESPACE}"
-                sh """
-                    kubectl set image deployment/reservation-app \
-                        reservation-app=${IMAGE_NAME}:${BUILD_NUMBER} \
-                        -n ${NAMESPACE}
-                """
-                sh "kubectl rollout status deployment/reservation-app -n ${NAMESPACE} --timeout=120s"
-            }
-        }
-
-        // ── Stage 7: Health Check ──────────────────────────────────────
-        stage('Health Check') {
-            steps {
-                script {
-                    def nodeIp = sh(
-                        script: "kubectl get nodes -o jsonpath='{.items[0].status.addresses[0].address}'",
-                        returnStdout: true
-                    ).trim()
-                    sh "sleep 15 && curl -f http://${nodeIp}:30088/actuator/health"
-                    echo "✅ Service is UP at http://${nodeIp}:30088"
-                }
+                echo "✅ Image built successfully: ${IMAGE_NAME}:${BUILD_NUMBER}"
             }
         }
     }
 
     post {
         success {
-            echo "✅ Pipeline SUCCESS — Branch: ${env.BRANCH_NAME} | Build: #${BUILD_NUMBER}"
+            echo "✅ Pipeline SUCCESS — Image ready at ${IMAGE_NAME}:latest"
         }
         failure {
-            echo "❌ Pipeline FAILED — Check logs above"
+            echo "❌ Pipeline FAILED — Check the logs above"
         }
         always {
             cleanWs()
