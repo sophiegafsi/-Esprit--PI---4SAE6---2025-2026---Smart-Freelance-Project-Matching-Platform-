@@ -1,0 +1,275 @@
+RAPPORT DE TESTS - PROJET GESTION PLANNING
+
+1. Introduction
+
+L'objectif de ce travail est de valider le projet Gestion Planning par des tests appliques a l'architecture reelle du projet. Les tests ont ete realises sur le backend Spring Boot et sur le frontend Angular afin de couvrir la logique metier, les interactions entre couches et les principaux scenarios fonctionnels.
+
+2. Structure reelle du projet
+
+Backend:
+- dossier: gestion-planing
+- controllers: PlanningController, TaskController
+- services: PlanningService, TaskService
+- repositories: PlanningRepository, TaskRepository
+- entities: Planning, Task
+- enums: PlanningStatus, TaskStatus, TaskPriority
+- gestion d'erreurs: GlobalExceptionHandler, BusinessException, ResourceNotFoundException
+- DTO de reponse metrique:
+  PlanningProgressResponse
+  PlanningWeightedProgressResponse
+  PlanningDailyLoadResponse
+  PlanningEfficiencyResponse
+
+Frontend:
+- dossier: gestion-planning-front
+- services Angular: planning.ts, task.ts, popup.service.ts
+- pages/composants principaux:
+  add-planning
+  edit-planning
+  list-planning
+  planning-detail
+
+3. Outils utilises
+
+- JUnit 5
+- Mockito
+- Spring Boot Test
+- MockMvc
+- H2 en memoire pour les tests d'integration backend
+- Angular TestBed
+- HttpTestingController
+- Vitest via Angular unit test builder
+
+4. Analyse des classes critiques a tester
+
+PlanningService est critique car il contient la logique metier principale:
+- validation des dates d'un planning
+- recherche par mot-cle et statut
+- calcul de progression simple
+- calcul de progression ponderee
+- calcul de charge journaliere
+- calcul d'efficacite du planning
+
+TaskService est critique car il gere:
+- validation des horaires
+- rattachement d'une tache a un planning
+- recherche globale et par planning
+- mise a jour et suppression de taches
+
+Les controllers sont critiques car ils exposent les endpoints REST evalues:
+- codes HTTP
+- validation des requetes
+- serialisation JSON
+- gestion des erreurs 400 et 404
+
+Les composants Angular sont critiques car ils portent les interactions utilisateur:
+- chargement des donnees
+- recherche
+- creation
+- modification
+- suppression
+- affichage des erreurs backend
+
+5. Strategie de test retenue
+
+Tests unitaires backend:
+- ciblent PlanningService et TaskService
+- utilisent Mockito pour isoler les repositories et dependances
+- verifient la logique metier pure
+
+Tests d'integration backend:
+- utilisent @SpringBootTest et MockMvc
+- executent les vrais controllers, services, repositories et handlers d'erreurs
+- utilisent H2 pour eviter la dependance a MySQL pendant les tests
+
+Tests frontend:
+- services testes avec HttpTestingController
+- composants testes avec TestBed et mocks de services
+- verification des affichages et interactions utilisateur
+
+6. Tests unitaires backend implementes
+
+Fichiers:
+- gestion-planing/src/test/java/tn/esprit/service/PlanningServiceTest.java
+- gestion-planing/src/test/java/tn/esprit/service/TaskServiceTest.java
+
+Couverture principale PlanningServiceTest:
+- ajout d'un planning valide
+- rejet d'un planning avec endDate avant startDate
+- erreur si planning introuvable
+- mise a jour d'un planning existant
+- recherche vide qui retourne tous les plannings
+- recherche qui fusionne les correspondances sans doublons
+- calcul de progression simple DONE / IN_PROGRESS / TODO
+- calcul de progression ponderee avec duree + priorite
+- calcul de charge journaliere
+- calcul d'efficacite avec temps perdu, densite et score
+- suppression d'un planning existant
+
+Couverture principale TaskServiceTest:
+- erreur si tache introuvable
+- chargement des taches d'un planning existant
+- ajout d'une tache valide a un planning
+- rejet d'une tache avec horaire invalide
+- mise a jour d'une tache valide
+- rejet d'une mise a jour avec horaire invalide
+- recherche vide
+- recherche par statut / priorite / texte
+- recherche des taches a l'interieur d'un planning
+- suppression d'une tache existante
+
+Exemples de risques evites:
+- creation de planning incoherent
+- taches avec heure de fin avant l'heure de debut
+- progression affichee fausse
+- duplication ou oubli de resultats dans la recherche
+- regression sur les formules metriques
+
+7. Tests d'integration backend implementes
+
+Fichiers:
+- gestion-planing/src/test/java/tn/esprit/controller/PlanningControllerIntegrationTest.java
+- gestion-planing/src/test/java/tn/esprit/controller/TaskControllerIntegrationTest.java
+- gestion-planing/src/test/resources/application.properties
+
+Scenarios verifies pour PlanningController:
+- POST /api/plannings avec payload valide
+- POST /api/plannings avec erreurs de validation
+- POST /api/plannings avec erreur metier sur les dates
+- GET /api/plannings/{id}/progress
+- GET /api/plannings/{id}/efficiency
+- GET /api/plannings/{id} avec 404
+
+Scenarios verifies pour TaskController:
+- POST /api/tasks/planning/{planningId} valide
+- POST /api/tasks/planning/{planningId} avec erreur metier
+- POST /api/tasks/planning/{planningId} avec validation invalide
+- PUT /api/tasks/{id}
+- GET /api/tasks/planning/{planningId}/search
+- GET /api/tasks/{id} avec 404
+
+Assertions JSON realisees:
+- presence des champs id, title, status, priority
+- verification des messages d'erreur
+- verification des champs metrics: totalTasks, progress, wastedMinutes, efficiencyScore
+
+8. Tests frontend implementes
+
+Fichiers:
+- gestion-planning-front/src/app/services/planning.spec.ts
+- gestion-planning-front/src/app/services/task.spec.ts
+- gestion-planning-front/src/app/pages/add-planning/add-planning.spec.ts
+- gestion-planning-front/src/app/pages/edit-planning/edit-planning.spec.ts
+- gestion-planning-front/src/app/pages/list-planning/list-planning.spec.ts
+- gestion-planning-front/src/app/pages/planning-detail/planning-detail.spec.ts
+- gestion-planning-front/src/app/app.spec.ts
+
+Services Angular testes:
+- getAllPlannings
+- searchPlannings
+- addPlanning
+- updatePlanning
+- getPlanningWeightedProgress
+- getTasksByPlanningId
+- searchTasksByPlanning
+- addTaskToPlanning
+- updateTask
+- deleteTask
+
+Composants Angular testes:
+- AddPlanning: affichage, sauvegarde, popup de succes, affichage des erreurs backend
+- EditPlanning: chargement, redirection si erreur, mise a jour, popup de succes, erreurs backend
+- ListPlanning: chargement, affichage, recherche, suppression, popup d'erreur
+- PlanningDetail: chargement complet, affichage, ajout de tache, edition, suppression, recherche, erreurs backend
+- App: verification du shell principal
+
+9. Priorite sur la logique complexe
+
+La priorite a ete donnee aux methodes suivantes:
+
+- PlanningService.getPlanningProgress
+  Couvre le calcul du pourcentage global a partir des statuts.
+  Risque evite: afficher une progression incorrecte au tableau de bord.
+
+- PlanningService.getPlanningWeightedProgress
+  Couvre la ponderation par duree et priorite.
+  Risque evite: metrique de performance trompeuse.
+
+- PlanningService.getPlanningDailyLoad
+  Couvre l'agregation des temps par jour.
+  Risque evite: mauvaise estimation de la charge quotidienne.
+
+- PlanningService.getPlanningEfficiency
+  Couvre les ecarts entre taches, la densite, les penalites et le niveau final.
+  Risque evite: score d'efficacite faux ou incoherent.
+
+- TaskService.addTaskToPlanning / updateTask
+  Couvre les validations horaires et l'interaction PlanningService -> TaskRepository.
+  Risque evite: insertion de donnees invalides dans la base.
+
+10. Emplacement des fichiers
+
+Backend:
+- tests unitaires: gestion-planing/src/test/java/tn/esprit/service/
+- tests integration: gestion-planing/src/test/java/tn/esprit/controller/
+- config test: gestion-planing/src/test/resources/application.properties
+
+Frontend:
+- specs services: gestion-planning-front/src/app/services/
+- specs composants: gestion-planning-front/src/app/pages/
+- spec application: gestion-planning-front/src/app/app.spec.ts
+
+11. Dependances Maven ajoutees
+
+Dans gestion-planing/pom.xml:
+- spring-boot-starter-test
+- h2 (scope test)
+
+Pourquoi:
+- starter-test fournit JUnit 5, Mockito et l'ecosysteme Spring Test
+- h2 permet d'executer les tests d'integration sans MySQL local
+
+12. Comment executer les tests
+
+Backend dans IntelliJ:
+1. Ouvrir le module gestion-planing
+2. Lancer le dossier src/test/java ou une classe de test
+3. Ou lancer la commande:
+   .\mvnw.cmd test
+
+Frontend dans IntelliJ ou terminal:
+1. Ouvrir le module gestion-planning-front
+2. Lancer:
+   npm test -- --watch=false
+
+13. Verification reelle effectuee
+
+Execution backend:
+- commande: .\mvnw.cmd test
+- resultat: 34 tests OK
+
+Execution frontend:
+- commande: npm test -- --watch=false
+- resultat: 33 tests OK
+
+14. Erreurs frequentes et corrections
+
+Si MockMvc ne compile pas:
+- verifier l'import adapte a Spring Boot 4:
+  org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+
+Si les tests d'integration essayent de se connecter a MySQL:
+- verifier la presence de src/test/resources/application.properties
+- verifier la dependance H2
+
+Si les tests frontend echouent sur les processus:
+- relancer dans un environnement autorisant le spawn des workers
+- utiliser npm test -- --watch=false
+
+Si les assertions Angular echouent apres mise a jour:
+- verifier si le composant reset le formulaire apres succes
+- comparer l'argument envoye au service avant le reset
+
+15. Conclusion
+
+Le projet Gestion Planning dispose maintenant d'une base de tests coherente et executable sur son architecture reelle. Les tests couvrent les validations, les erreurs, les cas limites, les interactions entre couches et la logique metier complexe. Ce travail permet de justifier techniquement la qualite du projet devant un enseignant, avec des fichiers de test concrets, des commandes d'execution reelles et des resultats verifies.
