@@ -11,13 +11,25 @@ pipeline {
   }
 
   stages {
-    stage('Test and Package') {
+    stage('Test') {
       steps {
         script {
           if (isUnix()) {
-            sh 'chmod +x mvnw && ./mvnw -B clean verify'
+            sh 'chmod +x mvnw && ./mvnw -B clean test'
           } else {
-            bat 'mvnw.cmd -B clean verify'
+            bat 'mvnw.cmd -B clean test'
+          }
+        }
+      }
+    }
+
+    stage('Package') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh './mvnw -B package -DskipTests'
+          } else {
+            bat 'mvnw.cmd -B package -DskipTests'
           }
         }
       }
@@ -44,7 +56,7 @@ pipeline {
   post {
     always {
       junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
-      archiveArtifacts artifacts: 'target/site/jacoco/**', allowEmptyArchive: true
+      archiveArtifacts artifacts: 'target/*-SNAPSHOT.jar', fingerprint: true, onlyIfSuccessful: true
     }
   }
 }
