@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS gestionskillsfares;
+CREATE DATABASE IF NOT EXISTS portfolio_db;

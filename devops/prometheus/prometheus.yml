@@ -1,0 +1,38 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - prometheus:9090
+
+  - job_name: spring-boot-actuator
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - eureka:8761
+          - gateway:8081
+          - skills-service:8086
+          - portfolio-service:8090
+
+  - job_name: http-availability
+    metrics_path: /probe
+    params:
+      module:
+        - http_2xx
+    static_configs:
+      - targets:
+          - http://frontend:80
+          - http://eureka:8761/actuator/health
+          - http://gateway:8081/actuator/health
+          - http://skills-service:8086/actuator/health
+          - http://portfolio-service:8090/actuator/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
