@@ -1,0 +1,32 @@
+services:
+  postgres-sonar:
+    image: postgres:16-alpine
+    container_name: pidev-sonar-postgres
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    volumes:
+      - sonar-postgres-data:/var/lib/postgresql/data
+
+  sonarqube:
+    image: sonarqube:lts-community
+    container_name: pidev-sonarqube
+    depends_on:
+      - postgres-sonar
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://postgres-sonar:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-extensions:/opt/sonarqube/extensions
+      - sonarqube-logs:/opt/sonarqube/logs
+
+volumes:
+  sonar-postgres-data:
+  sonarqube-data:
+  sonarqube-extensions:
+  sonarqube-logs:
