@@ -1,0 +1,88 @@
+<div class="page">
+  <div class="hero">
+    <div class="left">
+      <div class="brand">FreeLink</div>
+      <h1>Skills Proofs</h1>
+      <p *ngIf="skillIdFilter">List of proofs linked to skill #{{ skillIdFilter }}.</p>
+      <p *ngIf="!skillIdFilter">Full list of all added proofs.</p>
+      <div class="actionRow">
+        <button class="btn primary" (click)="goNew()">+ Add a proof</button>
+        <button class="btn ghost" (click)="goSkills()">Back to skills</button>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="search">
+        <input [(ngModel)]="q" (ngModelChange)="onQueryChange($event)" placeholder="Search proofs..." />
+        <span class="pill">{{ filtered().length }} proofs</span>
+      </div>
+
+      <div class="sort">
+        <label>Sort</label>
+        <select [(ngModel)]="sortKey" (ngModelChange)="onSortChange()">
+          <option value="id">ID</option>
+          <option value="title">Title</option>
+          <option value="type">Type</option>
+        </select>
+        <button class="btn ghost small" type="button" (click)="sortDir = (sortDir === 'asc' ? 'desc' : 'asc'); onSortChange()">
+          {{ sortDir === 'asc' ? '↑' : '↓' }}
+        </button>
+      </div>
+
+      <div class="pager">
+        <button class="btn ghost small" type="button" (click)="prev()" [disabled]="page === 0">←</button>
+        <span>Page {{ page + 1 }} / {{ totalPages }}</span>
+        <button class="btn ghost small" type="button" (click)="next()" [disabled]="page + 1 >= totalPages">→</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="state" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="state" *ngIf="loading">Loading...</div>
+
+    <div class="grid" *ngIf="!loading">
+      <div class="card" *ngFor="let p of paged(); let i = index">
+        <div class="top">
+          <div class="title">{{ p.title || '-' }}</div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <div class="badge">{{ p.type || 'OTHER' }}</div>
+            <div class="badge" [ngStyle]="expirationBadgeStyle(p)">{{ expirationBadgeLabel(p) }}</div>
+          </div>
+        </div>
+
+        <div class="meta">
+          <div class="metaBox">
+            <div class="label">No.</div>
+            <div class="value">{{ (page * size) + i + 1 }}</div>
+          </div>
+          <div class="metaBox">
+            <div class="label">Proof ID</div>
+            <div class="value">{{ p.id || '-' }}</div>
+          </div>
+          <div class="metaBox">
+            <div class="label">Linked skill</div>
+            <div class="value">{{ skillLabel(p) }}</div>
+          </div>
+        </div>
+
+        <a *ngIf="p.fileUrl" [href]="p.fileUrl" target="_blank" rel="noopener noreferrer" class="url">
+          Open proof
+        </a>
+
+        <div class="thumb" *ngIf="isImage(p.fileUrl)">
+          <img [src]="p.fileUrl" alt="Proof photo" />
+        </div>
+
+        <div class="actions">
+          <button class="btn ghost" (click)="goEdit(p.id)">Edit</button>
+          <button class="btn danger" (click)="remove(p.id)">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="!loading && filtered().length === 0">
+      No proofs found.
+    </div>
+  </div>
+</div>

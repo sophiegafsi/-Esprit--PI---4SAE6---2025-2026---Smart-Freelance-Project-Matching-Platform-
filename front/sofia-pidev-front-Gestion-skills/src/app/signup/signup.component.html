@@ -1,0 +1,70 @@
+<main class="page">
+    <div class="container center-wrap">
+
+        <div class="signup-card">
+
+            <div class="signup-head">
+                <h1>Create your account ✨</h1>
+                <p>Join FreeLink and start collaborating with top talents.</p>
+            </div>
+
+            <form class="signup-form" (ngSubmit)="onSignup()">
+
+                <div class="two">
+                    <app-premium-input label="First name" placeholder="Soufia" icon="fa-user"
+                        [(ngModel)]="user.firstName" name="firstName" [error]="errors.firstName" required>
+                    </app-premium-input>
+
+                    <app-premium-input label="Last name" placeholder="Gafsi" icon="fa-user-tag"
+                        [(ngModel)]="user.lastName" name="lastName" [error]="errors.lastName" required>
+                    </app-premium-input>
+                </div>
+
+                <app-premium-input label="Birth date" type="date" icon="fa-calendar-alt" [(ngModel)]="user.birthDate"
+                    name="birthDate" [error]="errors.birthDate" required>
+                </app-premium-input>
+
+                <app-premium-input label="Email address" type="email" placeholder="you@example.com" icon="fa-envelope"
+                    [(ngModel)]="user.email" name="email" [error]="errors.email" required>
+                </app-premium-input>
+
+                <div class="two">
+                    <app-premium-input label="Password" type="password" placeholder="••••••••" icon="fa-lock"
+                        [(ngModel)]="user.password" name="password" [error]="errors.password" required>
+                    </app-premium-input>
+
+                    <app-premium-input label="Confirm password" type="password" placeholder="••••••••"
+                        icon="fa-shield-alt" [(ngModel)]="user.confirmPassword" name="confirmPassword"
+                        [error]="errors.confirmPassword" required>
+                    </app-premium-input>
+                </div>
+
+                <app-premium-select label="Country" icon="fa-globe-africa" placeholder="Select your country"
+                    [options]="['Tunisia', 'France', 'Algeria', 'Morocco', 'Other']" [(ngModel)]="user.country"
+                    name="country" [error]="errors.country" required>
+                </app-premium-select>
+
+                <label class="terms">
+                    <input type="checkbox" required />
+                    <span>
+                        I agree to the <a class="link" href="#">Terms</a> and
+                        <a class="link" href="#">Privacy Policy</a>.
+                    </span>
+                </label>
+
+                <button class="btn orange full" type="submit">Create account</button>
+
+                <div class="divider"><span>or</span></div>
+
+                <button class="btn ghost full" type="button">Continue with Google</button>
+
+                <p class="bottom-text">
+                    Already have an account?
+                    <a routerLink="/login" class="link">Login</a>
+                </p>
+
+            </form>
+        </div>
+
+    </div>
+</main>

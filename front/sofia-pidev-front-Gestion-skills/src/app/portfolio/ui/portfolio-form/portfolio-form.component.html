@@ -1,0 +1,118 @@
+<div class="page" [class.theme-dark]="theme === 'dark'" [class.theme-light]="theme === 'light'">
+  <div class="panel">
+    <div class="header">
+      <h2>{{ isEditMode ? 'Edit Achievement' : 'Add Achievement' }}</h2>
+      <div class="headerActions">
+        <button class="themeSwitch" type="button" (click)="toggleTheme()" [attr.aria-pressed]="theme === 'light'">
+          <span class="themeSwitchTrack"><span class="themeSwitchThumb"></span></span>
+          <span>{{ theme === 'dark' ? 'Dark mode' : 'Light mode' }}</span>
+        </button>
+        <button class="btn ghost" type="button" (click)="back()">Back</button>
+      </div>
+    </div>
+
+    <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="row">
+        <label>Title</label>
+        <input formControlName="title" placeholder="e.g. Freelance marketplace API" />
+        <small class="hint error-text" *ngIf="hasError('title','required')">Title is required.</small>
+        <small class="hint error-text" *ngIf="hasError('title','trimmedMinLength')">Title is too short (min 2 characters).</small>
+        <small class="hint error-text" *ngIf="hasError('title','containsLetter')">Invalid title (must contain at least one letter).</small>
+        <small class="hint error-text" *ngIf="hasError('title','maxlength')">Title is too long.</small>
+      </div>
+
+      <div class="row">
+        <label>Description</label>
+        <textarea rows="4" formControlName="description" placeholder="Describe what was delivered..."></textarea>
+        <small class="hint error-text" *ngIf="hasError('description','required')">Description is required.</small>
+        <small class="hint error-text" *ngIf="hasError('description','trimmedMinLength')">Description is too short (min 5 characters).</small>
+        <small class="hint error-text" *ngIf="hasError('description','maxlength')">Description is too long.</small>
+      </div>
+
+      <div class="toolPanel">
+        <div class="toolHeader">
+          <div>
+            <h3>AI Writing Tools</h3>
+            <p>Helpers to polish, translate, sanitize, and review the achievement before saving.</p>
+          </div>
+        </div>
+
+        <div class="toolActions">
+          <button class="btn ghost" type="button" [disabled]="isToolBusy('rewrite')" (click)="rewriteDescription()">
+            {{ isToolBusy('rewrite') ? 'Polishing...' : 'Professional rewrite' }}
+          </button>
+          <select class="toolSelect" [(ngModel)]="selectedTargetLanguage" [ngModelOptions]="{ standalone: true }" aria-label="Target language">
+            <option *ngFor="let lang of translationTargets" [ngValue]="lang.value">{{ lang.label }}</option>
+          </select>
+          <button class="btn ghost" type="button" [disabled]="isToolBusy('translate')" (click)="translateDescription()">
+            {{ isToolBusy('translate') ? 'Translating...' : ('Translate to ' + selectedTargetLanguageLabel()) }}
+          </button>
+          <button class="btn ghost" type="button" [disabled]="isToolBusy('mask')" (click)="maskDescription()">
+            {{ isToolBusy('mask') ? 'Sanitizing...' : 'Mask bad words' }}
+          </button>
+          <button class="btn ghost" type="button" [disabled]="isToolBusy('review')" (click)="reviewDescriptionWithSpringAi()">
+            {{ isToolBusy('review') ? 'Reviewing...' : 'Spring AI review' }}
+          </button>
+          <button class="btn ghost" type="button" [disabled]="!lastDescriptionSnapshot" (click)="undoDescriptionTool()">Undo</button>
+        </div>
+
+        <div class="hint stepHint">
+          Unsafe words are detected dynamically by the backend before save, and Spring AI can use a local Ollama model without any paid API key.
+        </div>
+        <div class="hint aiStatus" *ngIf="toolMessage">{{ toolMessage }}</div>
+        <div class="springAiReview" *ngIf="springAiFeedback">
+          <div class="springAiReviewTitle">Spring AI Review</div>
+          <div class="springAiReviewMeta" *ngIf="springAiProvider">{{ springAiProvider }}</div>
+          <pre class="springAiReviewBody">{{ springAiFeedback }}</pre>
+        </div>
+
+        <div class="howItWorks">
+          <div class="howTitle">How this AI works</div>
+          <div class="howGrid">
+            <div class="howCard">
+              <strong>Rewrite</strong>
+              <span>The service rewrites the raw description in the same language with a cleaner professional style.</span>
+            </div>
+            <div class="howCard">
+              <strong>Translate</strong>
+              <span>The text is translated to the selected language automatically.</span>
+            </div>
+            <div class="howCard">
+              <strong>Safe text</strong>
+              <span>Bad words are detected dynamically in the backend and masked automatically before the achievement is saved.</span>
+            </div>
+            <div class="howCard">
+              <strong>Spring AI local</strong>
+              <span>Uses Spring AI with a local Ollama model when available, otherwise it falls back safely without crashing.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row two">
+        <div>
+          <label>Completion date</label>
+          <input type="date" formControlName="completionDate" />
+          <small class="hint error-text" *ngIf="hasError('completionDate','required')">Completion date is required.</small>
+          <small class="hint error-text" *ngIf="hasError('completionDate','isoDate')">Invalid format (YYYY-MM-DD).</small>
+        </div>
+
+        <div>
+          <label>Freelancer ID</label>
+          <input type="number" min="1" step="1" formControlName="freelancerId" />
+          <small class="hint error-text" *ngIf="hasError('freelancerId','required')">Freelancer ID is required.</small>
+          <small class="hint error-text" *ngIf="hasError('freelancerId','positiveInt')">Freelancer ID must be an integer &gt; 0.</small>
+        </div>
+      </div>
+
+      <div class="hint stepHint" *ngIf="!isEditMode">
+        After creation, you will be redirected to the detail page to add linked skills, generate an AI summary, and save the achievement metric.
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" type="submit" [disabled]="saving">
+          {{ saving ? 'Saving...' : (isEditMode ? 'Update Achievement' : 'Create Achievement') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

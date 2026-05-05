@@ -1,0 +1,112 @@
+<div class="browse-page">
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-inner">
+            <div class="hero-left">
+                <p class="mini-label">🌍 Available Now</p>
+                <h1>Browse Freelancers</h1>
+                <p class="subtitle">Discover talented freelancers ready to take on your next project. Book a slot
+                    instantly.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Bar -->
+    <div class="search-wrapper">
+        <div class="search-bar" [class.focused]="searchQuery.length > 0">
+            <span class="search-icon">🔍</span>
+            <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearch()"
+                placeholder="Search by name, skill, location..." id="freelancer-search" />
+            <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()">✕</button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Loading available freelancers...</p>
+    </div>
+
+    <!-- Error -->
+    <div class="error-box" *ngIf="error && !loading">
+        <span>⚠️</span> {{ error }}
+        <button (click)="loadAvailabilities()">Retry</button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && !error && filtered.length === 0">
+        <p class="empty-icon">🕵️</p>
+        <h3>No freelancers available right now</h3>
+        <p>Check back soon — new slots are added daily.</p>
+    </div>
+
+    <!-- Grid of Cards -->
+    <div class="grid" *ngIf="!loading && filtered.length > 0">
+        <div class="freelancer-card" *ngFor="let a of filtered" [class.inactive]="!a.isActive">
+            <div class="card-header">
+                <div class="avatar">{{ a.freelancerName?.charAt(0)?.toUpperCase() || '?' }}</div>
+                <div class="card-title">
+                    <h3>{{ a.freelancerName }}</h3>
+                    <span class="location-badge">📍 {{ a.location }}</span>
+                </div>
+                <div class="slots-badge" [class.full]="a.maxSlots === 0">
+                    {{ a.maxSlots }} slots
+                </div>
+            </div>
+
+            <p class="description">{{ a.description }}</p>
+
+            <div class="time-info">
+                <div class="time-chip">📅 {{ a.date }}</div>
+                <div class="time-chip">🕐 {{ a.startTime }} – {{ a.endTime }}</div>
+            </div>
+
+            <button class="book-btn" (click)="openBookingModal(a)" [disabled]="a.maxSlots === 0">
+                <span *ngIf="a.maxSlots! > 0">🚀 Book Now</span>
+                <span *ngIf="a.maxSlots === 0">Fully Booked</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>📋 Book a Slot</h2>
+            <button class="close-btn" (click)="closeModal()">✕</button>
+        </div>
+
+        <div class="modal-body" *ngIf="selectedAvailability">
+            <div class="booking-summary">
+                <p><strong>Freelancer:</strong> {{ selectedAvailability.freelancerName }}</p>
+                <p><strong>Date:</strong> {{ selectedAvailability.date }}</p>
+                <p><strong>Time:</strong> {{ selectedAvailability.startTime }} – {{ selectedAvailability.endTime }}</p>
+                <p><strong>Location:</strong> {{ selectedAvailability.location }}</p>
+            </div>
+
+            <div class="form-group">
+                <label for="booking-name">Your Name</label>
+                <input id="booking-name" type="text" [(ngModel)]="booking.userName" placeholder="Full name" />
+            </div>
+            <div class="form-group">
+                <label for="booking-email">Your Email</label>
+                <input id="booking-email" type="email" [(ngModel)]="booking.userEmail" placeholder="email@example.com"
+                    required />
+            </div>
+            <div class="form-group">
+                <label for="booking-notes">Notes (optional)</label>
+                <textarea id="booking-notes" [(ngModel)]="booking.notes"
+                    placeholder="Describe your project briefly..."></textarea>
+            </div>
+
+            <div class="alert success" *ngIf="bookingSuccess">✅ {{ bookingSuccess }}</div>
+            <div class="alert error" *ngIf="bookingError">⚠️ {{ bookingError }}</div>
+
+            <button class="submit-btn" (click)="submitBooking()" [disabled]="bookingLoading || !booking.userEmail">
+                <span *ngIf="!bookingLoading">Confirm Booking</span>
+                <span *ngIf="bookingLoading">Sending...</span>
+            </button>
+        </div>
+    </div>
+</div>

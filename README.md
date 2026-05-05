@@ -1,92 +1,60 @@
-<<<<<<< HEAD
-# Smart Freelance & Project Matching Platform
+# Spring Boot Microservices Project - PiDev
 
-## Overview
-...
+This project is a microservices-based application built with Spring Boot, using Keycloak for authentication and Mailhog for email testing.
 
-## Features
-...
+## Prerequisites
 
-## Tech Stack
-
-### Frontend
-Angular
-
-### Backend
-Spring Boot
-
-## Architecture
-...
-
-## Contributors
-...
-
-## Academic Context
-Developed at Esprit School of Engineering – Tunisia  
-PIDEV – 3A | 2025–2026
+- Docker and Docker Compose installed on your machine.
+- Git (to clone the repository).
 
 ## Getting Started
-...
 
-## Acknowledgments
-=======
-# FreelinkApp
-
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.4.
-
-## Development server
-
-To start a local development server, run:
-
+### 1. Clone the Project
+Make sure you are on the `youssef` branch:
 ```bash
-ng serve
+git checkout youssef
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+### 2. Start the Infrastructure (Keycloak & Mailhog)
+Run Docker Compose to start Keycloak and Mailhog:
 ```bash
-ng generate component component-name
+docker-compose up -d
+```
+The Keycloak instance is pre-configured to import the realm file from `./keycloak/freelink-realm.json`.
+
+- **Keycloak Console**: [http://localhost:8080](http://localhost:8080) (Admin: `admin`/`admin`)
+- **Mailhog UI**: [http://localhost:8025](http://localhost:8025)
+
+### 3. Run Microservices
+Each microservice is located in its own directory:
+- `API-Gateway`
+- `condature`
+- `eureka-server`
+- `user`
+
+You can run them using Maven:
+```bash
+./mvnw spring-boot:run
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Team Collaboration
+When pulling changes from this branch, ensure you run `docker-compose up -d` to get the latest Keycloak configuration.
 
-```bash
-ng generate --help
-```
+---
+**Branch:** `youssef`
 
-## Building
+## Troubleshooting
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
->>>>>>> new-repo/reclamation-front
+### Keycloak '400' Error on Registration
+If you encounter a `400 Bad Request` or `Failed to create user` error:
+1.  **Check the Console**: The updated `user-service` now logs the exact error body from Keycloak. Look for "Body: { ... }".
+2.  **Run the Debug Script**: Run the included PowerShell script to verify your Keycloak setup:
+    ```powershell
+    ./debug_keycloak.ps1
+    ```
+3.  **Clean Restart**: If the realm import seems broken, try:
+    ```bash
+    docker-compose down -v
+    docker-compose up -d
+    ```
+    This deletes the local Keycloak data and forces a fresh import of `freelink-realm.json`.

@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    
+    environment {
+        KUBECONFIG_CREDENTIAL_ID = 'kubeconfig-credentials'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Deploy to Kubernetes (kubeadm)') {
+            steps {
+                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIAL_ID}", variable: 'KUBECONFIG')]) {
+                    sh '''
+                        # Apply all Kubernetes manifests in the root k8s folder
+                        kubectl apply -f k8s/
+                        
+                        # Verify Deployments
+                        kubectl get pods
+                        kubectl get services
+                    '''
+                }
+            }
+        }
+    }
+}

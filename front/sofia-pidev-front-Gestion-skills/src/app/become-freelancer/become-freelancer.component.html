@@ -1,0 +1,32 @@
+<main class="page">
+    <div class="container center-wrap">
+        <div class="card form-card">
+            <div class="head">
+                <h1>Become a Freelancer 🚀</h1>
+                <p>Complete your profile to start receiving job offers.</p>
+            </div>
+
+            <form class="form" (ngSubmit)="onSubmit()">
+                <app-premium-input label="Job Title" placeholder="e.g. Senior Java Developer" icon="fa-briefcase"
+                    [(ngModel)]="profile.jobTitle" name="jobTitle" required>
+                </app-premium-input>
+
+                <app-premium-textarea label="Bio" placeholder="Briefly describe your experience..."
+                    [(ngModel)]="profile.bio" name="bio" required>
+                </app-premium-textarea>
+
+                <div class="two">
+                    <app-premium-input label="Hourly Rate ($)" type="number" placeholder="50" icon="fa-hand-holding-usd"
+                        [(ngModel)]="profile.hourlyRate" name="hourlyRate" required>
+                    </app-premium-input>
+
+                    <app-premium-input label="Portfolio URL" type="url" placeholder="https://github.com/..."
+                        icon="fa-link" [(ngModel)]="profile.portfolioUrl" name="portfolioUrl">
+                    </app-premium-input>
+                </div>
+
+                <button class="btn orange full" type="submit">Complete Profile</button>
+            </form>
+        </div>
+    </div>
+</main>
