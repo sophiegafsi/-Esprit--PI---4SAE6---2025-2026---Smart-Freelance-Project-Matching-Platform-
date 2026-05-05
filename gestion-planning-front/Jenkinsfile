@@ -17,7 +17,7 @@ pipeline {
         
         stage('Install Dependencies') {
             steps {
-                dir('.') {
+                dir('gestion-planning-front') {
                     sh 'npm install'
                 }
             }
@@ -25,7 +25,7 @@ pipeline {
         
         stage('Test (Jasmine)') {
             steps {
-                dir('.') {
+                dir('gestion-planning-front') {
                     sh 'npm run test -- --watch=false --browsers=ChromeHeadless'
                 }
             }
@@ -33,7 +33,7 @@ pipeline {
         
         stage('Build') {
             steps {
-                dir('.') {
+                dir('gestion-planning-front') {
                     sh 'npm run build'
                 }
             }
@@ -41,7 +41,7 @@ pipeline {
         
         stage('SonarQube Analysis') {
             steps {
-                dir('.') {
+                dir('gestion-planning-front') {
                     withSonarQubeEnv('SonarQube') {
                         sh 'npx sonar-scanner -Dsonar.projectKey=${SERVICE_NAME} -Dsonar.sources=src'
                     }
@@ -51,7 +51,7 @@ pipeline {
         
         stage('Build Docker Image') {
             steps {
-                dir('.') {
+                dir('gestion-planning-front') {
                     script {
                         dockerImage = docker.build("${DOCKER_IMAGE}")
                     }

@@ -17,7 +17,7 @@ pipeline {
         
         stage('Build & Test') {
             steps {
-                dir('.') {
+                dir('porjectservice') {
                     sh 'mvn clean install'
                 }
             }
@@ -25,7 +25,7 @@ pipeline {
         
         stage('SonarQube Analysis') {
             steps {
-                dir('.') {
+                dir('porjectservice') {
                     withSonarQubeEnv('SonarQube') {
                         sh 'mvn sonar:sonar -Dsonar.projectKey=${SERVICE_NAME}'
                     }
@@ -35,7 +35,7 @@ pipeline {
         
         stage('Build Docker Image') {
             steps {
-                dir('.') {
+                dir('porjectservice') {
                     script {
                         dockerImage = docker.build("${DOCKER_IMAGE}")
                     }
