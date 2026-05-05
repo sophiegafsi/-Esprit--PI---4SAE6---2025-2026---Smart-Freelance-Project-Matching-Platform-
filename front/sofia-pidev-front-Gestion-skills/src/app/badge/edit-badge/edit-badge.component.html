@@ -1,0 +1,107 @@
+<section class="page">
+  <section class="page-header">
+    <div>
+      <div class="eyebrow">Badge Management</div>
+      <h1>Edit Badge</h1>
+      <p class="muted">Update configuration and business logic for badge #{{ selectedBadgeId }}.</p>
+    </div>
+    <div class="toolbar">
+      <a class="ghost" [routerLink]="['/badges/list-badge']">Back to list</a>
+      <button class="ghost" type="button" (click)="loadBadges()" [disabled]="isLoading">Refresh data</button>
+    </div>
+  </section>
+
+  <section class="form-card">
+    <div class="form-grid">
+      <!-- Only show selector if no ID was provided in route or for easier swapping -->
+      <div class="field full" *ngIf="!routeId">
+        <label for="badgeSelect">Select badge to manage</label>
+        <select id="badgeSelect" [disabled]="isLoading || !badges.length" [(ngModel)]="selectedBadgeId"
+          (ngModelChange)="selectBadge($event)">
+          <option [ngValue]="0">-- Select a badge --</option>
+          <option *ngFor="let b of badges" [ngValue]="b.id">
+            #{{ b.id }} - {{ b.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="name">Name</label>
+        <input id="name" [(ngModel)]="formModel.name" [disabled]="!selectedBadgeId" />
+      </div>
+
+      <div class="field">
+        <label for="icon">Icon</label>
+        <input id="icon" [(ngModel)]="formModel.icon" [disabled]="!selectedBadgeId" />
+      </div>
+
+      <div class="field full">
+        <label for="description">Description</label>
+        <textarea id="description" [(ngModel)]="formModel.description" [disabled]="!selectedBadgeId"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="category">Category</label>
+        <select id="category" [(ngModel)]="formModel.category" [disabled]="!selectedBadgeId">
+          <option value="SCORE">Score</option>
+          <option value="POINTS">Points</option>
+          <option value="LEVEL">Level</option>
+          <option value="CUSTOM">Custom</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="conditionType">Condition type</label>
+        <select id="conditionType" [(ngModel)]="formModel.conditionType"
+          [disabled]="!selectedBadgeId || !formModel.autoAssignable">
+          <option value="AVERAGE_SCORE">Average score</option>
+          <option value="POINTS">Points</option>
+          <option value="LEVEL">Level</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="conditionValue">Threshold value</label>
+        <input id="conditionValue" type="number" min="0" step="0.1" [(ngModel)]="formModel.conditionValue"
+          [disabled]="!selectedBadgeId || !formModel.autoAssignable" />
+      </div>
+
+      <div class="field">
+        <label for="pointsReward">Bonus points</label>
+        <input id="pointsReward" type="number" min="0" [(ngModel)]="formModel.pointsReward"
+          [disabled]="!selectedBadgeId" />
+      </div>
+
+      <label class="toggle-field">
+        <input type="checkbox" [(ngModel)]="formModel.autoAssignable" [disabled]="!selectedBadgeId" />
+        <span>Automatic assignment</span>
+      </label>
+
+      <label class="toggle-field">
+        <input type="checkbox" [(ngModel)]="formModel.certificateEligible" [disabled]="!selectedBadgeId" />
+        <span>PDF certificate</span>
+      </label>
+
+      <label class="toggle-field">
+        <input type="checkbox" [(ngModel)]="formModel.isActive" [disabled]="!selectedBadgeId" />
+        <span>Badge active</span>
+      </label>
+
+      <div class="form-actions full">
+        <button class="primary" type="button" (click)="save()" [disabled]="!selectedBadgeId || isSaving">
+          {{ isSaving ? 'Saving...' : 'Save changes' }}
+        </button>
+        <button class="ghost" type="button" (click)="reset()" [disabled]="!selectedBadgeId || isSaving">
+          Reset
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="feedbackType === 'success'" class="alert" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+  <section *ngIf="feedbackType === 'error'" class="alert error" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+</section>

@@ -1,0 +1,140 @@
+.detail-wrapper {
+  width: 100%;
+  max-width: 1120px;
+  margin: 32px auto 60px;
+  padding: 0 16px;
+}
+
+.detail-card {
+  padding: 28px;
+  border-radius: 28px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  color: #fff;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.head h1 {
+  margin: 0 0 6px;
+  font-size: 34px;
+  font-weight: 900;
+}
+
+.head p {
+  margin: 0;
+  color: rgba(255,255,255,.68);
+  font-weight: 600;
+}
+
+.top-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.detail-item {
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.06);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.detail-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(244,163,64,.35);
+}
+
+.detail-item.full {
+  grid-column: 1 / -1;
+}
+
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255,255,255,.55);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+
+.detail-item p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: #f5f7fb;
+}
+
+.priority-text,
+.status-text {
+  color: #f4a340;
+}
+
+.btn {
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn.primary {
+  background: #f4a340;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(244,163,64,.25);
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.18);
+  color: #fff;
+}
+
+.state-message {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255,255,255,.8);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.state-message.error {
+  color: #ff7d7d;
+}
+
+@media (max-width: 780px) {
+  .head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .top-actions {
+    justify-content: flex-start;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

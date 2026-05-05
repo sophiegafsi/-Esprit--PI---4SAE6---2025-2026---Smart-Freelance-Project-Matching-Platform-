@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portfolio-service
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portfolio-service
+  template:
+    metadata:
+      labels:
+        app: portfolio-service
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8090'
+        prometheus.io/path: '/actuator/prometheus'
+    spec:
+      containers:
+        - name: portfolio-service
+          image: portfolio-service:latest
+          ports:
+            - containerPort: 8090
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-service:3306/portfolio_db?createDatabaseIfNotExist=true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portfolio-service
+  namespace: dev
+spec:
+  selector:
+    app: portfolio-service
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 8090

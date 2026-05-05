@@ -1,0 +1,223 @@
+.form-page {
+    min-height: 100vh;
+    color: white;
+    background: radial-gradient(circle at top, #12345a 0%, #0a2240 45%, #07182c 100%);
+}
+
+.form-wrapper {
+    padding: 52px 20px;
+}
+
+.form-card {
+    width: min(880px, 94%);
+    margin: auto;
+    background: linear-gradient(180deg, rgba(33, 58, 91, 0.95), rgba(21, 42, 71, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 30px;
+    padding: 44px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    position: relative;
+    overflow: hidden;
+}
+
+.form-card::before {
+    content: "";
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(244, 162, 89, 0.18) 0%, transparent 70%);
+}
+
+.title-block {
+    text-align: center;
+    margin-bottom: 36px;
+    position: relative;
+    z-index: 1;
+}
+
+.mini-label {
+    color: #f4a259;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.title-block h1 {
+    margin: 0;
+    font-size: 48px;
+    font-weight: 800;
+}
+
+.subtitle {
+    margin: 12px auto 0;
+    max-width: 600px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+.req {
+    color: #f4a259;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    border-top-color: #f4a259;
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+form {
+    position: relative;
+    z-index: 1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 22px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+label {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+input,
+textarea {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: white;
+    border-radius: 16px;
+    padding: 15px 18px;
+    font-size: 16px;
+    outline: none;
+    transition: 0.25s;
+}
+
+input:focus,
+textarea:focus {
+    border-color: rgba(244, 162, 89, 0.8);
+    box-shadow: 0 0 0 4px rgba(244, 162, 89, 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 110px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+.alert {
+    padding: 14px 18px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.alert.success {
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #86efac;
+}
+
+.alert.error {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+.actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.save-btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f4a259, #ffb560);
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(244, 162, 89, 0.28);
+    transition: 0.25s;
+}
+
+.save-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(244, 162, 89, 0.36);
+}
+
+.save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cancel-btn {
+    padding: 15px 26px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+@media (max-width: 768px) {
+    .form-card {
+        padding: 28px 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .title-block h1 {
+        font-size: 34px;
+    }
+}

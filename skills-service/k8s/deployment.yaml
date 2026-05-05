@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skills-service
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skills-service
+  template:
+    metadata:
+      labels:
+        app: skills-service
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8089'
+        prometheus.io/path: '/actuator/prometheus'
+    spec:
+      containers:
+        - name: skills-service
+          image: skills-service:latest
+          ports:
+            - containerPort: 8089
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-service:3306/gestionskillsfares?createDatabaseIfNotExist=true&useSSL=false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: skills-service
+  namespace: dev
+spec:
+  selector:
+    app: skills-service
+  ports:
+    - protocol: TCP
+      port: 8089
+      targetPort: 8089

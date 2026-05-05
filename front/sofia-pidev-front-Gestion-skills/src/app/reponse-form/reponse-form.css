@@ -1,0 +1,148 @@
+.response-form-card {
+  margin-top: 24px;
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  color: #fff;
+}
+
+.response-form-card h3 {
+  margin: 0 0 18px;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(255,255,255,.85);
+}
+
+.field select,
+.field textarea {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  font-weight: 700;
+  font-family: inherit;
+  outline: none;
+}
+
+.field textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.field select option {
+  color: #000;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn {
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.btn.primary {
+  background: #f4a340;
+  color: #fff;
+}
+
+.btn.primary:hover {
+  opacity: 0.95;
+}
+
+.error-hint {
+  color: #ff6b6b;
+  font-size: 13px;
+}
+.moderation-warning {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.28);
+  color: #ffb3b3;
+}
+
+.moderation-warning p {
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.suggestion-box {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+}
+
+.suggestion-box p {
+  margin: 8px 0 12px;
+  line-height: 1.5;
+}
+
+.suggestion-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: rgba(244, 163, 64, 0.18);
+  color: #f4a340;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.suggestion-btn:hover {
+  background: rgba(244, 163, 64, 0.28);
+}
+.sentiment-box {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.sentiment-box p {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.sentiment-box.positive {
+  background: rgba(76, 175, 80, 0.15);
+  color: #8CFF9B;
+}
+
+.sentiment-box.neutre {
+  background: rgba(158, 158, 158, 0.15);
+  color: #ccc;
+}
+
+.sentiment-box.negative {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff9a9a;
+}

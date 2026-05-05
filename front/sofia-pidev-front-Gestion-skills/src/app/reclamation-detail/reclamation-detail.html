@@ -1,0 +1,58 @@
+<div class="detail-wrapper">
+  <div *ngIf="isLoading" class="state-message">
+    Loading complaint details...
+  </div>
+
+  <div *ngIf="!isLoading && errorMessage" class="state-message error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="detail-card" *ngIf="!isLoading && reclamation as rec">
+    <div class="head">
+      <div>
+        <h1>Complaint Details</h1>
+        <p>View complaint information and responses</p>
+      </div>
+
+      <div class="top-actions">
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="label">Subject</span>
+        <p>{{ rec.sujet }}</p>
+      </div>
+
+      <div class="detail-item">
+        <span class="label">Type</span>
+        <p>{{ getTypeLabel(rec.type) }}</p>
+      </div>
+
+      <div class="detail-item">
+        <span class="label">Priority</span>
+        <p class="priority-text">{{ getPrioriteLabel(rec.priorite) }}</p>
+      </div>
+
+      <div class="detail-item">
+        <span class="label">Status</span>
+        <p class="status-text">{{ getStatutLabel(rec.statut) }}</p>
+      </div>
+
+      <div class="detail-item full">
+        <span class="label">Description</span>
+        <p>{{ rec.description }}</p>
+      </div>
+
+      <div class="detail-item">
+        <span class="label">Creation Date</span>
+        <p>{{ rec.dateCreation | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+    </div>
+
+    <app-reponse-list [reclamationId]="reclamationId"></app-reponse-list>
+
+    <app-reponse-form *ngIf="isAdmin" [reclamationId]="reclamationId" (reponseAdded)="onReponseAdded()">
+    </app-reponse-form>
+  </div>
+</div>

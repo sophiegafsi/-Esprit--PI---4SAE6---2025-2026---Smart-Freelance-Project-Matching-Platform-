@@ -1,0 +1,28 @@
+<div *ngIf="isLoading" class="loader-container">
+    <div class="loader"></div>
+    <p>Chargement de vos badges...</p>
+</div>
+
+<div *ngIf="error" class="error-message">
+    {{ error }}
+</div>
+
+<div *ngIf="!isLoading && badges.length === 0" class="empty-message">
+    <p>Vous n'avez pas encore de badges. Continuez à travailler pour en débloquer !</p>
+</div>
+
+<div *ngIf="!isLoading && badges.length > 0" class="badges-grid">
+    <div *ngFor="let userBadge of badges" class="badge-card" [class.inactive]="!userBadge.active">
+        <div class="badge-icon-container">
+            <!-- We use the icon name to display a placeholder or a specific SVG if available -->
+            <div class="badge-icon" [title]="userBadge.badgeName">
+                <i class="icon-placeholder">{{ userBadge.icon.substring(0, 1) }}</i>
+            </div>
+        </div>
+        <div class="badge-info">
+            <h3 class="badge-name">{{ userBadge.badgeName }}</h3>
+            <p class="badge-description">{{ userBadge.description }}</p>
+            <span class="badge-date">Obtenu le {{ userBadge.dateAssigned | date:'mediumDate' }}</span>
+        </div>
+    </div>
+</div>

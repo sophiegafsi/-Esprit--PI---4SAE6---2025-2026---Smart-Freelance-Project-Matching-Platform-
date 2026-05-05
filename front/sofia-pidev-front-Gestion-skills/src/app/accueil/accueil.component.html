@@ -1,0 +1,165 @@
+<!-- HERO -->
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-left">
+      <h1>Post your jobs and receive the best applications</h1>
+      <p>Freelancers apply to your projects, you choose the best profile easily.</p>
+
+      <div class="hero-cta">
+        <a routerLink="/projets" class="btn primary">Browse Jobs</a>
+        <a class="btn orange" routerLink="/signup">Join Freelink</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <strong>+1,200</strong>
+          <span>Freelancers</span>
+        </div>
+        <div class="stat">
+          <strong>+350</strong>
+          <span>Active Jobs</span>
+        </div>
+        <div class="stat">
+          <strong>24/7</strong>
+          <span>Support</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <!-- Replace this with an image later -->
+      <div class="hero-card">
+        <div class="hero-card-top">
+          <div class="badge">New</div>
+          <div class="mini-title">Featured Job</div>
+        </div>
+
+        <h3>Web Developer (Symfony)</h3>
+        <p class="muted">E-commerce project • 1 month • Remote</p>
+
+        <div class="chips">
+          <span class="chip">Symfony</span>
+          <span class="chip">MySQL</span>
+          <span class="chip">API</span>
+        </div>
+
+        <div class="hero-card-actions">
+          <a href="#" class="btn small primary">Apply</a>
+          <a href="#" class="btn small ghost-dark">Details</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DARK SECTION -->
+<section class="section-dark">
+
+  <!-- HOW IT WORKS -->
+  <div class="container" id="how">
+    <h2 class="section-title">How it works</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="icon">📌</div>
+        <div class="label">
+          <strong>1. Post a job</strong>
+          <span>The client describes the need</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="icon">📝</div>
+        <div class="label">
+          <strong>2. Receive applications</strong>
+          <span>Freelancers apply</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="icon">🤝</div>
+        <div class="label">
+          <strong>3. Choose & collaborate</strong>
+          <span>Start the project together</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFERS -->
+  <div class="container section-block" id="offers">
+    <div class="section-head">
+      <h2 class="section-title">Available Jobs</h2>
+      <a class="link" href="#">View all →</a>
+    </div>
+
+    <div class="offer-grid">
+      <div *ngIf="loadingProjects" style="grid-column: 1/-1; text-align: center; color: var(--muted);">
+        Loading projects...
+      </div>
+
+      <div *ngIf="!loadingProjects && projects.length === 0"
+        style="grid-column: 1/-1; text-align: center; color: var(--muted);">
+        No active projects found.
+      </div>
+
+      <article class="offer" *ngFor="let project of projects">
+        <div class="offer-top">
+          <span class="tag">Remote</span> <!-- Static for now, or add to Project entity -->
+          <span class="salary">${{ project.budget }}</span>
+        </div>
+        <h3>{{ project.title }}</h3>
+        <p class="muted">{{ project.description | slice:0:100 }}{{ project.description.length > 100 ? '...' : '' }}</p>
+
+        <div class="chips">
+          <span class="chip">Project</span>
+          <!-- Add more dynamic tags if available -->
+        </div>
+
+        <div class="offer-actions">
+          <a [routerLink]="['/apply', project.id]" class="btn small primary">Apply</a>
+          <button class="btn small ghost-dark" (click)="toggleDetails(project)">
+            {{ expandedProjectId === project.id ? 'Hide Details' : 'Details' }}
+          </button>
+        </div>
+
+        <!-- Inline Tasks Details -->
+        <div class="project-tasks-inline" *ngIf="expandedProjectId === project.id">
+          <div *ngIf="loadingTasksFor === project.id" class="small-loading">
+            <div class="spinner-small"></div>
+            <span>Loading tasks...</span>
+          </div>
+
+          <div *ngIf="loadingTasksFor !== project.id && project.tasks">
+            <h4 class="tasks-heading">Project Tasks ({{ project.tasks.length }})</h4>
+            <div class="tasks-list" *ngIf="project.tasks.length > 0">
+              <div class="task-item-inline" *ngFor="let task of project.tasks">
+                <div class="task-head-inline">
+                  <strong>{{ task.taskname }}</strong>
+                  <span class="task-date">{{ task.deadline | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <p class="task-desc-inline">{{ task.description }}</p>
+              </div>
+            </div>
+            <div class="no-tasks-inline" *ngIf="project.tasks.length === 0">
+              No specific tasks provided yet.
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+
+
+  <!-- FOOTER -->
+  <footer id="contact">
+    <div class="container footer-inner">
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">FAQ</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-copy">© 2026 – FreeLink. All rights reserved.</div>
+    </div>
+  </footer>

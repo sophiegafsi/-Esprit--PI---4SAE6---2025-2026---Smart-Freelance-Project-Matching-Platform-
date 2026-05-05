@@ -1,0 +1,152 @@
+<!-- src/app/components/liste-projets/liste-projets.html -->
+<main class="page">
+  <div class="container">
+
+    <div class="nav-actions">
+      <a class="btn ghost" routerLink="/postuler">+ Add Project</a>
+      <a routerLink="/kanban" routerLinkActive="active">📋 Flow</a>
+    </div>
+
+    <div class="page-head">
+      <h1>All Projects</h1>
+      <p>Browse available projects and apply to the ones that match your skills.</p>
+    </div>
+
+    <!-- SECTION FILTRES AVANCÉS -->
+    <div class="filters-section">
+      <div class="filters-header" (click)="showFilters = !showFilters">
+        <h3>
+          <span class="filter-icon-header">🔍</span>
+          Advanced Filters
+          <span class="active-filters-badge" *ngIf="hasActiveFilters()">●</span>
+        </h3>
+        <span class="filters-toggle">{{ showFilters ? '▼' : '▶' }}</span>
+      </div>
+
+      <div class="filters-body" *ngIf="showFilters">
+        <!-- Barre de recherche -->
+        <div class="filter-group search-group">
+          <label for="search">
+            <span class="filter-icon">🔎</span> Search
+          </label>
+          <input type="text" id="search" [(ngModel)]="filters.search" (input)="applyFilters()"
+            placeholder="Search by title or description..." class="filter-input">
+        </div>
+
+        <div class="filter-row">
+          <!-- Filtre par domaine -->
+          <div class="filter-group">
+            <label for="domaine">
+              <span class="filter-icon">📂</span> Domain
+            </label>
+            <select id="domaine" [(ngModel)]="filters.domaine" (change)="applyFilters()" class="filter-select">
+              <option value="">All domains</option>
+              <option *ngFor="let domain of domains" [value]="domain">
+                {{ domain }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Filtre par date début UNIQUEMENT -->
+          <div class="filter-group">
+            <label for="dateDebut">
+              <span class="filter-icon">📅</span> From date
+            </label>
+            <input type="date" id="dateDebut" [(ngModel)]="filters.dateDebut" (change)="applyFilters()"
+              class="filter-input">
+          </div>
+        </div>
+
+        <!-- Actions des filtres -->
+        <div class="filters-actions">
+          <button class="btn ghost small" (click)="resetFilters()" [class.active]="hasActiveFilters()">
+            <span>🗑️</span> Reset Filters
+          </button>
+          <div class="filters-stats" [class.no-results]="stats.affiches === 0">
+            Showing {{ stats.affiches }} of {{ stats.total }} projects
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="error" class="error-container">
+      <p class="error-message">{{ error }}</p>
+      <button class="btn orange" (click)="loadProjets()">Réessayer</button>
+    </div>
+
+    <!-- Indicateur de chargement -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Chargement des projets...</p>
+    </div>
+
+    <!-- GRID des projets filtrés -->
+    <div class="grid" *ngIf="!isLoading && !error">
+      <!-- Message si aucun projet ne correspond aux filtres -->
+      <div *ngIf="projetsFiltres.length === 0" class="no-results">
+        <div class="no-results-icon">🔍</div>
+        <h3>No projects found</h3>
+        <p>Try adjusting your filters or <a href="#" (click)="resetFilters(); $event.preventDefault()">reset them</a>
+        </p>
+      </div>
+
+      <!-- Liste des projets filtrés -->
+      <div class="card project-card" *ngFor="let projet of projetsFiltres">
+        <div class="card-header">
+          <h3 class="title">{{ projet.title }}</h3>
+          <span class="domaine" [ngClass]="'domaine.' + (projet.domaine || '').toLowerCase()">
+            {{ projet.domaine || 'Non spécifié' }}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <p class="project-description">
+            {{ (projet.description || 'Description non disponible') | slice:0:150 }}...
+          </p>
+        </div>
+
+        <div class="card-footer">
+          <span class="date">📅 {{ formatDate(projet.date) }}</span>
+        </div>
+
+        <div class="card-actions">
+          <button class="btn ghost" (click)="toggleDetails(projet)">
+            {{ expandedProjectId === projet.id ? 'Hide Details' : 'Details' }}
+          </button>
+          <button class="btn apply" (click)="applyToProject(projet.id)">
+            Apply
+          </button>
+        </div>
+
+        <!-- Inline Tasks Details -->
+        <div class="project-tasks-inline" *ngIf="expandedProjectId === projet.id">
+          <div *ngIf="loadingTasksFor === projet.id" class="small-loading">
+            <div class="spinner-small"></div>
+            <span>Loading tasks...</span>
+          </div>
+
+          <div *ngIf="loadingTasksFor !== projet.id && projet.tasks">
+            <h4 class="tasks-heading">Project Tasks ({{ projet.tasks.length }})</h4>
+            <div class="tasks-list" *ngIf="projet.tasks.length > 0">
+              <div class="task-item-inline" *ngFor="let task of projet.tasks">
+                <div class="task-head-inline">
+                  <strong>{{ task.taskname }}</strong>
+                  <span class="task-date">{{ task.deadline | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <p class="task-desc-inline">{{ task.description }}</p>
+              </div>
+            </div>
+            <div class="no-tasks-inline" *ngIf="projet.tasks.length === 0">
+              No specific tasks provided yet.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Footer -->
+    <div class="mini-footer">
+      © 2026 – FreeLink . All rights reserved.
+    </div>
+  </div>
+</main>

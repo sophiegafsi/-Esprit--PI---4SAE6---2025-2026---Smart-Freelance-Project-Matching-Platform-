@@ -1,0 +1,295 @@
+/* Glassmorphism Premium Aesthetic - Evaluation Form */
+:host {
+  display: block;
+  font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #f1f5f9;
+  background: transparent;
+}
+
+/* Base Page Setup */
+.page {
+  max-width: 800px;
+  /* Thinner for forms */
+  margin: 0 auto;
+  padding: 2rem;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.eyebrow {
+  color: #38bdf8;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(to right, #ffffff, #94a3b8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.muted {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Buttons */
+.toolbar {
+  display: flex;
+  gap: 1rem;
+}
+
+.primary {
+  background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  text-decoration: none;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px 0 rgba(14, 165, 233, 0.39);
+}
+
+.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+}
+
+.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.ghost {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Form Layout */
+.form-card {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 2rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field.full,
+.form-actions.full,
+.toggle-field.full {
+  grid-column: 1 / -1;
+}
+
+.field label,
+.criterion .field-label {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="email"],
+select,
+textarea {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0.875rem 1.25rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+select:focus,
+textarea:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+option {
+  background: #1e293b;
+  color: white;
+}
+
+/* Range Inputs Grid */
+.criteria-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 1rem 0;
+}
+
+.criterion {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.criterion .field-label {
+  flex: 0 0 120px;
+}
+
+.criterion input[type="range"] {
+  flex: 1;
+  accent-color: #38bdf8;
+}
+
+.criterion output {
+  font-family: inherit;
+  font-weight: 700;
+  color: #38bdf8;
+  flex: 0 0 40px;
+  text-align: right;
+}
+
+/* Computed Score */
+.result-box {
+  grid-column: 1 / -1;
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.1), transparent);
+  border-left: 4px solid #38bdf8;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  color: #f1f5f9;
+}
+
+.result-box strong {
+  font-size: 1.25rem;
+  color: #38bdf8;
+}
+
+/* Checkbox Toggles */
+.toggle-field {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
+.toggle-field input[type="checkbox"] {
+  accent-color: #38bdf8;
+  width: 1.2rem;
+  height: 1.2rem;
+  cursor: pointer;
+}
+
+.toggle-field span {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+
+/* Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Feedback panels */
+.alert {
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.alert.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.panel {
+  background: rgba(30, 41, 59, 0.4);
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+}
+
+.panel strong {
+  color: #38bdf8;
+}

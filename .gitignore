@@ -1,0 +1,18 @@
+# Compilation & IDE
+**/target/
+**/.idea/
+**/.vscode/
+**/*.class
+**/*.jar
+
+# Frontend
+**/node_modules/
+**/.angular/
+**/dist/
+
+# System & Logs
+**/.DS_Store
+**/logs/
+**/data/
+*.db
+keycloak-data/

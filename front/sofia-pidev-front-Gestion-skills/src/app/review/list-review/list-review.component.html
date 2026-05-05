@@ -1,0 +1,104 @@
+<section class="page">
+  <section class="page-header">
+    <div>
+      <div class="eyebrow">Review</div>
+      <h1>Review List</h1>
+      <p class="muted">Review CRUD + sentiment analytics.</p>
+    </div>
+    <div class="toolbar">
+      <a class="primary" href="#review/add-review">Add review</a>
+      <button class="ghost" type="button" (click)="refresh()">Refresh</button>
+    </div>
+  </section>
+
+  <section class="grid three" style="margin-bottom: 18px">
+    <article class="metric-card teal">
+      <div class="label">Total reviews</div>
+      <div class="value">{{ reviews.length }}</div>
+      <div class="detail">All reviews</div>
+    </article>
+    <article class="metric-card gold">
+      <div class="label">Distinct sentiments</div>
+      <div class="value">{{ sentimentEntries.length }}</div>
+      <div class="detail">Gemini / fallback analysis</div>
+    </article>
+    <article class="metric-card ink">
+      <div class="label">Filtered results</div>
+      <div class="value">{{ filteredReviews.length }}</div>
+      <div class="detail">With active search</div>
+    </article>
+  </section>
+
+  <section class="panel" style="margin-bottom: 18px">
+    <div class="toolbar" style="justify-content: space-between">
+      <h2 style="margin: 0">Sentiment stats</h2>
+      <input
+        placeholder="Search review..."
+        style="max-width: 320px"
+        [(ngModel)]="searchTerm" />
+    </div>
+
+    <div class="grid four" style="margin-top: 14px" *ngIf="sentimentEntries.length; else noSentiment">
+      <article class="metric-card" *ngFor="let item of sentimentEntries">
+        <div class="label">{{ item.key }}</div>
+        <div class="value">{{ item.value }}</div>
+        <div class="detail">Reviews</div>
+      </article>
+    </div>
+    <ng-template #noSentiment>
+      <div class="empty-state" style="min-height: 100px">No sentiment statistics.</div>
+    </ng-template>
+  </section>
+
+  <section class="table-wrap" *ngIf="filteredReviews.length; else emptyState">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Author</th>
+          <th>Comment</th>
+          <th>Score</th>
+          <th>Sentiment</th>
+          <th>Evaluation</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let review of filteredReviews">
+          <td>#{{ review.id }}</td>
+          <td>
+            <strong>{{ review.evaluatorName || '-' }}</strong>
+            <div class="muted">{{ review.userEmail || '-' }}</div>
+          </td>
+          <td>{{ review.comment || '-' }}</td>
+          <td>{{ review.score || 0 }}/5</td>
+          <td>
+            <span class="badge-pill custom">{{ review.sentiment || 'N/A' }}</span>
+          </td>
+          <td>{{ review.evaluation?.id || '-' }}</td>
+          <td>
+            <div class="inline-actions">
+              <a class="ghost" [href]="'#/review/edit-review/' + review.id">Edit</a>
+              <button class="danger" type="button" (click)="deleteReview(review)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <ng-template #emptyState>
+    <section class="empty-state">
+      No review found.
+    </section>
+  </ng-template>
+
+  <section *ngIf="feedbackType === 'success'" class="alert" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+  <section *ngIf="feedbackType === 'error'" class="alert error" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+
+  <section *ngIf="isLoading" class="loader" style="min-height: 120px">Loading...</section>
+</section>

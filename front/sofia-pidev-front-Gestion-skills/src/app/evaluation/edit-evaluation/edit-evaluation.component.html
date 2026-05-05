@@ -1,0 +1,108 @@
+<section class="page">
+  <section class="page-header">
+    <div>
+      <div class="eyebrow">Evaluation Management</div>
+      <h1>Edit Evaluation</h1>
+      <p class="muted">Update record #{{ selectedId }} or remove it from the system.</p>
+    </div>
+    <div class="toolbar">
+      <a class="ghost" [routerLink]="['/evaluations']">Back to list</a>
+    </div>
+  </section>
+
+  <section class="form-card" [class.loading]="isLoading">
+    <div class="form-grid" *ngIf="!isLoading; else loadingState">
+
+      <div class="field">
+        <label for="projectName">Project</label>
+        <input id="projectName" [(ngModel)]="model.projectName" disabled />
+      </div>
+
+      <div class="field">
+        <label for="typeEvaluation">Type</label>
+        <select id="typeEvaluation" [(ngModel)]="model.typeEvaluation">
+          <option value="TECHNIQUE">TECHNIQUE</option>
+          <option value="SOFT_SKILLS">SOFT_SKILLS</option>
+          <option value="AUTRE">OTHER</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="evaluatorName">Evaluator (Client)</label>
+        <input id="evaluatorName" disabled [value]="model.evaluatorName + ' (' + model.userEmail + ')'" />
+      </div>
+
+      <div class="field">
+        <label for="targetUser">Target (Freelancer)</label>
+        <input id="targetUser" disabled [value]="model.evaluatedUserName + ' (' + model.evaluatedUserEmail + ')'" />
+      </div>
+
+      <div class="field full">
+        <label for="comment">Comment</label>
+        <textarea id="comment" [(ngModel)]="model.comment"></textarea>
+      </div>
+
+      <div class="criteria-grid">
+        <article class="criterion">
+          <span class="field-label">Quality</span>
+          <input type="range" min="1" max="5" [(ngModel)]="criteria.quality" />
+          <output>{{ criteria.quality }}/5</output>
+        </article>
+        <article class="criterion">
+          <span class="field-label">Communication</span>
+          <input type="range" min="1" max="5" [(ngModel)]="criteria.communication" />
+          <output>{{ criteria.communication }}/5</output>
+        </article>
+        <article class="criterion">
+          <span class="field-label">Deadline</span>
+          <input type="range" min="1" max="5" [(ngModel)]="criteria.deadline" />
+          <output>{{ criteria.deadline }}/5</output>
+        </article>
+        <article class="criterion">
+          <span class="field-label">Expertise</span>
+          <input type="range" min="1" max="5" [(ngModel)]="criteria.expertise" />
+          <output>{{ criteria.expertise }}/5</output>
+        </article>
+      </div>
+
+      <div class="result-box visible">
+        Recalculated score: <strong>{{ computedScore }}</strong> / 5
+      </div>
+
+      <label class="toggle-field full">
+        <input type="checkbox" [(ngModel)]="forceRewardSync" />
+        <span>Force reward engine re-calculation after update</span>
+      </label>
+
+      <label class="toggle-field">
+        <input type="checkbox" [(ngModel)]="model.anonymous" />
+        <span>Anonymous evaluation</span>
+      </label>
+
+      <div class="form-actions full">
+        <button class="primary" type="button" (click)="save()" [disabled]="isSaving">
+          {{ isSaving ? 'Updating...' : 'Save changes' }}
+        </button>
+        <button class="danger" type="button" (click)="deleteSelected()" [disabled]="isSaving">
+          Delete evaluation
+        </button>
+      </div>
+    </div>
+
+    <ng-template #loadingState>
+      <div class="loader" style="min-height: 300px; display: flex; align-items: center; justify-content: center;">
+        <p>Loading evaluation data...</p>
+      </div>
+    </ng-template>
+  </section>
+
+  <section *ngIf="feedbackType === 'success'" class="alert" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+  <section *ngIf="feedbackType === 'error'" class="alert error" style="margin-top: 16px">
+    {{ feedbackMessage }}
+  </section>
+  <section *ngIf="rewardMessage" class="panel" style="margin-top: 16px">
+    <strong>Systems update:</strong> {{ rewardMessage }}
+  </section>
+</section>
