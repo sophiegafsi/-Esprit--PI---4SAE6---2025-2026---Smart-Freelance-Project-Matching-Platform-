@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: API-Gateway
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: API-Gateway
+  template:
+    metadata:
+      labels:
+        app: API-Gateway
+    spec:
+      containers:
+      - name: API-Gateway
+        image: API-Gateway:latest
+        ports:
+        - containerPort: 8081

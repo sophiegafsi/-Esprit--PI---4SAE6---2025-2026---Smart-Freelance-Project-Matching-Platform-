@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-planing
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-planing
+  template:
+    metadata:
+      labels:
+        app: gestion-planing
+    spec:
+      containers:
+      - name: gestion-planing
+        image: gestion-planing:latest
+        ports:
+        - containerPort: 8092

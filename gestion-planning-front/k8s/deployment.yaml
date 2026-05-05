@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-planning-front
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-planning-front
+  template:
+    metadata:
+      labels:
+        app: gestion-planning-front
+    spec:
+      containers:
+      - name: gestion-planning-front
+        image: gestion-planning-front:latest
+        ports:
+        - containerPort: 80

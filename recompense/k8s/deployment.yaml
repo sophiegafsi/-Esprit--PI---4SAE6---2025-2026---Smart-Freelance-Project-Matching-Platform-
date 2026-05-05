@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recompense
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recompense
+  template:
+    metadata:
+      labels:
+        app: recompense
+    spec:
+      containers:
+      - name: recompense
+        image: recompense:latest
+        ports:
+        - containerPort: 8094

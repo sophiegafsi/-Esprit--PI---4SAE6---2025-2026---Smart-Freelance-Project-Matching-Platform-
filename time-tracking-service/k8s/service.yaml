@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: time-tracking-service
+  namespace: dev
+spec:
+  selector:
+    app: time-tracking-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8087
+  type: ClusterIP

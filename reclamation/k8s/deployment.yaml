@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reclamation
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reclamation
+  template:
+    metadata:
+      labels:
+        app: reclamation
+    spec:
+      containers:
+      - name: reclamation
+        image: reclamation:latest
+        ports:
+        - containerPort: 8085

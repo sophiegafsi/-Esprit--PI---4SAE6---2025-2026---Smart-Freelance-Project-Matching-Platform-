@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: condature
+  namespace: dev
+spec:
+  selector:
+    app: condature
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8083
+  type: ClusterIP
