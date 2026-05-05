@@ -18,34 +18,25 @@ pipeline {
         stage('Build') {
             steps {
                 dir('gestion-planing') {
-                    sh 'mvn clean install -DskipTests'
+                    sh 'mvn clean install'
                 }
             }
         }
         
-        stage('Unit Tests (Jacoco)') {
+        stage('Unit Tests + JaCoCo') {
             steps {
                 dir('gestion-planing') {
-                    sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report || true'
+                    sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report'
                 }
             }
             post {
                 always {
                     dir('gestion-planing') {
-                        junit 'target/surefire-reports/*.xml'
-                        jacoco(
-                            execPattern: 'target/*.exec',
-                            classPattern: 'target/classes',
-                            sourcePattern: 'src/main/java'
-                        )
+                        junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
                     }
                 }
             }
         }
-        
-        
-        
-        
         
         stage('SonarQube Analysis') {
             steps {
