@@ -29,6 +29,18 @@ pipeline {
                     sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report || true'
                 }
             }
+            post {
+                always {
+                    dir('API-Gateway/API-Gateway') {
+                        junit 'target/surefire-reports/*.xml'
+                        jacoco(
+                            execPattern: 'target/*.exec',
+                            classPattern: 'target/classes',
+                            sourcePattern: 'src/main/java'
+                        )
+                    }
+                }
+            }
         }
         
         
