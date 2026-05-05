@@ -3,8 +3,8 @@ pipeline {
     
     environment {
         SERVICE_NAME = 'gestion-planning-front'
-        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
-        DOCKER_IMAGE = "yourdockerhubusername/$SERVICE_NAME:${env.BUILD_NUMBER}"
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+        DOCKER_IMAGE = "dalirom123/$SERVICE_NAME:${env.BUILD_NUMBER}"
         SONAR_CREDENTIALS_ID = 'sonar-credentials'
     }
 
