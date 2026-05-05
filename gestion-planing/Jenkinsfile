@@ -23,19 +23,23 @@ pipeline {
             }
         }
         
-        stage('Unit Tests') {
+        stage('Unit Tests (Jacoco)') {
             steps {
                 dir('gestion-planing') {
-                    sh 'mvn test || true'
+                    sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report || true'
                 }
             }
         }
+        
+        
+        
+        
         
         stage('SonarQube Analysis') {
             steps {
                 dir('gestion-planing') {
                     withSonarQubeEnv('SonarQube') {
-                        sh 'mvn sonar:sonar -Dsonar.projectKey=${SERVICE_NAME}'
+                        sh 'mvn sonar:sonar -Dsonar.projectKey=${SERVICE_NAME} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
                     }
                 }
             }
