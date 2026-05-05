@@ -4,7 +4,7 @@ pipeline {
     environment {
         SERVICE_NAME = 'condature'
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
-        DOCKER_IMAGE = "dalirom123/$SERVICE_NAME:${env.BUILD_NUMBER}"
+        DOCKER_IMAGE = "dalirom123/condature:${env.BUILD_NUMBER}"
         SONAR_CREDENTIALS_ID = 'sonar-credentials'
     }
 
