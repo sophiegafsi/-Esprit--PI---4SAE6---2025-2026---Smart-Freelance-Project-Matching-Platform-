@@ -27,7 +27,11 @@ pipeline {
                         # Fetch latest changes
                         git pull origin ${BRANCH}
                         
-                        # Apply Kubernetes manifests
+                        # Apply namespace first
+                        kubectl apply -f k8s/namespace.yml
+                        sleep 5
+                        
+                        # Apply all other manifests
                         kubectl apply -f k8s/
                         
                         # Restart deployments to pull latest images
