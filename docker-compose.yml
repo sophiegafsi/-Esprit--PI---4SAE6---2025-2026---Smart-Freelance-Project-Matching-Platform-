@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:22.0.1
@@ -17,3 +19,69 @@ services:
     ports:
       - "1025:1025"
       - "8025:8025"
+
+  eureka-server:
+    image: dalirom123/eureka-server:latest
+    ports:
+      - "8761:8761"
+
+  api-gateway:
+    image: dalirom123/api-gateway:latest
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka-server
+
+  condature:
+    image: dalirom123/condature:latest
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka-server
+
+  reservation-service:
+    image: dalirom123/reservation-service:latest
+    ports:
+      - "8083:8083"
+    depends_on:
+      - eureka-server
+
+  skills-service:
+    image: dalirom123/skills-service:latest
+    ports:
+      - "8084:8084"
+    depends_on:
+      - eureka-server
+
+  user:
+    image: dalirom123/user:latest
+    ports:
+      - "8085:8085"
+    depends_on:
+      - eureka-server
+
+  evaluation-service:
+    image: dalirom123/evaluation-service:latest
+    ports:
+      - "8086:8086"
+    depends_on:
+      - eureka-server
+
+  recompense:
+    image: dalirom123/recompense:latest
+    ports:
+      - "8087:8087"
+    depends_on:
+      - eureka-server
+
+  time-tracking-service:
+    image: dalirom123/time-tracking-service:latest
+    ports:
+      - "8088:8088"
+    depends_on:
+      - eureka-server
+
+  front:
+    image: dalirom123/front:latest
+    ports:
+      - "4200:80"
