@@ -14,14 +14,11 @@ spring:
     gateway:
       globalcors:
         cors-configurations:
-          '[/skills/**]': &corsConfig
+          '[/**]':
             allowedOrigins: ["http://localhost:4200", "http://20.240.47.244:30080"]
             allowedMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
             allowedHeaders: ["*"]
             allowCredentials: true
-          '[/projet/**]': *corsConfig
-          '[/condidature/**]': *corsConfig
-          '[/time-tracking/**]': *corsConfig
       routes:
         # Route pour le microservice "Evaluation"
         - id: evaluation-service

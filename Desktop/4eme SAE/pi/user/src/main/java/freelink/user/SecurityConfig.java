@@ -62,9 +62,9 @@ public class SecurityConfig {
                                 .oauth2Login(oauth2 -> oauth2
                                                 .userInfoEndpoint(userInfo -> userInfo
                                                                 .userAuthoritiesMapper(userAuthoritiesMapper()))
-                                                .defaultSuccessUrl("http://localhost:4200", true))
+                                                .defaultSuccessUrl("http://20.240.47.244:30080", true))
                                 .logout(logout -> logout
-                                                .logoutSuccessUrl("http://localhost:4200/login")
+                                                .logoutSuccessUrl("http://20.240.47.244:30080/login")
                                                 .invalidateHttpSession(true)
                                                 .deleteCookies("JSESSIONID"));
 
@@ -81,7 +81,7 @@ public class SecurityConfig {
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+                configuration.setAllowedOrigins(Arrays.asList("http://20.240.47.244:30080"));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("*"));
                 configuration.setAllowCredentials(true);
