@@ -1,0 +1,92 @@
+pipeline {
+    agent any
+
+    environment {
+        SONAR_HOST_URL = 'http://sonarqube:9000'
+        SONAR_TOKEN = credentials('sonar-token')
+
+        IMAGE_NAME = 'reclamation-service'
+        CONTAINER_NAME = 'reclamation-service'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'reclamation',
+                url: 'https://github.com/sophiegafsi/-Esprit--PI---4SAE6---2025-2026---Smart-Freelance-Project-Matching-Platform-.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('reclamation') {
+                    sh 'chmod +x mvnw'
+                    sh './mvnw clean compile'
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                dir('reclamation') {
+                    sh './mvnw test'
+                }
+            }
+        }
+
+        stage('JaCoCo Coverage') {
+            steps {
+                dir('reclamation') {
+                    sh './mvnw verify'
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                dir('reclamation') {
+                    sh '''
+                    ./mvnw sonar:sonar \
+                    -Dsonar.projectKey=reclamation-service \
+                    -Dsonar.projectName=reclamation-service \
+                    -Dsonar.host.url=$SONAR_HOST_URL \
+                    -Dsonar.login=$SONAR_TOKEN \
+                    -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                    '''
+                }
+            }
+        }
+
+        stage('Package Artifact') {
+            steps {
+                dir('reclamation') {
+                    sh './mvnw package -DskipTests'
+                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('reclamation') {
+                    sh 'docker build -t $IMAGE_NAME:latest .'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                docker rm -f $CONTAINER_NAME || true
+
+                docker run -d \
+                --name $CONTAINER_NAME \
+                --network devops-network \
+                -p 8085:8080 \
+                $IMAGE_NAME:latest
+                '''
+            }
+        }
+    }
+}
