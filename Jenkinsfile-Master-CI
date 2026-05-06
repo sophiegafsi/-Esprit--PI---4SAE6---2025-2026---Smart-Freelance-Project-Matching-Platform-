@@ -3,43 +3,43 @@ pipeline {
 
     stages {
         stage('1. Eureka Server') {
-            steps { build job: 'eureka-server-CI', wait: true }
+            steps { build job: 'eureka-server-CI/main', wait: true }
         }
         stage('2. API Gateway') {
-            steps { build job: 'API-Gateway-CI', wait: true }
+            steps { build job: 'API-Gateway-CI/main', wait: true }
         }
         stage('3. User Service') {
-            steps { build job: 'user-CI', wait: true }
+            steps { build job: 'user-CI/main', wait: true }
         }
         stage('4. Skills Service') {
-            steps { build job: 'skills-service-CI', wait: true }
+            steps { build job: 'skills-service-CI/main', wait: true }
         }
         stage('5. Portfolio Service') {
-            steps { build job: 'portfolio-service-CI', wait: true }
+            steps { build job: 'portfolio-service-CI/main', wait: true }
         }
         stage('6. Evaluation Service') {
-            steps { build job: 'evaluation-service-CI', wait: true }
+            steps { build job: 'evaluation-service-CI/main', wait: true }
         }
         stage('7. Reclamation Service') {
-            steps { build job: 'reclamation-CI', wait: true }
+            steps { build job: 'reclamation-CI/main', wait: true }
         }
         stage('8. Reservation Service') {
-            steps { build job: 'reservation-service-CI', wait: true }
+            steps { build job: 'reservation-service-CI/main', wait: true }
         }
         stage('9. Condature Service') {
-            steps { build job: 'condature-CI', wait: true }
+            steps { build job: 'condature-CI/main', wait: true }
         }
         stage('10. Planning Service') {
-            steps { build job: 'gestion-planning-CI', wait: true }
+            steps { build job: 'gestion-planning-CI/main', wait: true }
         }
         stage('11. Time Tracking') {
-            steps { build job: 'time-tracking-service-CI', wait: true }
+            steps { build job: 'time-tracking-service-CI/main', wait: true }
         }
         stage('12. Frontend') {
-            steps { build job: 'front-CI', wait: true }
+            steps { build job: 'front-CI/main', wait: true }
         }
         stage('13. GLOBAL DEPLOYMENT') {
-            steps { build job: 'Global-CD', wait: true }
+            steps { build job: 'Global-CD', wait: true } // Note: Global-CD is not multibranch (no icon)
         }
     }
 
