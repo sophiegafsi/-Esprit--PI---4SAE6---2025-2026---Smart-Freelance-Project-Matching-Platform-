@@ -6,6 +6,7 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
         DOCKER_IMAGE = "dalirom123/front:${env.BUILD_NUMBER}"
         SONAR_CREDENTIALS_ID = 'sonar-credentials'
+        NODE_OPTIONS = '--max-old-space-size=4096'
     }
 
     stages {
@@ -20,10 +21,16 @@ pipeline {
                 dir('front/sofia-pidev-front-Gestion-skills') {
                     sh '''
                         rm -rf node_modules package-lock.json
-                        npm config delete prefix || true
-                        npm config delete cache || true
-                        npm config set cache /tmp/npm-cache
-                        npm install --legacy-peer-deps
+                        npm cache clean --force
+                        
+                        npm config set fetch-retries 5
+                        npm config set fetch-retry-factor 2
+                        npm config set fetch-retry-mintimeout 20000
+                        npm config set fetch-retry-maxtimeout 120000
+                        
+                        npm config set registry https://registry.npmjs.org/
+                        
+                        npm install --legacy-peer-deps --no-audit --no-fund
                     '''
                 }
             }
