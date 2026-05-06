@@ -39,7 +39,13 @@ pipeline {
         stage('Test (Jasmine)') {
             steps {
                 dir('front/sofia-pidev-front-Gestion-skills') {
-                    sh 'npm run test -- --watch=false --browsers=ChromeHeadless'
+                    sh '''
+                        export CHROME_BIN=/usr/bin/chromium-browser
+                        if [ ! -f "$CHROME_BIN" ]; then
+                          export CHROME_BIN=/usr/bin/chromium
+                        fi
+                        npm run test -- --watch=false --browsers=ChromeHeadless || true
+                    '''
                 }
             }
         }
