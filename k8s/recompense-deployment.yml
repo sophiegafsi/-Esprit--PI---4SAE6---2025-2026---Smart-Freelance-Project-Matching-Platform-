@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recompense-service
+  namespace: freelink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recompense-service
+  template:
+    metadata:
+      labels:
+        app: recompense-service
+    spec:
+      containers:
+      - name: recompense-service
+        image: dalirom123/recompense:latest
+        ports:
+        - containerPort: 8094
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recompense-service
+  namespace: freelink
+spec:
+  type: ClusterIP
+  selector:
+    app: recompense-service
+  ports:
+    - port: 8094
+      targetPort: 8094

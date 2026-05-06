@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+
+    environment {
+        // ID of the Jenkins SSH credential containing the private key for 'azureuser'
+        AZURE_SSH_CRED = 'azure-master-ssh'
+        // Master Node Public IP - MUST BE UPDATED after creating the Azure resources
+        MASTER_IP = '4.165.102.142' 
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Transfer Manifests to Master') {
+            steps {
+                sshagent(credentials: [AZURE_SSH_CRED]) {
+                    sh "ssh -o StrictHostKeyChecking=no azureuser@${MASTER_IP} 'mkdir -p ~/k8s-deploy'"
+                    sh "scp -o StrictHostKeyChecking=no -r k8s/* azureuser@${MASTER_IP}:~/k8s-deploy/"
+                }
+            }
+        }
+
+        stage('Deploy to Azure Kubernetes') {
+            steps {
+                sshagent(credentials: [AZURE_SSH_CRED]) {
+                    sh "ssh -o StrictHostKeyChecking=no azureuser@${MASTER_IP} 'kubectl apply -f ~/k8s-deploy/'"
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sshagent(credentials: [AZURE_SSH_CRED]) {
+                    sh "ssh -o StrictHostKeyChecking=no azureuser@${MASTER_IP} 'kubectl get pods -n freelink -o wide'"
+                    sh "ssh -o StrictHostKeyChecking=no azureuser@${MASTER_IP} 'kubectl get svc -n freelink'"
+                }
+            }
+        }
+    }
+}

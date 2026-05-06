@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: time-tracking-service
+  namespace: freelink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: time-tracking-service
+  template:
+    metadata:
+      labels:
+        app: time-tracking-service
+    spec:
+      containers:
+      - name: time-tracking-service
+        image: dalirom123/time-tracking-service:latest
+        ports:
+        - containerPort: 8088
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: time-tracking-service
+  namespace: freelink
+spec:
+  type: ClusterIP
+  selector:
+    app: time-tracking-service
+  ports:
+    - port: 8088
+      targetPort: 8088

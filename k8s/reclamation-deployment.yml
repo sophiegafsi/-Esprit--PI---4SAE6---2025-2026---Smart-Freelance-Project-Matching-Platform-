@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reclamation
+  namespace: freelink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reclamation
+  template:
+    metadata:
+      labels:
+        app: reclamation
+    spec:
+      containers:
+      - name: reclamation
+        image: dalirom123/reclamation:latest
+        ports:
+        - containerPort: 8085
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reclamation
+  namespace: freelink
+spec:
+  type: ClusterIP
+  selector:
+    app: reclamation
+  ports:
+    - port: 8085
+      targetPort: 8085

@@ -69,4 +69,9 @@ pipeline {
             }
         }
     }
+    post {
+        success {
+            build job: 'Global-CD', wait: false
+        }
+    }
 }

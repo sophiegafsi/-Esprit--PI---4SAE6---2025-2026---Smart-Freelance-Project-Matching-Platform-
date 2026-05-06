@@ -2,28 +2,22 @@ pipeline {
     agent any
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Stop old containers') {
+        stage('Deploy to Kubernetes') {
             steps {
-                sh 'docker compose down || true'
+                sh 'kubectl apply -f k8s/'
             }
         }
 
-        stage('Deploy') {
+        stage('Verify Deployment') {
             steps {
-                sh 'docker compose up -d'
-            }
-        }
-
-        stage('Verify') {
-            steps {
-                sh 'docker ps'
+                sh 'kubectl get pods -n freelink -o wide'
+                sh 'kubectl get svc -n freelink'
             }
         }
     }

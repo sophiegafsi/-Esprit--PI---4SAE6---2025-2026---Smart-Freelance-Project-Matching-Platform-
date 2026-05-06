@@ -61,12 +61,40 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
+        stage('SonarQube Analysis') {
+            steps {
+                dir('porjectservice') {
+                    withSonarQubeEnv('SonarQube') {
+                        sh 'mvn sonar:sonar -Dsonar.projectKey=${SERVICE_NAME} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                    }
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                dir('porjectservice') {
+                    script {
+                        dockerImage = docker.build("${DOCKER_IMAGE}")
+                    }
+                }
+            }
+        }
+        
+        stage('Push Docker Image') {
+            steps {
+                script {
                     docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
                         dockerImage.push()
                         dockerImage.push('latest')
                     }
                 }
             }
+        }
+    }
+    post {
+        success {
+            build job: 'Global-CD', wait: false
         }
     }
 }
