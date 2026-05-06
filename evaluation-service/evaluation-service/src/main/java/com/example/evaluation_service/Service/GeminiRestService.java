@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class GeminiRestService {
 
-    @Value("${gemini.api-key:AIzaSyBmaN-2aFMWVc56tIZEPFsY7D8UNZEmRy8}")
+    @Value("${gemini.api-key:${GOOGLE_GENAI_API_KEY:}}")
     private String apiKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
