@@ -18,9 +18,9 @@ export interface SentimentResult {
   providedIn: 'root'
 })
 export class ReponseService {
-  private apiUrl = 'http://localhost:8085/api/reclamations';
-  private moderationUrl = 'http://localhost:8085/api/reponses';
-  private sentimentUrl = 'http://localhost:8085/api/sentiment';
+  private apiUrl = 'http://20.240.47.244:30081/evaluation/api/reclamations';
+  private moderationUrl = 'http://20.240.47.244:30081/evaluation/api/reponses';
+  private sentimentUrl = 'http://20.240.47.244:30081/evaluation/api/sentiment';
 
   constructor(private http: HttpClient) {}
 

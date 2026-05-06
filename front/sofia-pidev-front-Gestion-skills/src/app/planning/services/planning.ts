@@ -11,7 +11,7 @@ import { PlanningEfficiency } from '../models/planning-efficiency.model';
   providedIn: 'root'
 })
 export class PlanningService {
-  private apiUrl = 'http://localhost:8092/api/plannings';
+  private apiUrl = 'http://20.240.47.244:30081/planning/api/plannings';
 
   constructor(private http: HttpClient) { }
 

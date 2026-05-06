@@ -21,7 +21,7 @@ export interface ProjectHealthResponse {
 
 @Injectable({ providedIn: 'root' })
 export class ProjectHealthService {
-  private readonly apiUrl = 'http://localhost:8081/projet';
+  private readonly apiUrl = 'http://20.240.47.244:30081/projet';
 
   constructor(private http: HttpClient) { }
 

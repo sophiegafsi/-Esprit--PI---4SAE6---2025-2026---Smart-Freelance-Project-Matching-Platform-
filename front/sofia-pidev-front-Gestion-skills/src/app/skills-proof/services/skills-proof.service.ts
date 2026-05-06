@@ -5,7 +5,7 @@ import { SkillProof } from '../models/skill-proof.model';
 
 @Injectable({ providedIn: 'root' })
 export class SkillsProofService {
-  private readonly baseUrl = 'http://localhost:8088/proofs';
+  private readonly baseUrl = 'http://20.240.47.244:30081/reservation/proofs';
   private readonly apiOrigin = new URL(this.baseUrl).origin;
 
   constructor(private http: HttpClient) { }

@@ -32,7 +32,7 @@ export interface DevisRequest {
 
 @Injectable({ providedIn: 'root' })
 export class DevisCalculatorService {
-  private readonly apiUrl = 'http://localhost:8081/projet';
+  private readonly apiUrl = 'http://20.240.47.244:30081/projet';
 
   // ✅ Cache en mémoire (clé = projetId + deadline)
   private cache = new Map<string, Observable<DevisResult>>();

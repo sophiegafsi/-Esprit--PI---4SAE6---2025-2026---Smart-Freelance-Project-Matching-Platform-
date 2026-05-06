@@ -5,7 +5,7 @@ import { Booking } from '../models/booking.model';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
-    private apiUrl = 'http://localhost:8088/api/bookings';
+    private apiUrl = 'http://20.240.47.244:30081/reservation/api/bookings';
 
     constructor(private http: HttpClient) { }
 

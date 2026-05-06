@@ -13,7 +13,7 @@ export interface PageResponse<T> {
 
 @Injectable({ providedIn: 'root' })
 export class SkillsService {
-  private readonly baseUrl = 'http://localhost:8088/skills';
+  private readonly baseUrl = 'http://20.240.47.244:30081/reservation/skills';
 
   constructor(private http: HttpClient) { }
 
