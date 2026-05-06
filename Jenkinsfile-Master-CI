@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Trigger Core Services') {
+            steps {
+                build job: 'eureka-server-CI_main', wait: true
+                build job: 'api-gateway-CI_main', wait: true
+                build job: 'keycloak-CI_main', wait: false // Keycloak is usually static, but good to have
+            }
+        }
+
+        stage('Trigger Identity & User Services') {
+            steps {
+                build job: 'user-CI_main', wait: true
+            }
+        }
+
+        stage('Trigger Business Microservices') {
+            parallel {
+                stage('Skills & Portfolio') {
+                    steps {
+                        build job: 'skills-CI_main', wait: true
+                        build job: 'portfolio-CI_main', wait: true
+                    }
+                }
+                stage('Evaluation & Reclamation') {
+                    steps {
+                        build job: 'evaluation-CI_main', wait: true
+                        build job: 'reclamation-CI_main', wait: true
+                    }
+                }
+                stage('Reservation & Condidature') {
+                    steps {
+                        build job: 'reservation-CI_main', wait: true
+                        build job: 'condature-CI_main', wait: true
+                    }
+                }
+            }
+        }
+
+        stage('Trigger Frontend') {
+            steps {
+                build job: 'front-CI_main', wait: true
+            }
+        }
+
+        stage('Final Global Deployment') {
+            steps {
+                build job: 'Global-CD', wait: true
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "All microservices built and deployed successfully! 🚀"
+        }
+        failure {
+            echo "One or more microservice builds failed. Check the logs. ❌"
+        }
+    }
+}
