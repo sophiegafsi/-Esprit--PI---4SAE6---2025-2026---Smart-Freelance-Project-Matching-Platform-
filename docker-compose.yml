@@ -70,7 +70,7 @@ services:
   time-tracking-service:
     image: dalirom123/time-tracking-service:latest
     ports:
-      - "8088:8088"
+      - "8098:8088"
     depends_on:
       - eureka-server
 
