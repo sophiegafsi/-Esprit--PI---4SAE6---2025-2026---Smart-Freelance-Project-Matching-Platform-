@@ -21,9 +21,19 @@ spec:
           value: "admin"
         - name: KEYCLOAK_ADMIN_PASSWORD
           value: "admin"
+        - name: KC_DB
+          value: dev-file
         command: ["/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm"]
         ports:
         - containerPort: 8080
+        volumeMounts:
+        - name: realm-config
+          mountPath: /opt/keycloak/data/import/freelink-realm.json
+          subPath: freelink-realm.json
+      volumes:
+      - name: realm-config
+        configMap:
+          name: keycloak-realm-config
 ---
 apiVersion: v1
 kind: Service
