@@ -42,9 +42,10 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
+                <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>1.11.5</version>
         </dependency>
     </dependencies>
 
@@ -77,3 +78,5 @@
 		</plugins>
 	</build>
 </project>
+
+

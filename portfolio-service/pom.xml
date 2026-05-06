@@ -25,6 +25,10 @@
 	</properties>
 
 	<dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
 		<!-- Spring Web -->
 		<dependency>
@@ -111,14 +115,19 @@
 		</dependency>
 
 	
-        <dependency>
+                <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>1.11.5</version>
         </dependency>
     </dependencies>
 
 	<dependencyManagement>
 		<dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 			<dependency>
 				<groupId>org.springframework.ai</groupId>
 				<artifactId>spring-ai-bom</artifactId>
@@ -134,9 +143,10 @@
 				<scope>import</scope>
 			</dependency>
 		
-        <dependency>
+                <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>1.11.5</version>
         </dependency>
     </dependencies>
 	</dependencyManagement>
@@ -151,4 +161,6 @@
 	</build>
 
 </project>
+
+
 

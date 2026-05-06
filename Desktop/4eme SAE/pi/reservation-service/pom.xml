@@ -82,9 +82,10 @@
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
 	
-        <dependency>
+                <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>1.11.5</version>
         </dependency>
     </dependencies>
 
@@ -98,9 +99,10 @@
 				<scope>import</scope>
 			</dependency>
 		
-        <dependency>
+                <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>1.11.5</version>
         </dependency>
     </dependencies>
 	</dependencyManagement>
@@ -138,4 +140,6 @@
 		</plugins>
 	</build>
 </project>
+
+
 
