@@ -74,7 +74,3 @@ services:
     depends_on:
       - eureka-server
 
-  front:
-    image: dalirom123/front:latest
-    ports:
-      - "4200:80"
