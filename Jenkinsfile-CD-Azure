@@ -2,43 +2,53 @@ pipeline {
     agent any
 
     environment {
-        // ID of the Jenkins SSH credential containing the private key for 'azureuser'
-        AZURE_SSH_CRED = 'azure-master-ssh'
-        // Master Node Public IP - MUST BE UPDATED after creating the Azure resources
-        MASTER_IP = '4.165.102.142' 
+        SSH_CREDENTIALS_ID = 'azure-master-ssh'
+        AZURE_MASTER_IP = '4.165.102.142'
+        AZURE_USER = 'azureuser'
+        PROJECT_DIR = 'freelink'
+        GIT_REPO = 'https://github.com/sophiegafsi/-Esprit--PI---4SAE6---2025-2026---Smart-Freelance-Project-Matching-Platform-.git'
+        BRANCH = 'main'
+        NAMESPACE = 'freelink'
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Transfer Manifests to Master') {
-            steps {
-                sshagent(credentials: [AZURE_SSH_CRED]) {
-                    sh "ssh -o StrictHostKeyChecking=no azureuser@${MASTER_IP} 'mkdir -p ~/k8s-deploy'"
-                    sh "scp -o StrictHostKeyChecking=no -r k8s/* azureuser@${MASTER_IP}:~/k8s-deploy/"
-                }
-            }
-        }
-
         stage('Deploy to Azure Kubernetes') {
             steps {
-                sshagent(credentials: [AZURE_SSH_CRED]) {
-                    sh "ssh -o StrictHostKeyChecking=no azureuser@${MASTER_IP} 'kubectl apply -f ~/k8s-deploy/'"
+                sshagent(credentials: [SSH_CREDENTIALS_ID]) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ${AZURE_USER}@${AZURE_MASTER_IP} '
+                        # Check if directory exists, if not clone it
+                        if [ ! -d ${PROJECT_DIR} ]; then
+                            git clone -b ${BRANCH} ${GIT_REPO} ${PROJECT_DIR}
+                        fi
+                        
+                        cd ${PROJECT_DIR}
+                        
+                        # Fetch latest changes
+                        git pull origin ${BRANCH}
+                        
+                        # Apply Kubernetes manifests
+                        kubectl apply -f k8s/
+                        
+                        # Restart deployments to pull latest images
+                        kubectl rollout restart deployment -n ${NAMESPACE}
+                        
+                        # Status check
+                        kubectl get pods -n ${NAMESPACE}
+                        kubectl get svc -n ${NAMESPACE}
+                    '
+                    """
                 }
             }
         }
+    }
 
-        stage('Verify Deployment') {
-            steps {
-                sshagent(credentials: [AZURE_SSH_CRED]) {
-                    sh "ssh -o StrictHostKeyChecking=no azureuser@${MASTER_IP} 'kubectl get pods -n freelink -o wide'"
-                    sh "ssh -o StrictHostKeyChecking=no azureuser@${MASTER_IP} 'kubectl get svc -n freelink'"
-                }
-            }
+    post {
+        success {
+            echo 'Azure Kubernetes deployment successful'
+        }
+        failure {
+            echo 'Azure Kubernetes deployment failed'
         }
     }
 }
