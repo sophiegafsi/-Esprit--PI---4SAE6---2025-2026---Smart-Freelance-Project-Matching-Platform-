@@ -1,11 +1,17 @@
 pipeline {
     agent any
-    
+
+    tools {
+        maven 'Maven-3.9'
+        jdk 'Java-17'
+    }
+
     environment {
         SERVICE_NAME = 'condature'
+        SERVICE_FOLDER = 'condature'
+        IMAGE_NAME = 'dalirom123/condature'
+        IMAGE_TAG = 'latest'
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
-        DOCKER_IMAGE = "dalirom123/condature:${env.BUILD_NUMBER}"
-        SONAR_CREDENTIALS_ID = 'sonar-credentials'
     }
 
     stages {
@@ -14,74 +20,51 @@ pipeline {
                 checkout scm
             }
         }
-        
-        stage('Build') {
+
+        stage('Build & Test') {
             steps {
-                dir('condature') {
+                dir("${SERVICE_FOLDER}") {
                     sh 'mvn clean install'
                 }
             }
         }
-        
+
         stage('Unit Tests + JaCoCo') {
             steps {
-                dir('condature') {
+                dir("${SERVICE_FOLDER}") {
                     sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report'
                 }
             }
             post {
                 always {
-                    dir('condature') {
+                    dir("${SERVICE_FOLDER}") {
                         junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
                     }
                 }
             }
         }
-        
+
         stage('SonarQube Analysis') {
             steps {
-                dir('condature') {
+                dir("${SERVICE_FOLDER}") {
                     withSonarQubeEnv('SonarQube') {
-                        sh 'mvn sonar:sonar -Dsonar.projectKey=${SERVICE_NAME} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                        sh "mvn sonar:sonar -Dsonar.projectKey=${SERVICE_NAME} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
                     }
                 }
             }
         }
-        
-        stage('Build Docker Image') {
+
+        stage('Docker Build') {
             steps {
-                dir('condature') {
+                dir("${SERVICE_FOLDER}") {
                     script {
-                        dockerImage = docker.build("${DOCKER_IMAGE}")
+                        dockerImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                     }
                 }
             }
         }
-        
-        stage('Push Docker Image') {
-            steps {
-                script {
-        stage('SonarQube Analysis') {
-            steps {
-                dir('condature') {
-                    withSonarQubeEnv('SonarQube') {
-                        sh 'mvn sonar:sonar -Dsonar.projectKey=${SERVICE_NAME} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
-                    }
-                }
-            }
-        }
-        
-        stage('Build Docker Image') {
-            steps {
-                dir('condature') {
-                    script {
-                        dockerImage = docker.build("${DOCKER_IMAGE}")
-                    }
-                }
-            }
-        }
-        
-        stage('Push Docker Image') {
+
+        stage('Docker Push') {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
@@ -91,10 +74,20 @@ pipeline {
                 }
             }
         }
+
+        stage('Trigger Global CD') {
+            steps {
+                build job: 'Global-CD', wait: false
+            }
+        }
     }
+
     post {
         success {
-            build job: 'Global-CD', wait: false
+            echo "${SERVICE_NAME} CI completed successfully."
+        }
+        failure {
+            echo "${SERVICE_NAME} CI failed."
         }
     }
 }
