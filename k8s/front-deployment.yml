@@ -17,19 +17,26 @@ spec:
       - name: front
         image: dalirom123/front:latest
         imagePullPolicy: Always
+        env:
+          - name: JAVA_OPTS
+            value: "-Xms64m -Xmx128m"
+        resources:
+          limits:
+            memory: "300Mi"
+          requests:
+            memory: "150Mi"
         ports:
         - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: front
+  name: front-service
   namespace: freelink
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: front
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30080

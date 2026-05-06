@@ -14,9 +14,18 @@ spec:
         app: skills-service
     spec:
       containers:
+                env:
+            - name: JAVA_OPTS
+              value: "-Xms64m -Xmx128m"
       - name: skills-service
         image: dalirom123/skills-service:latest
         imagePullPolicy: Always
+        resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
         ports:
         - containerPort: 8084
         env:
@@ -36,6 +45,13 @@ spec:
   type: ClusterIP
   selector:
     app: skills-service
-  ports:
+  resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
+        ports:
     - port: 8084
       targetPort: 8084
+

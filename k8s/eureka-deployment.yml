@@ -14,9 +14,18 @@ spec:
         app: eureka-server
     spec:
       containers:
+                env:
+            - name: JAVA_OPTS
+              value: "-Xms64m -Xmx128m"
       - name: eureka-server
         image: dalirom123/eureka-server:latest
         imagePullPolicy: Always
+        resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
         ports:
         - containerPort: 8761
 ---
@@ -29,6 +38,13 @@ spec:
   type: ClusterIP
   selector:
     app: eureka-server
-  ports:
+  resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
+        ports:
     - port: 8761
       targetPort: 8761
+

@@ -14,8 +14,17 @@ spec:
         app: mailhog
     spec:
       containers:
+                env:
+            - name: JAVA_OPTS
+              value: "-Xms64m -Xmx128m"
       - name: mailhog
         image: mailhog/mailhog:latest
+        resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
         ports:
         - containerPort: 1025
         - containerPort: 8025
@@ -29,7 +38,13 @@ spec:
   type: NodePort
   selector:
     app: mailhog
-  ports:
+  resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
+        ports:
     - name: smtp
       port: 1025
       targetPort: 1025
@@ -37,3 +52,4 @@ spec:
       port: 8025
       targetPort: 8025
       nodePort: 30025
+

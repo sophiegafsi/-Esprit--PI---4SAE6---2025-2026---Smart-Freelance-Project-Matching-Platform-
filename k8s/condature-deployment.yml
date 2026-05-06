@@ -17,25 +17,26 @@ spec:
       - name: condature
         image: dalirom123/condature:latest
         imagePullPolicy: Always
-        ports:
-        - containerPort: 8082
         env:
-        - name: SPRING_DATASOURCE_URL
-          value: "jdbc:mysql://mysql-service:3306/condidature_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
-        - name: SPRING_DATASOURCE_USERNAME
-          value: "root"
-        - name: SPRING_DATASOURCE_PASSWORD
-          value: "root"
+          - name: JAVA_OPTS
+            value: "-Xms64m -Xmx128m"
+        resources:
+          limits:
+            memory: "300Mi"
+          requests:
+            memory: "150Mi"
+        ports:
+        - containerPort: 8092
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: condature
+  name: condature-service
   namespace: freelink
 spec:
   type: ClusterIP
   selector:
     app: condature
   ports:
-    - port: 8082
-      targetPort: 8082
+    - port: 8092
+      targetPort: 8092

@@ -14,9 +14,18 @@ spec:
         app: portfolio-service
     spec:
       containers:
+                env:
+            - name: JAVA_OPTS
+              value: "-Xms64m -Xmx128m"
       - name: portfolio-service
         image: dalirom123/portfolio-service:latest
         imagePullPolicy: Always
+        resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
         ports:
         - containerPort: 8090
         env:
@@ -36,6 +45,13 @@ spec:
   type: ClusterIP
   selector:
     app: portfolio-service
-  ports:
+  resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
+        ports:
     - port: 8090
       targetPort: 8090
+

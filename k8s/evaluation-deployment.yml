@@ -14,9 +14,18 @@ spec:
         app: evaluation-service
     spec:
       containers:
+                env:
+            - name: JAVA_OPTS
+              value: "-Xms64m -Xmx128m"
       - name: evaluation-service
         image: dalirom123/evaluation-service:latest
         imagePullPolicy: Always
+        resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
         ports:
         - containerPort: 8086
         env:
@@ -36,6 +45,13 @@ spec:
   type: ClusterIP
   selector:
     app: evaluation-service
-  ports:
+  resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
+        ports:
     - port: 8086
       targetPort: 8086
+

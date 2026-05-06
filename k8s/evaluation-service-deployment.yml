@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gestion-planning
+  name: evaluation-service
   namespace: freelink
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gestion-planning
+      app: evaluation-service
   template:
     metadata:
       labels:
-        app: gestion-planning
+        app: evaluation-service
     spec:
       containers:
-      - name: gestion-planning
-        image: dalirom123/gestion-planning:latest
+      - name: evaluation-service
+        image: dalirom123/evaluation-service:latest
         imagePullPolicy: Always
         env:
           - name: JAVA_OPTS
@@ -26,17 +26,17 @@ spec:
           requests:
             memory: "150Mi"
         ports:
-        - containerPort: 8081
+        - containerPort: 8090
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: gestion-planning-service
+  name: evaluation-service-service
   namespace: freelink
 spec:
   type: ClusterIP
   selector:
-    app: gestion-planning
+    app: evaluation-service
   ports:
-    - port: 8081
-      targetPort: 8081
+    - port: 8090
+      targetPort: 8090

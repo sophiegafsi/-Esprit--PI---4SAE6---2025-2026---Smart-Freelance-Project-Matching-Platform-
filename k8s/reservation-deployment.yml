@@ -14,9 +14,18 @@ spec:
         app: reservation-service
     spec:
       containers:
+                env:
+            - name: JAVA_OPTS
+              value: "-Xms64m -Xmx128m"
       - name: reservation-service
         image: dalirom123/reservation-service:latest
         imagePullPolicy: Always
+        resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
         ports:
         - containerPort: 8083
         env:
@@ -36,6 +45,13 @@ spec:
   type: ClusterIP
   selector:
     app: reservation-service
-  ports:
+  resources:
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
+        ports:
     - port: 8083
       targetPort: 8083
+
