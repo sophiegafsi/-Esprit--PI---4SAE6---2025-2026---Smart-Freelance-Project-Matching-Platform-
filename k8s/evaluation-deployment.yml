@@ -18,6 +18,13 @@ spec:
         image: dalirom123/evaluation-service:latest
         ports:
         - containerPort: 8086
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql-service:3306/projet_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "root"
 ---
 apiVersion: v1
 kind: Service

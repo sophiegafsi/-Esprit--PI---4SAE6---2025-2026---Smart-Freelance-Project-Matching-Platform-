@@ -18,6 +18,13 @@ spec:
         image: dalirom123/reclamation:latest
         ports:
         - containerPort: 8085
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql-service:3306/reclamationdb?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "root"
 ---
 apiVersion: v1
 kind: Service
