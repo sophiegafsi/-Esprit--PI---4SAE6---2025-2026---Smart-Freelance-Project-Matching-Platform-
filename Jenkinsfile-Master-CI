@@ -2,62 +2,50 @@ pipeline {
     agent any
 
     stages {
-        stage('Trigger Core Services') {
-            steps {
-                build job: 'eureka-server-CI_main', wait: true
-                build job: 'api-gateway-CI_main', wait: true
-                build job: 'keycloak-CI_main', wait: false // Keycloak is usually static, but good to have
-            }
+        stage('1. Eureka Server') {
+            steps { build job: 'eureka-server-CI', wait: true }
         }
-
-        stage('Trigger Identity & User Services') {
-            steps {
-                build job: 'user-CI_main', wait: true
-            }
+        stage('2. API Gateway') {
+            steps { build job: 'API-Gateway-CI', wait: true }
         }
-
-        stage('Trigger Business Microservices') {
-            parallel {
-                stage('Skills & Portfolio') {
-                    steps {
-                        build job: 'skills-CI_main', wait: true
-                        build job: 'portfolio-CI_main', wait: true
-                    }
-                }
-                stage('Evaluation & Reclamation') {
-                    steps {
-                        build job: 'evaluation-CI_main', wait: true
-                        build job: 'reclamation-CI_main', wait: true
-                    }
-                }
-                stage('Reservation & Condidature') {
-                    steps {
-                        build job: 'reservation-CI_main', wait: true
-                        build job: 'condature-CI_main', wait: true
-                    }
-                }
-            }
+        stage('3. User Service') {
+            steps { build job: 'user-CI', wait: true }
         }
-
-        stage('Trigger Frontend') {
-            steps {
-                build job: 'front-CI_main', wait: true
-            }
+        stage('4. Skills Service') {
+            steps { build job: 'skills-service-CI', wait: true }
         }
-
-        stage('Final Global Deployment') {
-            steps {
-                build job: 'Global-CD', wait: true
-            }
+        stage('5. Portfolio Service') {
+            steps { build job: 'portfolio-service-CI', wait: true }
+        }
+        stage('6. Evaluation Service') {
+            steps { build job: 'evaluation-service-CI', wait: true }
+        }
+        stage('7. Reclamation Service') {
+            steps { build job: 'reclamation-CI', wait: true }
+        }
+        stage('8. Reservation Service') {
+            steps { build job: 'reservation-service-CI', wait: true }
+        }
+        stage('9. Condature Service') {
+            steps { build job: 'condature-CI', wait: true }
+        }
+        stage('10. Planning Service') {
+            steps { build job: 'gestion-planning-CI', wait: true }
+        }
+        stage('11. Time Tracking') {
+            steps { build job: 'time-tracking-service-CI', wait: true }
+        }
+        stage('12. Frontend') {
+            steps { build job: 'front-CI', wait: true }
+        }
+        stage('13. GLOBAL DEPLOYMENT') {
+            steps { build job: 'Global-CD', wait: true }
         }
     }
 
     post {
         success {
-            echo "All microservices built and deployed successfully! 🚀"
-        }
-        failure {
-            echo "One or more microservice builds failed. Check the logs. ❌"
+            echo "ALL SERVICES BUILT AND DEPLOYED! 🏆🚀"
         }
     }
 }
