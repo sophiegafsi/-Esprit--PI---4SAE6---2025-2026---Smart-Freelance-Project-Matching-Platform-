@@ -16,6 +16,7 @@ spec:
       containers:
       - name: evaluation-service
         image: dalirom123/evaluation-service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8086
         env:

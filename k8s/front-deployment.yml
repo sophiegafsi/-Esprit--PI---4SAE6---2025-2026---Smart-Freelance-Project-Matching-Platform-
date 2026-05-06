@@ -16,6 +16,7 @@ spec:
       containers:
       - name: front
         image: dalirom123/front:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
 ---

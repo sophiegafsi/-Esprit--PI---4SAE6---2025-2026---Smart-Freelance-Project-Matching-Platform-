@@ -16,6 +16,7 @@ spec:
       containers:
       - name: condature
         image: dalirom123/condature:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8082
         env:

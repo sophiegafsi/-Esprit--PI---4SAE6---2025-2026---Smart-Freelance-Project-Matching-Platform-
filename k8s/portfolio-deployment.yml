@@ -16,6 +16,7 @@ spec:
       containers:
       - name: portfolio-service
         image: dalirom123/portfolio-service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8090
         env:

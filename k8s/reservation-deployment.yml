@@ -16,6 +16,7 @@ spec:
       containers:
       - name: reservation-service
         image: dalirom123/reservation-service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8083
         env:

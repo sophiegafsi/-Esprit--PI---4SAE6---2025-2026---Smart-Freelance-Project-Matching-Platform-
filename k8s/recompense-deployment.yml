@@ -16,6 +16,7 @@ spec:
       containers:
       - name: recompense-service
         image: dalirom123/recompense:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8094
 ---

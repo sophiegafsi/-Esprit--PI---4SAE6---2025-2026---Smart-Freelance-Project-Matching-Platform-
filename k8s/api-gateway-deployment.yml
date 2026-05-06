@@ -16,6 +16,7 @@ spec:
       containers:
       - name: api-gateway
         image: dalirom123/api-gateway:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8081
 ---

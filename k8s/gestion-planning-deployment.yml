@@ -16,6 +16,7 @@ spec:
       containers:
       - name: gestion-planing
         image: dalirom123/gestion-planing:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8092
         env:

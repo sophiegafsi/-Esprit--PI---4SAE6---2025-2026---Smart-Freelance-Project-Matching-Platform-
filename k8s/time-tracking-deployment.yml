@@ -16,6 +16,7 @@ spec:
       containers:
       - name: time-tracking-service
         image: dalirom123/time-tracking-service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8088
         env:

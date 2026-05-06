@@ -16,6 +16,7 @@ spec:
       containers:
       - name: user
         image: dalirom123/user:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8082
         env:
