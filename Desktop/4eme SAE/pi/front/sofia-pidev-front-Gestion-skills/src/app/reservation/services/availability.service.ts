@@ -5,7 +5,7 @@ import { Availability } from '../models/availability.model';
 
 @Injectable({ providedIn: 'root' })
 export class AvailabilityService {
-    private apiUrl = 'http://localhost:8088/api/availabilities';
+    private apiUrl = 'http://20.240.47.244:30081/reservation/api/availabilities';
 
     constructor(private http: HttpClient) { }
 

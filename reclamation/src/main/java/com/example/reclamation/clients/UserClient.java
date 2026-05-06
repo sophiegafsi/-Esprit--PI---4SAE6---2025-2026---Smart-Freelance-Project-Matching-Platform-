@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Map;
 
-@FeignClient(name = "user-service", url = "http://localhost:8081/user")
+@FeignClient(name = "user-service", url = "http://user-service:8082")
 public interface UserClient {
 
     @GetMapping("/api/users/keycloak/{keycloakId}")

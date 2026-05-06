@@ -7,7 +7,7 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class TimeTrackingService {
-  private apiUrl = 'http://localhost:8081/time-tracking/api/time-tracking'; // Routes through API Gateway
+  private apiUrl = 'http://20.240.47.244:30081/time-tracking/api/time-tracking'; // Routes through API Gateway
 
   public showTracker$ = new BehaviorSubject<boolean>(false);
   public activeContractId: string | null = null;

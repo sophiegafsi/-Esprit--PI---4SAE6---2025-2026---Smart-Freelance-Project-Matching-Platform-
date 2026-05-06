@@ -15,7 +15,7 @@ export interface Notification {
     providedIn: 'root'
 })
 export class NotificationService {
-    private apiUrl = 'http://localhost:8082/api/users';
+    private apiUrl = 'http://20.240.47.244:30081/user/api/users';
 
     constructor(private http: HttpClient) { }
 

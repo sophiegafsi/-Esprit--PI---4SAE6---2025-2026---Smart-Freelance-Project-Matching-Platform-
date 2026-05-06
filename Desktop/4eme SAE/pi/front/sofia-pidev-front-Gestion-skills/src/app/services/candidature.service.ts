@@ -9,7 +9,7 @@ import { Candidature } from '../models/candidature.model';
 export class CandidatureService {
 
   // Routed via API Gateway
-  private apiUrl = 'http://localhost:8081/condidature/api/candidatures';
+  private apiUrl = 'http://20.240.47.244:30081/condidature/api/candidatures';
 
   constructor(private http: HttpClient) { }
 
@@ -68,7 +68,7 @@ export class CandidatureService {
   }
 
   // --- PROJECT ACTIONS ---
-  private projectApiUrl = 'http://localhost:8081/projet/api/projets';
+  private projectApiUrl = 'http://20.240.47.244:30081/projet/api/projets';
 
   getAllProjects(): Observable<any[]> {
     return this.http.get<any[]>(`${this.projectApiUrl}/allprojets`);
@@ -87,7 +87,7 @@ export class CandidatureService {
   }
 
   // --- CONTRACT ACTIONS ---
-  private contractUrl = 'http://localhost:8081/condidature/api/contracts';
+  private contractUrl = 'http://20.240.47.244:30081/condidature/api/contracts';
 
   createContract(contract: any): Observable<any> {
     return this.http.post<any>(this.contractUrl, contract);

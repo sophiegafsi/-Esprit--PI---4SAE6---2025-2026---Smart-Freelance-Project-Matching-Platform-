@@ -7,7 +7,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 })
 export class AuthService {
     // Keycloak Token Endpoint
-    private keycloakUrl = 'http://localhost:8080/realms/freelink-realm/protocol/openid-connect/token';
+    private keycloakUrl = 'http://20.240.47.244:30090/realms/freelink-realm/protocol/openid-connect/token';
     private clientId = 'angular-frontend'; // Public client configured in freelink-realm.json
 
     private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
@@ -31,7 +31,7 @@ export class AuthService {
     constructor(private http: HttpClient) { }
 
     // Direct access to User Service (Bypassing Gateway for stability)
-    private userApiUrl = 'http://localhost:8082/api/users';
+    private userApiUrl = 'http://20.240.47.244:30081/user/api/users';
 
     signup(userData: any): Observable<any> {
 

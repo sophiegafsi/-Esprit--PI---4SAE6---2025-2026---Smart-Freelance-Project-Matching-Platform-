@@ -103,7 +103,7 @@ public class TimeTrackingJobs {
             payload.put("type", type);
             if (actionUrl != null) payload.put("actionUrl", actionUrl);
 
-            restTemplate.postForObject("http://localhost:8082/api/users/" + userId + "/notifications", payload, String.class);
+            restTemplate.postForObject("http://user-service:8082/api/users/" + userId + "/notifications", payload, String.class);
         } catch (Exception e) {
             log.error("Failed to send notification to user " + userId, e);
         }

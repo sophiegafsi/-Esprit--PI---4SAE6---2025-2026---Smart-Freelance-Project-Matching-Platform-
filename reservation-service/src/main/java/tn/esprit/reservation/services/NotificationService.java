@@ -26,7 +26,7 @@ public class NotificationService {
     private final AvailabilityRepository availabilityRepository;
     private final RestTemplate restTemplate;
 
-    private static final String USER_SERVICE_URL = "http://localhost:8082/api/users";
+    private static final String USER_SERVICE_URL = "http://user-service:8082/api/users";
 
     /**
      * Send notification via User Service REST API

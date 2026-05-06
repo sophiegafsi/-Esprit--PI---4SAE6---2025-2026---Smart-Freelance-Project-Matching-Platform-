@@ -8,7 +8,7 @@ import { Projet, Task, ProjetDetaille } from '../models/projet';
   providedIn: 'root'
 })
 export class ProjetService {
-  private apiUrl = 'http://localhost:8081/projet';  // Microservice Projet via Gateway
+  private apiUrl = 'http://20.240.47.244:30081/projet';  // Microservice Projet via Gateway
 
   constructor(private http: HttpClient) { }
 

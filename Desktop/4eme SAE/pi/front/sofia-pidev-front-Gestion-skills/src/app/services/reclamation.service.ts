@@ -14,7 +14,7 @@ export interface DuplicateCheckResponse {
   providedIn: 'root'
 })
 export class ReclamationService {
-  private apiUrl = 'http://localhost:8085/api/reclamations';
+  private apiUrl = 'http://20.240.47.244:30081/evaluation/api/reclamations';
 
   constructor(private http: HttpClient) {}
 

@@ -67,7 +67,7 @@ public class ProjetService implements IProjetService {
         // Cascade delete candidatures synchronously over the network
         try {
             org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
-            restTemplate.delete("http://localhost:8081/condidature/api/candidatures/project/" + id);
+            restTemplate.delete("http://condature:8082/api/candidatures/project/" + id);
         } catch (Exception e) {
             System.err.println("Failed to delete candidatures for project " + id + ": " + e.getMessage());
         }

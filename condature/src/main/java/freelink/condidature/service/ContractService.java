@@ -27,8 +27,8 @@ public class ContractService {
         private final freelink.condidature.repository.CandidatureRepository candidatureRepository;
         private final org.springframework.web.client.RestTemplate restTemplate;
 
-        private static final String USER_SERVICE_URL = "http://localhost:8082/api/users/";
-        private static final String PROJET_SERVICE_URL = "http://localhost:8081/projet/api/projets";
+        private static final String USER_SERVICE_URL = "http://user-service:8082/api/users/";
+        private static final String PROJET_SERVICE_URL = "http://evaluation-service:8086/api/projets";
 
         @Transactional
         public Contract createContract(Contract contract) {

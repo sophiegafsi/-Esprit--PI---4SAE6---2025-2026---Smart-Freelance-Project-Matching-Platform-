@@ -33,7 +33,7 @@ spring:
 
         # Route pour le microservice "Utilisateur"
         - id: user-service
-          uri: http://localhost:8082       # port du microservice Utilisateur
+          uri: http://user-service:8082       # port du microservice Utilisateur
           predicates:
             - Path=/user/**
           filters:

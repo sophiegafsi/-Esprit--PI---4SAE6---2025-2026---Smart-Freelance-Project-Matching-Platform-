@@ -25,7 +25,7 @@ spring:
       routes:
         # Route pour le microservice "Evaluation"
         - id: evaluation-service
-          uri: http://localhost:8085       # port du microservice Evaluation
+          uri: http://reclamation:8085
           predicates:
             - Path=/evaluation/**
           filters:
@@ -33,7 +33,7 @@ spring:
 
         # Route pour le microservice "Utilisateur"
         - id: user-service
-          uri: http://localhost:8082       # port du microservice Utilisateur
+          uri: http://user-service:8082
           predicates:
             - Path=/user/**
           filters:
@@ -41,14 +41,15 @@ spring:
 
         # Route pour le microservice "skills"
         - id: skills-service
-          uri: http://localhost:8084       # port du microservice skills
+          uri: http://skills-service:8084
           predicates:
             - Path=/skills/**
           filters:
             - StripPrefix=1
+
         # Route pour le microservice "projet"
         - id: projet-service
-          uri: http://localhost:8086       # port du microservice projet
+          uri: http://evaluation-service:8086
           predicates:
             - Path=/projet/**
           filters:
@@ -56,7 +57,7 @@ spring:
 
         # Route pour le microservice "condidature"
         - id: condidature-service
-          uri: http://localhost:8083       # port du microservice condidature
+          uri: http://condature:8082
           predicates:
             - Path=/condidature/**
           filters:
@@ -64,7 +65,7 @@ spring:
 
         # Route pour le microservice "time-tracking"
         - id: time-tracking-service
-          uri: http://localhost:8087       # port du microservice time-tracking
+          uri: http://time-tracking-service:8088
           predicates:
             - Path=/time-tracking/**
           filters:
@@ -72,15 +73,11 @@ spring:
 
         # Route pour le microservice "reservation"
         - id: reservation-service
-          uri: http://localhost:8088
+          uri: http://reservation-service:8083
           predicates:
             - Path=/reservation/**
           filters:
             - StripPrefix=1
-
-#     discovery:
-#       locator:
-#         enabled: true   # active la découverte automatique via Eureka
 
 eureka:
   client:
@@ -88,5 +85,4 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
     service-url:
-      defaultZone: http://localhost:8761/eureka/
-
+      defaultZone: http://eureka-server:8761/eureka/

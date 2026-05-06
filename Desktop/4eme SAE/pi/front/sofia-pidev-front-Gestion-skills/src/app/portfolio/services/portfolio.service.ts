@@ -20,7 +20,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class PortfolioService {
-  private readonly baseUrl = 'http://localhost:8090';
+  private readonly baseUrl = 'http://20.240.47.244:30081/portfolio';
 
   constructor(private http: HttpClient) { }
 
