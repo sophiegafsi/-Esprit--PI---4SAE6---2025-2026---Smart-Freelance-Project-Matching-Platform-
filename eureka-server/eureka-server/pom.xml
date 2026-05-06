@@ -18,16 +18,16 @@
 	</parent>
 
 	<properties>
-		<java.version>17</java.version>  <!-- Bien spécifier Java 17 -->
-		<maven.compiler.source>17</maven.compiler.source>  <!-- Ajouter ces 2 lignes -->
-		<maven.compiler.target>17</maven.compiler.target>  <!-- pour être sûr -->
+		<java.version>17</java.version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 		<spring-cloud.version>2022.0.5</spring-cloud.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>`n			<version>3.1.6</version>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -42,19 +42,14 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-	
         <dependency>
             <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>`n            <version>1.11.5</version>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
     </dependencies>
 
 	<dependencyManagement>
 		<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>`n			<version>3.1.6</version>
-		</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
@@ -62,12 +57,7 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-		
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>`n            <version>1.11.5</version>
-        </dependency>
-    </dependencies>
+        </dependencies>
 	</dependencyManagement>
 
 	<build>
@@ -76,7 +66,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-			<plugin>  <!-- Ajouter ce plugin pour forcer la version Java -->
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -87,5 +77,3 @@
 		</plugins>
 	</build>
 </project>
-
-
