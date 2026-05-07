@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "sofie2002/gestion-planning:latest"
+        SENTRY_ORG = "esprit-l7"
+        SENTRY_PROJECT = "gestion-planning"
     }
 
     stages {
@@ -71,6 +73,25 @@ pipeline {
             }
         }
 
+        stage('Sentry Release') {
+            steps {
+                dir('gestion-planing') {
+                    withCredentials([string(credentialsId: 'sentry-auth-token', variable: 'SENTRY_AUTH_TOKEN')]) {
+                        sh '''
+                        VERSION=$(git rev-parse --short HEAD)
+
+                        curl -sL https://sentry.io/get-cli/ | bash
+
+                        sentry-cli releases new "$VERSION"
+                        sentry-cli releases set-commits "$VERSION" --auto || true
+                        sentry-cli releases finalize "$VERSION"
+                        sentry-cli releases deploys "$VERSION" new -e production
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Deploy Container') {
             steps {
                 sh '''
@@ -86,6 +107,8 @@ pipeline {
                   -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
                   -e SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect \
                   -e EUREKA_CLIENT_ENABLED=false \
+                  -e SENTRY_RELEASE=$(git rev-parse --short HEAD) \
+                  -e SENTRY_ENVIRONMENT=production \
                   sofie2002/gestion-planning:latest
                 '''
             }
