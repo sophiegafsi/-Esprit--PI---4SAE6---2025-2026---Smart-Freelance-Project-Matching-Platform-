@@ -80,7 +80,6 @@ pipeline {
                         sh '''
                         VERSION=$(git rev-parse --short HEAD)
 
-                        curl -sL https://sentry.io/get-cli/ | bash
 
                         sentry-cli releases new "$VERSION"
                         sentry-cli releases set-commits "$VERSION" --auto || true
