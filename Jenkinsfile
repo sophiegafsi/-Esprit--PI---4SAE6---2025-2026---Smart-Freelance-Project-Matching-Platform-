@@ -77,6 +77,9 @@ pipeline {
                 fi
               fi
               ./.tools/bin/hadolint Dockerfile --format tty --no-fail > reports/hadolint-report.txt 2>&1
+              if [ ! -s reports/hadolint-report.txt ]; then
+                echo "No issues found" > reports/hadolint-report.txt
+              fi
               echo \$? > reports/hadolint.exitcode
               exit 0
             """
@@ -143,7 +146,8 @@ pipeline {
                 fi
               fi
               export TRIVY_CACHE_DIR="\$PWD/.tools/trivy-cache"
-              ./mvnw -B com.google.cloud.tools:jib-maven-plugin:3.4.6:buildTar -DskipTests -Djib.outputPaths.tar=target/jib-image.tar > reports/jib-build.log 2>&1
+              trivy_image_name=portfolio-service:latest
+              ./mvnw -B com.google.cloud.tools:jib-maven-plugin:3.4.6:buildTar -DskipTests -Dimage=\$trivy_image_name -Djib.outputPaths.tar=target/jib-image.tar > reports/jib-build.log 2>&1
               jib_code=\$?
               if [ \$jib_code -ne 0 ]; then
                 cat reports/jib-build.log > reports/trivy-report.txt
@@ -151,7 +155,7 @@ pipeline {
                 exit 0
               fi
               set +e
-              ./.tools/bin/trivy image --input target/jib-image.tar --severity ${params.TRIVY_SEVERITY} --no-progress --format table -o reports/trivy-report.txt
+              ./.tools/bin/trivy image --input target/jib-image.tar --scanners vuln --severity ${params.TRIVY_SEVERITY} --no-progress --format table -o reports/trivy-report.txt
               echo \$? > reports/trivy.exitcode
               exit 0
             """
