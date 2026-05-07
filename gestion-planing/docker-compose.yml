@@ -1,0 +1,37 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: gestion-planing-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-root}
+      MYSQL_DATABASE: gestion_planing
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: gestion-planing-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:mysql://mysql:3306/gestion_planing?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-root}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-root}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-dev}
+      SENTRY_RELEASE: ${SENTRY_RELEASE:-gestion-planing-local}
+      SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-1.0}
+      SERVER_PORT: ${SERVER_PORT:-8086}
+    ports:
+      - "8086:8086"
+
+volumes:
+  mysql_data:
