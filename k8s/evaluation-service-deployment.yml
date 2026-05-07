@@ -19,12 +19,12 @@ spec:
         imagePullPolicy: Always
         env:
           - name: JAVA_OPTS
-            value: "-Xms64m -Xmx128m"
+            value: "-Xms64m -Xmx256m"
         resources:
           limits:
-            memory: "300Mi"
+            memory: "400Mi"
           requests:
-            memory: "150Mi"
+            memory: "250Mi"
         ports:
         - containerPort: 8090
 ---
@@ -40,3 +40,4 @@ spec:
   ports:
     - port: 8090
       targetPort: 8090
+
