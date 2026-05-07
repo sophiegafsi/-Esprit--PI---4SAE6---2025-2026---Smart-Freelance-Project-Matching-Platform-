@@ -146,6 +146,7 @@ pipeline {
                 fi
               fi
               export TRIVY_CACHE_DIR="\$PWD/.tools/trivy-cache"
+              export TRIVY_DISABLE_VEX_NOTICE=1
               trivy_image_name=skills-service:latest
               ./mvnw -B com.google.cloud.tools:jib-maven-plugin:3.4.6:buildTar -DskipTests -Dimage=\$trivy_image_name -Djib.outputPaths.tar=target/jib-image.tar > reports/jib-build.log 2>&1
               jib_code=\$?
@@ -154,9 +155,47 @@ pipeline {
                 echo \$jib_code > reports/trivy.exitcode
                 exit 0
               fi
+              cat > .tools/trivy-summary.tpl <<'EOF'
+{{- range .Results }}
+{{- if .Vulnerabilities }}
+
+Target: {{ .Target }}
+{{- if .Class }}
+Class: {{ .Class }}
+{{- end }}
+{{- range .Vulnerabilities }}
+- [{{ .Severity }}] {{ .VulnerabilityID }}
+  Package: {{ .PkgName }}
+  Installed: {{ .InstalledVersion }}
+  Fixed: {{ if .FixedVersion }}{{ .FixedVersion }}{{ else }}Not available{{ end }}
+  Title: {{ if .Title }}{{ .Title }}{{ else }}No title provided{{ end }}
+{{- end }}
+{{- end }}
+{{- end }}
+EOF
               set +e
-              ./.tools/bin/trivy image --input target/jib-image.tar --scanners vuln --severity ${params.TRIVY_SEVERITY} --no-progress --format table -o reports/trivy-report.txt
-              echo \$? > reports/trivy.exitcode
+              ./.tools/bin/trivy image --input target/jib-image.tar --scanners vuln --severity ${params.TRIVY_SEVERITY} --no-progress --format template --template "@.tools/trivy-summary.tpl" -o reports/trivy-findings.txt
+              trivy_code=\$?
+              if [ -s reports/trivy-findings.txt ]; then
+                finding_count=\$(grep -c '^- \[' reports/trivy-findings.txt || true)
+                {
+                  echo "TRIVY SECURITY SUMMARY"
+                  echo "Severity filter: ${params.TRIVY_SEVERITY}"
+                  echo "Image source: target/jib-image.tar"
+                  echo "Findings: \$finding_count"
+                  echo
+                  cat reports/trivy-findings.txt
+                } > reports/trivy-report.txt
+              else
+                {
+                  echo "TRIVY SECURITY SUMMARY"
+                  echo "Severity filter: ${params.TRIVY_SEVERITY}"
+                  echo "Image source: target/jib-image.tar"
+                  echo "Result: No vulnerabilities found for the selected severity levels."
+                } > reports/trivy-report.txt
+              fi
+              rm -f reports/trivy-findings.txt .tools/trivy-summary.tpl
+              echo \$trivy_code > reports/trivy.exitcode
               exit 0
             """
           } else {
