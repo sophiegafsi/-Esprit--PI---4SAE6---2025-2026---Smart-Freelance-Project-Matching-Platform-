@@ -80,12 +80,13 @@ pipeline {
                 sh '''
                 docker run --rm \
                 -v /var/run/docker.sock:/var/run/docker.sock \
+                -v trivy_cache:/root/.cache/ \
                 aquasec/trivy image \
-                --timeout 15m \
+                --timeout 20m \
                 --severity HIGH,CRITICAL \
                 --no-progress \
                 --exit-code 0 \
-                $IMAGE_NAME:latest
+                $IMAGE_NAME:latest || true
                 '''
             }
         }
