@@ -3,10 +3,11 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "sofie2002/gestion-planning:latest"
+        SENTRY_ORG = "esprit-l7"
+        SENTRY_PROJECT = "gestion-planning"
     }
 
     stages {
-
         stage('Clone') {
             steps {
                 git branch: 'soufia-planning',
@@ -28,7 +29,6 @@ pipeline {
                     sh 'mvn test'
                 }
             }
-
             post {
                 always {
                     junit 'gestion-planing/target/surefire-reports/*.xml'
@@ -57,19 +57,32 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 dir('gestion-planing') {
-
                     withCredentials([usernamePassword(
                         credentialsId: 'dockerhub-credentials',
                         usernameVariable: 'DOCKER_USER',
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
-
                         sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                         docker build -t $DOCKER_IMAGE .
-
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-
                         docker push $DOCKER_IMAGE
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Sentry Release') {
+            steps {
+                dir('gestion-planing') {
+                    withCredentials([string(credentialsId: 'sentry-auth-token', variable: 'SENTRY_AUTH_TOKEN')]) {
+                        sh '''
+                        VERSION=$(git rev-parse --short HEAD)
+
+                        sentry-cli releases new "$VERSION"
+                        sentry-cli releases set-commits "$VERSION" --auto || true
+                        sentry-cli releases finalize "$VERSION"
+                        sentry-cli releases deploys "$VERSION" new -e production
                         '''
                     }
                 }
@@ -81,17 +94,21 @@ pipeline {
                 sh '''
                 docker rm -f gestion-planning-app || true
 
+                VERSION=$(git rev-parse --short HEAD)
+
                 docker run -d \
-                --name gestion-planning-app \
-                --network freelink-network \
-                -p 8086:8086 \
-                -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-planning:3306/gestion_planning?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC \
-                -e SPRING_DATASOURCE_USERNAME=root \
-                -e SPRING_DATASOURCE_PASSWORD=root \
-                -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
-                -e SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect \
-                -e EUREKA_CLIENT_ENABLED=false \
-                sofie2002/gestion-planning:latest
+                  --name gestion-planning-app \
+                  --network freelink-network \
+                  -p 8086:8086 \
+                  -e 'SPRING_DATASOURCE_URL=jdbc:mysql://mysql-planning:3306/gestion_planning?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC' \
+                  -e SPRING_DATASOURCE_USERNAME=root \
+                  -e SPRING_DATASOURCE_PASSWORD=root \
+                  -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
+                  -e SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect \
+                  -e EUREKA_CLIENT_ENABLED=false \
+                  -e SENTRY_RELEASE=$VERSION \
+                  -e SENTRY_ENVIRONMENT=production \
+                  sofie2002/gestion-planning:latest
                 '''
             }
         }
