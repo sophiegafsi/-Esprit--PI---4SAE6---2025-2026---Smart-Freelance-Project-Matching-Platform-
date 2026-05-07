@@ -101,28 +101,44 @@ pipeline {
           if (isUnix()) {
             sh """
               mkdir -p reports .tools/bin .tools/trivy-cache target
-              install_script_url=https://raw.githubusercontent.com/aquasecurity/trivy/v0.58.2/contrib/install.sh
+              trivy_version=0.70.0
+              trivy_archive=trivy_\${trivy_version}_Linux-64bit.tar.gz
+              trivy_url=https://github.com/aquasecurity/trivy/releases/download/v\${trivy_version}/\${trivy_archive}
               set +e
               if [ ! -x .tools/bin/trivy ]; then
+                tmpdir=\$(mktemp -d)
                 if command -v curl >/dev/null 2>&1; then
-                  curl -sfL "\$install_script_url" | sh -s -- -b .tools/bin v0.58.2
-                  install_code=\$?
+                  curl -fsSL -o "\$tmpdir/\$trivy_archive" "\$trivy_url"
+                  download_code=\$?
                 elif command -v wget >/dev/null 2>&1; then
-                  wget -qO- "\$install_script_url" | sh -s -- -b .tools/bin v0.58.2
-                  install_code=\$?
+                  wget -qO "\$tmpdir/\$trivy_archive" "\$trivy_url"
+                  download_code=\$?
                 else
                   echo "Neither curl nor wget is available to download Trivy." > reports/trivy-report.txt
                   echo 127 > reports/trivy.exitcode
                   exit 0
                 fi
-                if [ \$install_code -ne 0 ]; then
-                  echo "Trivy installation failed." > reports/trivy-report.txt
-                  echo \$install_code > reports/trivy.exitcode
+                if [ \$download_code -ne 0 ]; then
+                  echo "Trivy download failed from \$trivy_url." > reports/trivy-report.txt
+                  echo \$download_code > reports/trivy.exitcode
+                  rm -rf "\$tmpdir"
                   exit 0
                 fi
-                if [ ! -x .tools/bin/trivy ]; then
-                  echo "Trivy installation failed." > reports/trivy-report.txt
-                  echo 126 > reports/trivy.exitcode
+                tar -xzf "\$tmpdir/\$trivy_archive" -C "\$tmpdir"
+                extract_code=\$?
+                if [ \$extract_code -ne 0 ] || [ ! -f "\$tmpdir/trivy" ]; then
+                  echo "Trivy archive extraction failed." > reports/trivy-report.txt
+                  echo \$extract_code > reports/trivy.exitcode
+                  rm -rf "\$tmpdir"
+                  exit 0
+                fi
+                mv "\$tmpdir/trivy" .tools/bin/trivy
+                chmod +x .tools/bin/trivy
+                chmod_code=\$?
+                rm -rf "\$tmpdir"
+                if [ \$chmod_code -ne 0 ]; then
+                  echo "Failed to prepare Trivy binary." > reports/trivy-report.txt
+                  echo \$chmod_code > reports/trivy.exitcode
                   exit 0
                 fi
               fi
