@@ -177,7 +177,7 @@ EOF
               ./.tools/bin/trivy image --input target/jib-image.tar --scanners vuln --severity ${params.TRIVY_SEVERITY} --no-progress --format template --template "@.tools/trivy-summary.tpl" -o reports/trivy-findings.txt
               trivy_code=\$?
               if [ -s reports/trivy-findings.txt ]; then
-                finding_count=\$(grep -c '^- \[' reports/trivy-findings.txt || true)
+                finding_count=\$(grep -c '^  Package:' reports/trivy-findings.txt || true)
                 {
                   echo "TRIVY SECURITY SUMMARY"
                   echo "Severity filter: ${params.TRIVY_SEVERITY}"
