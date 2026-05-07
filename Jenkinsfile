@@ -48,18 +48,34 @@ pipeline {
       steps {
         script {
           if (isUnix()) {
-            sh '''
-              mkdir -p reports
+            sh """
+              mkdir -p reports .tools/bin
+              if [ ! -x .tools/bin/hadolint ]; then
+                if command -v curl >/dev/null 2>&1; then
+                  curl -fsSL -o .tools/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-linux-x86_64
+                elif command -v wget >/dev/null 2>&1; then
+                  wget -qO .tools/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-linux-x86_64
+                else
+                  echo "Neither curl nor wget is available to download hadolint." > reports/hadolint-report.txt
+                  echo 127 > reports/hadolint.exitcode
+                  exit 0
+                fi
+                chmod +x .tools/bin/hadolint || {
+                  echo "Failed to prepare hadolint binary." > reports/hadolint-report.txt
+                  echo 126 > reports/hadolint.exitcode
+                  exit 0
+                }
+              fi
               set +e
-              docker run --rm -v "$PWD:/workspace" hadolint/hadolint hadolint /workspace/Dockerfile --format tty > reports/hadolint-report.txt 2>&1
-              echo $? > reports/hadolint.exitcode
+              ./.tools/bin/hadolint Dockerfile --format tty > reports/hadolint-report.txt 2>&1
+              echo \$? > reports/hadolint.exitcode
               exit 0
-            '''
+            """
           } else {
             bat '''
               if not exist reports mkdir reports
-              docker run --rm -v "%cd%:/workspace" hadolint/hadolint hadolint /workspace/Dockerfile --format tty > reports\\hadolint-report.txt 2>&1
-              echo %ERRORLEVEL%> reports\\hadolint.exitcode
+              echo Hadolint auto-install is only configured for Unix Jenkins agents.> reports\\hadolint-report.txt
+              echo 127> reports\\hadolint.exitcode
               exit /b 0
             '''
           }
@@ -75,17 +91,39 @@ pipeline {
         script {
           if (isUnix()) {
             sh """
-              mkdir -p reports
+              mkdir -p reports .tools/bin .tools/trivy-cache
+              if [ ! -x .tools/bin/trivy ]; then
+                tmpdir=\$(mktemp -d)
+                if command -v curl >/dev/null 2>&1; then
+                  curl -fsSL -o "\$tmpdir/trivy.tar.gz" https://github.com/aquasecurity/trivy/releases/download/v0.67.2/trivy_0.67.2_Linux-64bit.tar.gz
+                elif command -v wget >/dev/null 2>&1; then
+                  wget -qO "\$tmpdir/trivy.tar.gz" https://github.com/aquasecurity/trivy/releases/download/v0.67.2/trivy_0.67.2_Linux-64bit.tar.gz
+                else
+                  echo "Neither curl nor wget is available to download Trivy." > reports/trivy-report.txt
+                  echo 127 > reports/trivy.exitcode
+                  exit 0
+                fi
+                tar -xzf "\$tmpdir/trivy.tar.gz" -C "\$tmpdir" || {
+                  echo "Failed to extract Trivy archive." > reports/trivy-report.txt
+                  echo 126 > reports/trivy.exitcode
+                  rm -rf "\$tmpdir"
+                  exit 0
+                }
+                mv "\$tmpdir/trivy" .tools/bin/trivy
+                chmod +x .tools/bin/trivy
+                rm -rf "\$tmpdir"
+              fi
+              export TRIVY_CACHE_DIR="\$PWD/.tools/trivy-cache"
               set +e
-              docker run --rm -v "\$PWD:/workspace" aquasec/trivy:latest fs --scanners vuln,secret,misconfig --severity ${params.TRIVY_SEVERITY} --no-progress --format table -o /workspace/reports/trivy-report.txt /workspace
+              ./.tools/bin/trivy fs --scanners vuln,secret,misconfig --severity ${params.TRIVY_SEVERITY} --no-progress --format table -o reports/trivy-report.txt .
               echo \$? > reports/trivy.exitcode
               exit 0
             """
           } else {
             bat """
               if not exist reports mkdir reports
-              docker run --rm -v "%cd%:/workspace" aquasec/trivy:latest fs --scanners vuln,secret,misconfig --severity ${params.TRIVY_SEVERITY} --no-progress --format table -o /workspace/reports/trivy-report.txt /workspace
-              echo %ERRORLEVEL%> reports\\trivy.exitcode
+              echo Trivy auto-install is only configured for Unix Jenkins agents.> reports\\trivy-report.txt
+              echo 127> reports\\trivy.exitcode
               exit /b 0
             """
           }
