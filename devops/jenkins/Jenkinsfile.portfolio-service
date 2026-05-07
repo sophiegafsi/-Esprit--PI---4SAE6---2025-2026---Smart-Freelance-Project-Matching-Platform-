@@ -6,9 +6,11 @@ pipeline {
   }
 
   parameters {
+    booleanParam(name: 'SEND_EMAIL', defaultValue: true, description: 'Send build status email.')
     booleanParam(name: 'RUN_SONAR', defaultValue: false, description: 'Run SonarQube analysis.')
     booleanParam(name: 'RUN_DOCKER_LINT', defaultValue: true, description: 'Run Hadolint on the Dockerfile.')
     booleanParam(name: 'RUN_TRIVY', defaultValue: true, description: 'Run Trivy filesystem scan.')
+    string(name: 'EMAIL_TO', defaultValue: 'fares.belgacem@esprit.tn', description: 'Email recipients for build notifications.')
     string(name: 'SONAR_HOST_URL', defaultValue: 'http://localhost:9000', description: 'SonarQube server URL.')
     string(name: 'TRIVY_SEVERITY', defaultValue: 'HIGH,CRITICAL', description: 'Trivy severities to report.')
   }
@@ -114,8 +116,22 @@ pipeline {
   post {
     always {
       junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
-      archiveArtifacts artifacts: 'target/*-SNAPSHOT.jar', fingerprint: true, onlyIfSuccessful: true
+      archiveArtifacts artifacts: 'target/*-SNAPSHOT.jar', fingerprint: true, allowEmptyArchive: true
       archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
+      script {
+        if (params.SEND_EMAIL && params.EMAIL_TO?.trim()) {
+          emailext(
+            subject: "Build ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
+            body: """Build result: ${currentBuild.currentResult}
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+URL: ${env.BUILD_URL}
+""",
+            to: params.EMAIL_TO
+          )
+        }
+      }
     }
   }
 }
