@@ -99,7 +99,6 @@ pipeline {
                 docker run -d \
                 --name $CONTAINER_NAME \
                 --network devops-network \
-                -p 8086:8080 \
                 $IMAGE_NAME:latest
                 '''
             }
